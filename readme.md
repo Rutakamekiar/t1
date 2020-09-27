@@ -30,7 +30,7 @@ $ sudo systemctl status httpd
     $ sudo chown -R $USER:$USER /var/www/t1.tss2020.site/html
     $ sudo chmod -R 755 /var/www
     ```
-3. Копіюємо вміст папки `front` до `var/www/t1.tss2020.site/html`
+3. Копіюємо вміст папки `front/build/web` до `var/www/t1.tss2020.site/html`
 4. Створемо директорії `sites-available` та `sites-enabled` для Apache
     ```sh
     $ sudo mkdir /etc/httpd/sites-available /etc/httpd/sites-enabled
