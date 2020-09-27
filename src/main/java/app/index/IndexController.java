@@ -10,9 +10,9 @@ import static app.Main.*;
 
 public class IndexController {
     public static Handler serveIndexPage = ctx -> {
-        Map<String, Object> model = ViewUtil.baseModel(ctx);
+       /* Map<String, Object> model = ViewUtil.baseModel(ctx);
         model.put("users", userDao.getAllUserNames());
-        model.put("book", bookDao.getRandomBook());
-        ctx.render(Path.Template.INDEX, model);
+        model.put("book", bookDao.getRandomBook());*/
+        ctx.render(Path.Template.INDEX);
     };
 }

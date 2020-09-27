@@ -29,10 +29,11 @@ public class Main {
         bookDao = new BookDao();
         userDao = new UserDao();
 
-        Javalin app = Javalin.create(config -> {
-            config.addStaticFiles("/public");
-            config.registerPlugin(new RouteOverviewPlugin("/routes"));
-        }).start(HerokuUtil.getHerokuAssignedPort());
+        Javalin app = Javalin.create(
+            config -> {
+                config.addStaticFiles("/front/build/web");
+            }
+        ).start(HerokuUtil.getHerokuAssignedPort());
 
         app.routes(() -> {
             before(Filters.handleLocaleChange);
