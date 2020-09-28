@@ -9,7 +9,7 @@ public class Path {
         public static final String BOOKS = "/books";
         public static final String ONE_BOOK = "/books/:isbn";
         public static final String AGENTMSG = "/api/endpoint";
-
+        public static final String GETAGENTMSG = "/getmsg";
     }
 
     public static class Template {

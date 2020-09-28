@@ -42,6 +42,7 @@ public class Main {
             get(Path.Web.BOOKS, BookController.fetchAllBooks);
             get(Path.Web.ONE_BOOK, BookController.fetchOneBook);
             get(Path.Web.LOGIN, LoginController.serveLoginPage);
+            get(Path.Web.GETAGENTMSG, AgentmsgController.getMessage);
             post(Path.Web.LOGIN, LoginController.handleLoginPost);
             post(Path.Web.LOGOUT, LoginController.handleLogoutPost);
             post(Path.Web.AGENTMSG, AgentmsgController.processMessage);

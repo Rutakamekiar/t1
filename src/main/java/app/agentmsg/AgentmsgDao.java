@@ -4,10 +4,7 @@ import app.database.DBconnectionContainer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -26,6 +23,16 @@ public class AgentmsgDao {
         preparedStatement.setString(5, mapToJson( message ));
         preparedStatement.execute();
         connection.commit();
+    }
+
+    public static String getAgentmsgFromDB() throws SQLException, ParseException, JsonProcessingException{
+        Connection connection = DBconnectionContainer.getDBconnection();
+        String sql = "select data from hosts_info where at=(select max(at) from hosts_info)";
+        Statement stmt = connection.createStatement();
+        ResultSet rs = stmt.executeQuery( sql );
+        rs.next();
+        String result = rs.getString("data");
+        return result;
     }
 
     private static Timestamp dateStringToTimestamp( String date ) throws ParseException {
