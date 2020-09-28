@@ -25,9 +25,9 @@ public class AgentmsgDao {
         connection.commit();
     }
 
-    public static String getAgentmsgFromDB() throws SQLException, ParseException, JsonProcessingException{
+    public static String getAgentmsgFromDB(String host) throws SQLException{
         Connection connection = DBconnectionContainer.getDBconnection();
-        String sql = "select data from hosts_info where at=(select max(at) from hosts_info)";
+        String sql = "select data from hosts_info where at=(select max(at) from hosts_info) and host='"+host+"'";
         Statement stmt = connection.createStatement();
         ResultSet rs = stmt.executeQuery( sql );
         rs.next();
