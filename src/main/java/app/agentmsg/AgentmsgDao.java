@@ -31,9 +31,12 @@ public class AgentmsgDao {
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
         preparedStatement.setString(1, host);
         ResultSet rs = preparedStatement.executeQuery( );
-        rs.next();
-        String result = rs.getString("data");
-        return result;
+        if (!rs.next()) {
+            return "{\"result\" : \"0\",\"message\": \"Host not found\"}";
+        }
+        else {
+            return rs.getString("data");
+        }
     }
 
     private static Timestamp dateStringToTimestamp( String date ) throws ParseException {

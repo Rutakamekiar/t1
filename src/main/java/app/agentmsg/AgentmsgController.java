@@ -28,6 +28,7 @@ public class AgentmsgController {
     public static Handler getMessage = ctx -> {
         String host = ctx.queryParam("host");
         String result = AgentmsgDao.getAgentmsgFromDB(host);
+        System.out.println(result);
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(result);
         ctx.json(jsonNode);
