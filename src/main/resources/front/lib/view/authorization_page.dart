@@ -1,5 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:servelyzer/bloc/authorization_bloc.dart';
 import 'package:servelyzer/style/my_colors.dart';
 import 'package:servelyzer/style/route_transition_styles.dart';
 import 'package:servelyzer/view/main_page.dart';
@@ -17,8 +18,9 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
 
   bool loginError = false;
   bool passwordError = false;
-
   bool isLoading = false;
+
+  final authorizationBloc = AuthorizationBloc();
 
   setLoading(bool value) {
     setState(() {
@@ -77,6 +79,14 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
         loginError = state;
       });
     }
+  }
+
+  @override
+  void dispose() {
+    authorizationBloc.dispose();
+    loginController.dispose();
+    passwordController.dispose();
+    super.dispose();
   }
 
   @override

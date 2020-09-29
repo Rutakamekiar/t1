@@ -7,6 +7,8 @@ class BaseButton extends StatelessWidget {
   final double height;
   final double width;
 
+  final Color color;
+
   final bool isLoading;
 
   const BaseButton({
@@ -15,15 +17,15 @@ class BaseButton extends StatelessWidget {
     this.title = "Війти",
     this.height = 50,
     this.width = double.infinity,
-    this.isLoading = false,
+    this.isLoading = false, this.color,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return FlatButton(
         onPressed: isLoading ? null : onPressed,
-        color: MyColors.green,
-        disabledColor: MyColors.green,
+        color: color ?? MyColors.green,
+        disabledColor: color ?? MyColors.green,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(isLoading ? height : 10)),
         padding: EdgeInsets.all(16),
         child: AnimatedContainer(
