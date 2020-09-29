@@ -30,6 +30,7 @@ public class AgentmsgController {
         String result = AgentmsgDao.getAgentmsgFromDB(host);
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(result);
+        ctx.header("Access-Control-Allow-Origin","*");
         ctx.json(jsonNode);
         ctx.status(201);
 
