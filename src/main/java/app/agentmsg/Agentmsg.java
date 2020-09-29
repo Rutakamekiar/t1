@@ -20,5 +20,4 @@ public class Agentmsg {
        return UUID.randomUUID().toString();
     }
 
-
 }
