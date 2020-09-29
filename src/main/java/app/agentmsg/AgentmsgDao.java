@@ -27,12 +27,16 @@ public class AgentmsgDao {
 
     public static String getAgentmsgFromDB(String host) throws SQLException{
         Connection connection = DBconnectionContainer.getDBconnection();
-        String sql = "select data from hosts_info where at=(select max(at) from hosts_info) and host='"+host+"'";
-        Statement stmt = connection.createStatement();
-        ResultSet rs = stmt.executeQuery( sql );
-        rs.next();
-        String result = rs.getString("data");
-        return result;
+        String sql = "select data from hosts_info where at=(select max(at) from hosts_info) and host=?";
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setString(1, host);
+        ResultSet rs = preparedStatement.executeQuery( );
+        if (!rs.next()) {
+            return "{\"result\" : \"0\",\"message\": \"Host not found\"}";
+        }
+        else {
+            return rs.getString("data");
+        }
     }
 
     private static Timestamp dateStringToTimestamp( String date ) throws ParseException {
