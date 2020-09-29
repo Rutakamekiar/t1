@@ -1,9 +1,11 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:servelyzer/bloc/main_bloc.dart';
 import 'package:servelyzer/style/my_colors.dart';
 import 'package:servelyzer/style/route_transition_styles.dart';
 import 'package:servelyzer/view/authorization_page.dart';
 import 'package:servelyzer/widget/base_button.dart';
+import 'package:servelyzer/widget/my_dialog.dart';
 
 const double maxWight = 1010;
 const double listWight = 600;
@@ -14,13 +16,50 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  final mainBloc = MainBloc();
+
+  @override
+  void initState() {
+    super.initState();
+    mainBloc.data.listen((event) {}, onError: (e) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) => MyDialog.information(
+          content: "Сталася помилка: $e",
+          button: "Ок",
+          onPositive: () {
+            Navigator.pop(context);
+          },
+        ),
+      );
+      print(e);
+    });
+    mainBloc.dataFetcher("potapuff.example.com");
+  }
+
   openAuthorizationPage() {
-    Navigator.pushReplacement(
-        context,
-        PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                AuthorizationPage(),
-            transitionsBuilder: RouteTransitionStyles.defaultStyle));
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => MyDialog(
+        content: "Ви впевнені, що хочите вийти",
+        negativeButton: "Ні",
+        positiveButton: "Так",
+        onPositive: () {
+          Navigator.pushReplacement(
+              context,
+              PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) =>
+                      AuthorizationPage(),
+                  transitionsBuilder: RouteTransitionStyles.defaultStyle));
+        },
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    mainBloc.dispose();
+    super.dispose();
   }
 
   @override
