@@ -21,10 +21,10 @@ public class AgentmsgController {
 
         Agentmsg.saveAgentmsg(ctx.body());
 
-        ctx.json('1');
         ctx.status(201);
 
     };
+
     public static Handler getMessage = ctx -> {
         String host = ctx.queryParam("host");
         String result = AgentmsgDao.getAgentmsgFromDB(host);

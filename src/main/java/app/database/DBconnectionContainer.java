@@ -11,9 +11,9 @@ public class DBconnectionContainer {
 
     public static Connection getDBconnection() throws SQLException {
         if ( connection == null || connection.isClosed()) {
-            String url = "jdbc:postgresql://localhost:5432/tss";
+            String url = "jdbc:postgresql://localhost:5432/postgres";
             Properties props = new Properties();
-            props.setProperty("user", "tssuser");
+            props.setProperty("user", "postgres");
             props.setProperty("password", "tss123");
             Connection conn = DriverManager.getConnection(url, props);
             conn.setAutoCommit(false);
