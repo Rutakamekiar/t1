@@ -1,6 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:servelyzer/bloc/main_bloc.dart';
+import 'package:servelyzer/model/data_model.dart';
 import 'package:servelyzer/style/my_colors.dart';
 import 'package:servelyzer/style/route_transition_styles.dart';
 import 'package:servelyzer/view/authorization_page.dart';
@@ -17,24 +18,37 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   final mainBloc = MainBloc();
+  bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    mainBloc.data.listen((event) {}, onError: (e) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) => MyDialog.information(
-          content: "Сталася помилка: $e",
-          button: "Ок",
-          onPositive: () {
-            Navigator.pop(context);
-          },
-        ),
-      );
-      print(e);
+    mainBloc.data.listen((data) {
+      setLoading(false);
+    }, onError: (e) {
+      setLoading(false);
     });
     mainBloc.dataFetcher("potapuff.example.com");
+  }
+
+  setLoading(bool value) {
+    if (isLoading != value)
+      setState(() {
+        isLoading = value;
+      });
+  }
+
+  showInformDialog(String text, {String button = "Ок"}) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => MyDialog.information(
+        content: text,
+        button: button,
+        onPositive: () {
+          Navigator.pop(context);
+        },
+      ),
+    );
   }
 
   openAuthorizationPage() {
@@ -93,33 +107,87 @@ class _MainPageState extends State<MainPage> {
                   blurRadius: 23)
             ]),
           ),
-          Expanded(
-            child: MediaQuery.of(context).size.width <= listWight
-                ? buildList()
-                : buildRow(),
-          )
+          StreamBuilder<DataModel>(
+              stream: mainBloc.data,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  DataModel dataModel = snapshot.data;
+                  return Expanded(
+                    child: MediaQuery.of(context).size.width <= listWight
+                        ? buildList(dataModel)
+                        : buildRow(dataModel),
+                  );
+                } else if (snapshot.hasError) {
+                  Exception exception = snapshot.error;
+                  return Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.warning_amber_rounded,
+                          size: 50,
+                          color: MyColors.grey,
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        AutoSizeText("Помилка: $exception",
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 24,
+                                fontWeight: FontWeight.w500)),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        BaseButton(
+                          onPressed: () {
+                            setLoading(true);
+                            mainBloc.dataFetcher("potapuff.example.com");},
+                          height: 35,
+                          width: 175,
+                          isLoading: isLoading,
+                          title: "Повторити",
+                        ),
+                      ],
+                    ),
+                  );
+                } else {
+                  return Expanded(
+                      child: Center(child: CircularProgressIndicator()));
+                }
+              })
         ],
       ),
     );
   }
 
-  ListView buildList() {
+  ListView buildList(DataModel dataModel) {
+    Cpu cpu = dataModel.cpu.first;
+    Memory memory = dataModel.memory;
+    String cpuString = "${cpu.system + cpu.user}%";
+    String memoryString =
+        (memory.active / 1024 / 1024).floor().toString() + "mb";
     return ListView(
       padding: EdgeInsets.only(left: 15, right: 15, top: 30, bottom: 30),
       children: [
         MainPageItem(
           title: "Поточне використання CPU",
-          content: "26%",
+          content: cpuString,
         ),
         MainPageItem(
           title: "Поточне використання пам’яті",
-          content: "134mb",
+          content: memoryString,
         ),
       ],
     );
   }
 
-  Container buildRow() {
+  Container buildRow(DataModel dataModel) {
+    Cpu cpu = dataModel.cpu.first;
+    Memory memory = dataModel.memory;
+    String cpuString = "${cpu.system + cpu.user}%";
+    String memoryString =
+        (memory.active / 1024 / 1024).floor().toString() + "mb";
     return Container(
       padding: EdgeInsets.only(left: 15, right: 15, top: 70),
       width: double.infinity,
@@ -130,7 +198,7 @@ class _MainPageState extends State<MainPage> {
           Expanded(
             child: MainPageItem(
               title: "Поточне використання CPU",
-              content: "26%",
+              content: cpuString,
             ),
           ),
           SizedBox(
@@ -139,7 +207,7 @@ class _MainPageState extends State<MainPage> {
           Expanded(
             child: MainPageItem(
               title: "Поточне використання пам’яті",
-              content: "134mb",
+              content: memoryString,
             ),
           ),
         ],
