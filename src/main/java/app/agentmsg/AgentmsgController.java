@@ -5,7 +5,6 @@ import app.util.ViewUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.http.Handler;
-import jdk.nashorn.internal.parser.JSONParser;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -18,11 +17,8 @@ import static app.util.RequestUtil.removeSessionAttrLoginRedirect;
 public class AgentmsgController {
 
     public static Handler processMessage = ctx -> {
-
         Agentmsg.saveAgentmsg(ctx.body());
-
         ctx.status(201);
-
     };
 
     public static Handler getMessage = ctx -> {
@@ -30,6 +26,7 @@ public class AgentmsgController {
         String result = AgentmsgDao.getAgentmsgFromDB(host);
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(result);
+        ctx.header("Access-Control-Allow-Origin","*");
         ctx.json(jsonNode);
         ctx.status(201);
 
