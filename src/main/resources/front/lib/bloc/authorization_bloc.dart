@@ -1,17 +1,18 @@
 import 'package:rxdart/rxdart.dart';
+import 'package:servelyzer/model/auth_model.dart';
 import 'package:servelyzer/repository/repository.dart';
 
 import 'base/bloc.dart';
 
 class AuthorizationBloc extends Bloc {
   final _repository = Repository();
-  final _authFetcher = PublishSubject<dynamic>();
+  final _authFetcher = PublishSubject<bool>();
 
-  Stream<dynamic> get auth => _authFetcher.stream;
+  Stream<bool> get auth => _authFetcher.stream;
 
-  authFetcher(String host) async {
+  authFetcher(AuthModel authModel) async {
     try {
-      var data = await _repository.getAuth(host);
+      var data = await _repository.getAuth(authModel);
       _authFetcher.sink.add(data);
     } catch (e) {
       _authFetcher.sink.addError(e);

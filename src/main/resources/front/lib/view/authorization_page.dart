@@ -1,11 +1,13 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:servelyzer/bloc/authorization_bloc.dart';
+import 'package:servelyzer/model/auth_model.dart';
 import 'package:servelyzer/style/my_colors.dart';
 import 'package:servelyzer/style/route_transition_styles.dart';
 import 'package:servelyzer/view/main_page.dart';
 import 'package:servelyzer/widget/base_button.dart';
 import 'package:servelyzer/widget/base_text_field.dart';
+import 'package:servelyzer/widget/my_dialog.dart';
 
 class AuthorizationPage extends StatefulWidget {
   @override
@@ -31,12 +33,37 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
   @override
   void initState() {
     super.initState();
+    authorizationBloc.auth.listen((event) {
+      setLoading(false);
+      if(event){
+        openMainPage();
+      } else {
+        showInformDialog("Неправильний логін або пароль");
+      }
+    }, onError: (e){
+      setLoading(false);
+      showInformDialog("Неправильний логін або пароль");
+      // showInformDialog("Сталася помилка $e");
+    });
     loginController.addListener(() {
       setLoginError(false);
     });
     passwordController.addListener(() {
       setPasswordError(false);
     });
+  }
+
+  showInformDialog(String text, {String button = "Ок"}) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => MyDialog.information(
+        content: text,
+        button: button,
+        onPositive: () {
+          Navigator.pop(context);
+        },
+      ),
+    );
   }
 
   checkFields() {
@@ -51,9 +78,8 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
     }
     if (isValid) {
       setLoading(true);
-      Future.delayed(const Duration(milliseconds: 1500), () {
-        openMainPage();
-      });
+      AuthModel authModel = AuthModel(loginController.text, passwordController.text);
+      authorizationBloc.authFetcher(authModel);
     }
   }
 
