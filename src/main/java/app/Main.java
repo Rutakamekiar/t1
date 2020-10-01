@@ -5,13 +5,14 @@ import app.book.BookController;
 import app.book.BookDao;
 import app.index.IndexController;
 import app.login.LoginController;
+import app.login.SignIn;
 import app.user.UserDao;
 import app.util.Filters;
 import app.util.HerokuUtil;
 import app.util.Path;
 import app.util.ViewUtil;
 import io.javalin.Javalin;
-import io.javalin.core.util.RouteOverviewPlugin;
+
 import static io.javalin.apibuilder.ApiBuilder.before;
 import static io.javalin.apibuilder.ApiBuilder.get;
 import static io.javalin.apibuilder.ApiBuilder.post;
@@ -29,6 +30,7 @@ public class Main {
         bookDao = new BookDao();
         userDao = new UserDao();
 
+
         Javalin app = Javalin.create(
             config -> {
                 config.addStaticFiles("/front/build/web");
@@ -45,7 +47,11 @@ public class Main {
             get(Path.Web.GETAGENTMSG, AgentmsgController.getMessage);
             post(Path.Web.LOGIN, LoginController.handleLoginPost);
             post(Path.Web.LOGOUT, LoginController.handleLogoutPost);
+            post(Path.Web.SIGNIN, SignIn.logIn);
             post(Path.Web.AGENTMSG, AgentmsgController.processMessage);
+
+
+
         });
 
         app.error(404, ViewUtil.notFound);

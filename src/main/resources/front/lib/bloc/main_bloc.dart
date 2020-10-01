@@ -1,18 +1,23 @@
 import 'package:rxdart/rxdart.dart';
+import 'package:servelyzer/model/data_model.dart';
 import 'package:servelyzer/repository/repository.dart';
 
 import 'base/bloc.dart';
 
 class MainBloc extends Bloc {
   final _repository = Repository();
-  final _dataFetcher = PublishSubject<dynamic>();
+  final _dataFetcher = PublishSubject<DataModel>();
 
-  Stream<dynamic> get data => _dataFetcher.stream;
+  Stream<DataModel> get data => _dataFetcher.stream;
 
   dataFetcher(String host) async {
     try {
-       var data = await _repository.getData(host);
-       _dataFetcher.sink.add(data);
+      DataModel dataModel = await _repository.getData(host);
+      if(dataModel.result == 0){
+        throw Exception(dataModel.message);
+      } else {
+        _dataFetcher.sink.add(dataModel);
+      }
     } catch (e) {
       _dataFetcher.sink.addError(e);
     }
