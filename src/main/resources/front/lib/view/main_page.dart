@@ -118,7 +118,7 @@ class _MainPageState extends State<MainPage> {
                         : buildRow(dataModel),
                   );
                 } else if (snapshot.hasError) {
-                  Exception exception = snapshot.error;
+                  final exception = snapshot.error;
                   return Expanded(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
