@@ -8,6 +8,7 @@ import 'package:servelyzer/view/main_page.dart';
 import 'package:servelyzer/widget/base_button.dart';
 import 'package:servelyzer/widget/base_text_field.dart';
 import 'package:servelyzer/widget/my_dialog.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AuthorizationPage extends StatefulWidget {
   @override
@@ -115,6 +116,15 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
     super.dispose();
   }
 
+  _launchURL() async {
+    const url = 'https://www.termsandconditionsgenerator.com/live.php?token=inVvQirGrjE9dMBdd5PH5Mtnxevc2fRw';
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -195,6 +205,14 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
                     )
                   ],
                 ),
+              ),
+            ),
+            SizedBox(height: 20,),
+            Container(
+              alignment: Alignment.center,
+              child: FlatButton(
+                onPressed: _launchURL,
+                child: Text("Terms and Conditions", style: TextStyle(color: MyColors.green),),
               ),
             )
           ],
