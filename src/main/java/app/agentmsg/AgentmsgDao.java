@@ -32,7 +32,7 @@ public class AgentmsgDao {
         preparedStatement.setString(1, host);
         ResultSet rs = preparedStatement.executeQuery( );
         if (!rs.next()) {
-            return "{\"result\" : \"0\",\"message\": \"Host not found\"}";
+            return "{\"result\" : 0,\"message\": \"Host not found\"}";
         }
         else {
             return rs.getString("data");

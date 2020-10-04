@@ -6,6 +6,7 @@ import app.book.BookDao;
 import app.index.IndexController;
 import app.login.LoginController;
 import app.login.SignIn;
+import app.register.RegisterController;
 import app.user.UserDao;
 import app.util.Filters;
 import app.util.HerokuUtil;
@@ -49,7 +50,7 @@ public class Main {
             post(Path.Web.LOGOUT, LoginController.handleLogoutPost);
             post(Path.Web.SIGNIN, SignIn.logIn);
             post(Path.Web.AGENTMSG, AgentmsgController.processMessage);
-
+            post(Path.Web.REGISTER, RegisterController.register);
 
 
         });

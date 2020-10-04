@@ -11,6 +11,7 @@ public class Path {
         public static final String AGENTMSG = "/api/endpoint";
         public static final String GETAGENTMSG = "/getmsg";
         public static final String SIGNIN = "/signin";
+        public static final String REGISTER = "/register";
     }
 
     public static class Template {
