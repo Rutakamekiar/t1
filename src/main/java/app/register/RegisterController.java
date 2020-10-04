@@ -12,10 +12,10 @@ public class RegisterController {
         String pwd = ctx.queryParam("pwd");
         String result;
         if (RegisterDao.insertRegister(email,login,pwd)){
-            result = "{\"result\" : 1,\"message\": \"User inserted\"}";
+            result = "{\"result\" : 1,\"message\": \"User inserted1\"}";
         }
         else {
-            result = "{\"result\" : 0,\"message\": \"Such email or login already exist\"}";
+            result = "{\"result\" : 0,\"message\": \"Such email or login already exist1\"}";
         }
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(result);
