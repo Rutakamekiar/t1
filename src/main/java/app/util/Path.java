@@ -12,6 +12,7 @@ public class Path {
         public static final String GETAGENTMSG = "/getmsg";
         public static final String SIGNIN = "/signin";
         public static final String REGISTER = "/register";
+        public static final String VERIFICATE = "/email_verificate";
     }
 
     public static class Template {

@@ -50,6 +50,13 @@
             <artifactId>thymeleaf</artifactId>
             <version>3.0.11.RELEASE</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-email</artifactId> <!-- For sending emails -->
+            <version>1.4</version>
+        </dependency>
+
+
     </dependencies>
 
     <build>
