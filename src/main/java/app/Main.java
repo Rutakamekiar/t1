@@ -52,7 +52,7 @@ public class Main {
             post(Path.Web.SIGNIN, SignIn.logIn);
             post(Path.Web.AGENTMSG, AgentmsgController.processMessage);
             post(Path.Web.REGISTER, RegisterController.register);
-
+            post(Path.Web.DROPPWD, RegisterController.dropPwd);
 
         });
 

@@ -1,6 +1,7 @@
 package app.register;
 
 import app.database.DBconnectionContainer;
+import app.util.PasswordGenerator;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -39,5 +40,29 @@ public class RegisterDao {
         preparedStatement.setString(1,token);
         preparedStatement.executeUpdate();
         connection.commit();
+    }
+    public static String dropPass(String email, String newPassword ) throws SQLException {
+        Connection connection = DBconnectionContainer.getDBconnection();
+        String check = "select verification from users where email = ?";
+        PreparedStatement statementCheck = connection.prepareStatement(check);
+        statementCheck.setString(1,email);
+        ResultSet rs = statementCheck.executeQuery();
+        String result;
+        if (rs.next()) {
+            if (rs.getInt("verification")==0){
+                result = "{\"result\" : 1,\"message\": \"Email is not verified\"}";
+            } else {
+                String sql = "update users set pwd = ? where email = ?";
+                PreparedStatement preparedStatement = connection.prepareStatement(sql);
+                preparedStatement.setString(1, newPassword);
+                preparedStatement.setString(2, email);
+                preparedStatement.executeUpdate();
+                connection.commit();
+                result = "{\"result\" : 2,\"message\": \"Password dropped check email\"}";
+            }
+        }   else {
+            result = "{\"result\" : 0,\"message\": \"Such email does not exist\"}";
+        }
+        return result;
     }
 }

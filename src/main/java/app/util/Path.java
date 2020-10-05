@@ -13,6 +13,7 @@ public class Path {
         public static final String SIGNIN = "/signin";
         public static final String REGISTER = "/register";
         public static final String VERIFICATE = "/email_verificate";
+        public static final String DROPPWD = "/droppwd";
     }
 
     public static class Template {
