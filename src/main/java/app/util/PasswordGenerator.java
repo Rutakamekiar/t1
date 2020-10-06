@@ -2,7 +2,17 @@ package app.util;
 
 import java.util.Random;
 
+/**
+ * Util class with password generate method
+ * @author Zhuravlev Yuriu
+ * @version 1.0
+ */
 public class PasswordGenerator {
+    /**
+     * Generate password
+     * @param length length of password which needs to be generated
+     * @return String password
+     */
     public static String generatePassword(int length) {
         String capitalCaseLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         String lowerCaseLetters = "abcdefghijklmnopqrstuvwxyz";

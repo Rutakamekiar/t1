@@ -19,6 +19,11 @@ import static io.javalin.apibuilder.ApiBuilder.get;
 import static io.javalin.apibuilder.ApiBuilder.post;
 
 
+/**
+ * Main class
+ * @author Kotelevsky Kirill
+ * @version 1.0
+ */
 public class Main {
 
     // Declare dependencies

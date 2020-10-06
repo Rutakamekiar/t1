@@ -9,7 +9,16 @@ import io.javalin.http.Handler;
 
 import java.util.UUID;
 
+/**
+ * Class controller to work with registration
+ * @author Zhuravlev Yuriu
+ * @version 1.0
+ */
 public class RegisterController {
+    /**
+     * Registration API
+     * @see Handler
+     */
     public static Handler register = ctx -> {
         String login = ctx.queryParam("login");
         String email = ctx.queryParam("email");
@@ -31,6 +40,10 @@ public class RegisterController {
         ctx.status(201);
 
     };
+    /**
+     * Verification of email API
+     * @see Handler
+     */
     public static Handler verifyEmail = ctx -> {
         String token = ctx.queryParam("token");
         RegisterDao.verifyEmail(token);
@@ -38,6 +51,10 @@ public class RegisterController {
         ctx.status(201);
         ctx.result("user verified");
     };
+    /**
+     * Drop password API
+     * @see Handler
+     */
     public static Handler dropPwd = ctx -> {
         String email = ctx.queryParam("email");
         String newPwd = PasswordGenerator.generatePassword(8);

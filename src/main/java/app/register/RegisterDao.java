@@ -8,8 +8,21 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
-
+/**
+ * Class to connect registration APIs with DB
+ * @author Zhuravlev Yuriu
+ * @version 1.0
+ */
 public class RegisterDao {
+    /**
+     * Insert information about new user to DB
+     * @param email email of user
+     * @param login login of user
+     * @param pwd password of user
+     * @param token verification token
+     * @return true if user inserted and false if such email or login already exist in DB
+     * @throws SQLException
+     */
     public static boolean insertRegister(String email, String login, String pwd, String token) throws SQLException {
         Connection connection = DBconnectionContainer.getDBconnection();
         String sql = "select * from users where email = ? or login = ?";
@@ -33,6 +46,12 @@ public class RegisterDao {
             return false;
         }
     }
+
+    /**
+     * Update verification status of user's email
+     * @param token verification token
+     * @throws SQLException
+     */
     public static void verifyEmail(String token) throws SQLException {
         Connection connection = DBconnectionContainer.getDBconnection();
         String sql = "update users set verification = 1 where ver_token = ?";
@@ -41,6 +60,14 @@ public class RegisterDao {
         preparedStatement.executeUpdate();
         connection.commit();
     }
+
+    /**
+     * Change password of user in DB
+     * @param email email of user
+     * @param newPassword new password of user
+     * @return String with message about success in json
+     * @throws SQLException
+     */
     public static String dropPass(String email, String newPassword ) throws SQLException {
         Connection connection = DBconnectionContainer.getDBconnection();
         String check = "select verification from users where email = ?";

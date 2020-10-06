@@ -1,7 +1,15 @@
 package app.util;
 
+/**
+ * Contain paths of api and page resources
+ * @author Kotelevsky Kirill
+ * @version 1.0
+ */
 public class Path {
 
+    /**
+     * Contain paths of api
+     */
     public static class Web {
         public static final String INDEX = "/index";
         public static final String LOGIN = "/login";
@@ -15,7 +23,9 @@ public class Path {
         public static final String VERIFICATE = "/email_verificate";
         public static final String DROPPWD = "/droppwd";
     }
-
+    /**
+     * Contain paths of page resources
+     */
     public static class Template {
         public static final String INDEX = "/front/build/web/index.html";
         public static final String LOGIN = "/velocity/login/login.vm";
