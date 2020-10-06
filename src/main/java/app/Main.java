@@ -6,6 +6,7 @@ import app.book.BookDao;
 import app.index.IndexController;
 import app.login.LoginController;
 import app.login.SignIn;
+import app.register.RegisterController;
 import app.user.UserDao;
 import app.util.Filters;
 import app.util.HerokuUtil;
@@ -18,6 +19,11 @@ import static io.javalin.apibuilder.ApiBuilder.get;
 import static io.javalin.apibuilder.ApiBuilder.post;
 
 
+/**
+ * Main class
+ * @author Kotelevsky Kirill
+ * @version 1.0
+ */
 public class Main {
 
     // Declare dependencies
@@ -45,12 +51,13 @@ public class Main {
             get(Path.Web.ONE_BOOK, BookController.fetchOneBook);
             get(Path.Web.LOGIN, LoginController.serveLoginPage);
             get(Path.Web.GETAGENTMSG, AgentmsgController.getMessage);
+            get(Path.Web.VERIFICATE,RegisterController.verifyEmail);
             post(Path.Web.LOGIN, LoginController.handleLoginPost);
             post(Path.Web.LOGOUT, LoginController.handleLogoutPost);
             post(Path.Web.SIGNIN, SignIn.logIn);
             post(Path.Web.AGENTMSG, AgentmsgController.processMessage);
-
-
+            post(Path.Web.REGISTER, RegisterController.register);
+            post(Path.Web.DROPPWD, RegisterController.dropPwd);
 
         });
 
