@@ -13,6 +13,10 @@ import app.util.HerokuUtil;
 import app.util.Path;
 import app.util.ViewUtil;
 import io.javalin.Javalin;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 import static io.javalin.apibuilder.ApiBuilder.before;
 import static io.javalin.apibuilder.ApiBuilder.get;
@@ -32,16 +36,19 @@ public class Main {
 
     public static void main(String[] args) {
 
-        // Instantiate your dependencies
-        bookDao = new BookDao();
-        userDao = new UserDao();
-
-
-        Javalin app = Javalin.create(
-            config -> {
-                config.addStaticFiles("/front/build/web");
-            }
-        ).start(HerokuUtil.getHerokuAssignedPort());
+        Javalin app = Javalin.create(config -> {
+            config.server(() -> {
+                Server server = new Server();
+                ServerConnector sslConnector = new ServerConnector(server, getSslContextFactory());
+                sslConnector.setPort(443);
+                ServerConnector connector = new ServerConnector(server);
+                connector.setPort(80);
+                server.setConnectors(new Connector[]{sslConnector, connector});
+                return server;
+            });
+            config.addStaticFiles("/front/build/web");
+            config.enforceSsl = true;
+        }).start(); // valid endpoint for both connectors
 
         app.routes(() -> {
             before(Filters.handleLocaleChange);
@@ -62,6 +69,15 @@ public class Main {
         });
 
         app.error(404, ViewUtil.notFound);
+
+
+    }
+
+    private static SslContextFactory getSslContextFactory() {
+        SslContextFactory sslContextFactory = new SslContextFactory();
+        sslContextFactory.setKeyStorePath(Main.class.getResource("/sertificates/keystore_tss").toExternalForm());
+        sslContextFactory.setKeyStorePassword("tss123");
+        return sslContextFactory;
     }
 
 }
