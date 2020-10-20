@@ -14,13 +14,25 @@ import java.util.UUID;
 import static app.util.RequestUtil.removeSessionAttrLoggedOut;
 import static app.util.RequestUtil.removeSessionAttrLoginRedirect;
 
+/**
+ * Class controller to work with agent messages
+ * @author Kotelevsky Kirill
+ * @version 1.0
+ */
 public class AgentmsgController {
 
+    /**
+     * Save message from agent to DB API
+     * @see Handler
+     */
     public static Handler processMessage = ctx -> {
         Agentmsg.saveAgentmsg(ctx.body());
         ctx.status(201);
     };
-
+    /**
+     * Send agent message to front API
+     * @see Handler
+     */
     public static Handler getMessage = ctx -> {
         String host = ctx.queryParam("host");
         String result = AgentmsgDao.getAgentmsgFromDB(host);
