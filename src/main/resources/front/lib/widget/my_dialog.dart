@@ -23,7 +23,7 @@ class MyDialog extends StatelessWidget {
     this.onPositive,
     this.positiveButton,
     this.negativeButton,
-  }): isInform = true;
+  }) : isInform = true;
 
   @override
   Widget build(BuildContext context) {

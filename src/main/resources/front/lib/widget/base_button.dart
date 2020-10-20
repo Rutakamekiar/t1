@@ -14,10 +14,11 @@ class BaseButton extends StatelessWidget {
   const BaseButton({
     Key key,
     this.onPressed,
-    this.title = "Війти",
+    this.title = "Увійти",
     this.height = 50,
     this.width = double.infinity,
-    this.isLoading = false, this.color,
+    this.isLoading = false,
+    this.color,
   }) : super(key: key);
 
   @override
@@ -26,7 +27,8 @@ class BaseButton extends StatelessWidget {
         onPressed: isLoading ? null : onPressed,
         color: color ?? MyColors.green,
         disabledColor: color ?? MyColors.green,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(isLoading ? height : 10)),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(isLoading ? height : 10)),
         padding: EdgeInsets.all(16),
         child: AnimatedContainer(
           height: height,
@@ -35,7 +37,9 @@ class BaseButton extends StatelessWidget {
           constraints: BoxConstraints(maxWidth: 277),
           duration: Duration(milliseconds: 500),
           child: isLoading
-              ? CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white),)
+              ? CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                )
               : Text(
                   title,
                   style: TextStyle(

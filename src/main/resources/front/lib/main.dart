@@ -1,10 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_modular/flutter_modular.dart';
 import 'package:servelyzer/style/my_colors.dart';
+import 'package:servelyzer/view/main_page.dart';
 
 import 'view/authorization_page.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(ModularApp(module: AppModule()));
+}
+
+class AppModule extends MainModule {
+  @override
+  List<Bind> get binds => [];
+
+  @override
+  List<ModularRouter> get routers => [
+        ModularRouter('/', child: (_, __) => AuthorizationPage()),
+        ModularRouter('/main', child: (_, __) => MainPage()),
+      ];
+
+  @override
+  Widget get bootstrap => MyApp();
 }
 
 class MyApp extends StatelessWidget {
@@ -19,7 +35,9 @@ class MyApp extends StatelessWidget {
         buttonColor: MyColors.green,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: AuthorizationPage(),
+      initialRoute: "/",
+      navigatorKey: Modular.navigatorKey,
+      onGenerateRoute: Modular.generateRoute,
     );
   }
 }

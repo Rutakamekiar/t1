@@ -1,10 +1,9 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_modular/flutter_modular.dart';
 import 'package:servelyzer/bloc/main_bloc.dart';
 import 'package:servelyzer/model/data_model.dart';
 import 'package:servelyzer/style/my_colors.dart';
-import 'package:servelyzer/style/route_transition_styles.dart';
-import 'package:servelyzer/view/authorization_page.dart';
 import 'package:servelyzer/widget/base_button.dart';
 import 'package:servelyzer/widget/my_dialog.dart';
 
@@ -59,12 +58,7 @@ class _MainPageState extends State<MainPage> {
         negativeButton: "Ні",
         positiveButton: "Так",
         onPositive: () {
-          Navigator.pushReplacement(
-              context,
-              PageRouteBuilder(
-                  pageBuilder: (context, animation, secondaryAnimation) =>
-                      AuthorizationPage(),
-                  transitionsBuilder: RouteTransitionStyles.defaultStyle));
+          Modular.to.pushReplacementNamed('/');
         },
       ),
     );
@@ -95,7 +89,7 @@ class _MainPageState extends State<MainPage> {
               constraints: BoxConstraints(maxWidth: maxWight),
               child: BaseButton(
                 onPressed: openAuthorizationPage,
-                height: 35,
+                height: 45,
                 width: 175,
                 title: "Вийти",
               ),
@@ -142,7 +136,8 @@ class _MainPageState extends State<MainPage> {
                         BaseButton(
                           onPressed: () {
                             setLoading(true);
-                            mainBloc.dataFetcher("potapuff.example.com");},
+                            mainBloc.dataFetcher("potapuff.example.com");
+                          },
                           height: 35,
                           width: 175,
                           isLoading: isLoading,

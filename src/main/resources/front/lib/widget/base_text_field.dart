@@ -9,6 +9,8 @@ class BaseTextField extends StatelessWidget {
   final bool enable;
   final String errorText;
 
+  final Function(dynamic) onSubmitted;
+
   const BaseTextField({
     Key key,
     this.label,
@@ -17,6 +19,7 @@ class BaseTextField extends StatelessWidget {
     this.isError = false,
     this.errorText = "",
     this.enable = true,
+    this.onSubmitted,
   }) : super(key: key);
 
   @override
@@ -36,6 +39,7 @@ class BaseTextField extends StatelessWidget {
           controller: textEditingController,
           cursorColor: MyColors.green,
           enabled: enable,
+          onSubmitted: onSubmitted,
           obscureText: obscureText,
           style: TextStyle(
               fontSize: 17, fontWeight: FontWeight.w400, color: Colors.black),
