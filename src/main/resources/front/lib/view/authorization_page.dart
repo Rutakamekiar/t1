@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:servelyzer/bloc/authorization_bloc.dart';
@@ -87,6 +88,14 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
     Modular.to.pushReplacementNamed('/main');
   }
 
+  openRegistrationPage() {
+    Modular.to.pushNamed('/registration');
+  }
+
+  openResetPasswordPage() {
+    Modular.to.pushNamed('/reset');
+  }
+
   setPasswordError(bool state) {
     if (passwordError != state) {
       setState(() {
@@ -150,8 +159,7 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
                           offset: Offset(0, 14),
                           blurRadius: 23)
                     ]),
-                constraints: BoxConstraints(maxWidth: 516, maxHeight: 473),
-                height: double.infinity,
+                constraints: BoxConstraints(maxWidth: 516),
                 child: Column(
                   children: [
                     SizedBox(
@@ -200,7 +208,15 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
                     BaseButton(
                       isLoading: isLoading,
                       onPressed: checkFields,
-                    )
+                    ),
+                    SizedBox(height: 16,),
+                    FlatButton(
+                      onPressed: openRegistrationPage, child: Text("Зареєструватися", style: TextStyle(color: MyColors.green),),
+                    ),
+                    FlatButton(
+                      onPressed: openResetPasswordPage, child: Text("Забув пароль", style: TextStyle(color: MyColors.green),),
+                    ),
+                    SizedBox(height: 16,)
                   ],
                 ),
               ),

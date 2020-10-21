@@ -6,6 +6,7 @@ class BaseTextField extends StatelessWidget {
   final TextEditingController textEditingController;
   final bool obscureText;
   final bool isError;
+
   final bool enable;
   final String errorText;
 
