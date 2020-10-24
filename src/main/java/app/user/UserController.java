@@ -12,6 +12,7 @@ public class UserController {
         if (username == null || password == null) {
             return false;
         }
+        UserDao userDao = new UserDao();
         User user = userDao.getUserByUsername(username);
         if (user == null) {
             return false;

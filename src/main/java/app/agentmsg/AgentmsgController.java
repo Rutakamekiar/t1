@@ -35,7 +35,9 @@ public class AgentmsgController {
      */
     public static Handler getMessage = ctx -> {
         String host = ctx.queryParam("host");
-        String result = AgentmsgDao.getAgentmsgFromDB(host);
+        String fromDate = ctx.queryParam("from");
+        String toDate = ctx.queryParam("to");
+        String result = AgentmsgDao.getAgentmsgFromDB(host , fromDate, toDate);
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(result);
         ctx.header("Access-Control-Allow-Origin","*");

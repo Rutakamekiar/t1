@@ -1,8 +1,6 @@
 package app;
 
 import app.agentmsg.AgentmsgController;
-import app.book.BookController;
-import app.book.BookDao;
 import app.index.IndexController;
 import app.login.LoginController;
 import app.login.SignIn;
@@ -30,10 +28,6 @@ import static io.javalin.apibuilder.ApiBuilder.post;
  */
 public class Main {
 
-    // Declare dependencies
-    public static BookDao bookDao;
-    public static UserDao userDao;
-
     public static void main(String[] args) {
 
         Javalin app = Javalin.create(config -> {
@@ -54,8 +48,6 @@ public class Main {
             before(Filters.handleLocaleChange);
             before(LoginController.ensureLoginBeforeViewingBooks);
             get(Path.Web.INDEX, IndexController.serveIndexPage);
-            get(Path.Web.BOOKS, BookController.fetchAllBooks);
-            get(Path.Web.ONE_BOOK, BookController.fetchOneBook);
             get(Path.Web.LOGIN, LoginController.serveLoginPage);
             get(Path.Web.GETAGENTMSG, AgentmsgController.getMessage);
             get(Path.Web.VERIFICATE,RegisterController.verifyEmail);
@@ -65,7 +57,6 @@ public class Main {
             post(Path.Web.AGENTMSG, AgentmsgController.processMessage);
             post(Path.Web.REGISTER, RegisterController.register);
             post(Path.Web.DROPPWD, RegisterController.dropPwd);
-
         });
 
         app.error(404, ViewUtil.notFound);
