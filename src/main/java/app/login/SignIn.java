@@ -5,7 +5,6 @@ import app.util.Path;
 import io.javalin.http.Handler;
 import org.mindrot.jbcrypt.BCrypt;
 
-import static app.Main.userDao;
 import static app.util.RequestUtil.getQueryPassword;
 import static app.util.RequestUtil.getQueryUsername;
 
