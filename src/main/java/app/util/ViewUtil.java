@@ -11,8 +11,8 @@ public class ViewUtil {
 
     public static Map<String, Object> baseModel(Context ctx) {
         Map<String, Object> model = new HashMap<>();
-        model.put("msg", new MessageBundle(getSessionLocale(ctx)));
-        model.put("currentUser", getSessionCurrentUser(ctx));
+        //model.put("msg", new MessageBundle(getSessionLocale(ctx)));
+        //model.put("currentUser", getSessionCurrentUser(ctx));
         return model;
     }
 

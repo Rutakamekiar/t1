@@ -26,12 +26,12 @@ public class RegisterController {
         String token = UUID.randomUUID().toString();
         String result;
         if (RegisterDao.insertRegister(email,login,pwd,token)){
-            result = "{\"result\" : 1,\"message\": \"User inserted1\"}";
+            result = "{\"result\" : 1,\"message\": \"User inserted\"}";
             CustomEmail verificationEmail = new CustomEmail();
             verificationEmail.sendVerificationEmail(email,login,token);
         }
         else {
-            result = "{\"result\" : 0,\"message\": \"Such email or login already exist1\"}";
+            result = "{\"result\" : 0,\"message\": \"Such email or login already exist\"}";
         }
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(result);
@@ -60,7 +60,6 @@ public class RegisterController {
         String newPwd = PasswordGenerator.generatePassword(8);
         String result = RegisterDao.dropPass(email,newPwd);
         CustomEmail verificationEmail = new CustomEmail();
-
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(result);
         if (jsonNode.get("result").asInt() == 2)
