@@ -1,6 +1,7 @@
 package app.server;
 
 import app.database.DBconnectionContainer;
+import org.postgresql.util.PSQLException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,6 +9,25 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class ServerDao {
+
+    public static String getUserServers( String username ) throws SQLException, NoSuchFieldException {
+        Connection connection = DBconnectionContainer.getDBconnection();
+        String sql = "select host from hosts_servers where login = ?;";
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setString(1, username);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        if (!rs.next())
+            throw new NoSuchFieldException();
+
+        String result = "{ \"hosts\":[ " + "{ \"host\" :\"" + rs.getString("host") + "\"}";
+
+        while (rs.next()) {
+            result = result + ", { \"host\" :\"" + rs.getString("host") + "\"}";
+        }
+
+        return result + "] }";
+    }
 
     public static void addServerToUser( String username , String host) throws SQLException, NoSuchFieldException {
         Connection connection = DBconnectionContainer.getDBconnection();

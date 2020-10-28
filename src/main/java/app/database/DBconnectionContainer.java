@@ -31,7 +31,7 @@ public class DBconnectionContainer {
             props.setProperty("user", "postgres");
             props.setProperty("password", "tss123");
             Connection conn = DriverManager.getConnection(url, props);
-            conn.setAutoCommit(false);
+            conn.setAutoCommit(true);
             connection = conn;
             return conn;
         }
