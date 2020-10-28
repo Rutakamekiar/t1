@@ -53239,7 +53239,7 @@ HK:function(a,b){var s=0,r=P.a6(t.gi),q,p=this,o
 var $async$o2=P.a2(function(c,d){if(c===1)return P.a3(d,r)
 while(true)switch(s){case 0:o=K
 s=3
-return P.aa(p.a.rp(0,"http://localhost/getmsg?host="+b,t.z),$async$o2)
+return P.aa(p.a.rp(0,"http://localhost:80/getmsg?host="+b,t.z),$async$o2)
 case 3:q=o.afo(d.a)
 s=1
 break
@@ -53251,7 +53251,7 @@ var $async$o0=P.a2(function(b,c){if(b===1)return P.a3(c,r)
 while(true)switch(s){case 0:o=t.z
 n=p.a
 s=3
-return P.aa(n.jJ(0,"http://localhost/signin",null,Y.ag2(P.aG(["username",a.a,"password",a.b],t.X,o)),null,null,n.EC("POST",null),null,o),$async$o0)
+return P.aa(n.jJ(0,"http://localhost:80/signin",null,Y.ag2(P.aG(["username",a.a,"password",a.b],t.X,o)),null,null,n.EC("POST",null),null,o),$async$o0)
 case 3:if(c.d===200){q=!0
 s=1
 break}else{q=!1
@@ -53264,9 +53264,9 @@ var $async$o7=P.a2(function(c,d){if(c===1)return P.a3(d,r)
 while(true)switch(s){case 0:o=b.a
 n=b.b
 m=b.c
-P.eF("http://localhost/register?login="+H.b(o)+"&email="+H.b(n)+"&pwd="+H.b(m))
+P.eF("http://localhost:80/register?login="+H.b(o)+"&email="+H.b(n)+"&pwd="+H.b(m))
 s=3
-return P.aa(p.a.rp(0,"http://localhost/register?login="+H.b(o)+"&email="+H.b(n)+"&pwd="+H.b(m),t.z),$async$o7)
+return P.aa(p.a.rp(0,"http://localhost:80/register?login="+H.b(o)+"&email="+H.b(n)+"&pwd="+H.b(m),t.z),$async$o7)
 case 3:if(d.d===200){q=!0
 s=1
 break}else{q=!1
@@ -53276,9 +53276,9 @@ return P.a5($async$o7,r)},
 o8:function(a){return this.HW(a)},
 HW:function(a){var s=0,r=P.a6(t.b),q,p=this
 var $async$o8=P.a2(function(b,c){if(b===1)return P.a3(c,r)
-while(true)switch(s){case 0:P.eF("http://localhost/droppwd?email="+H.b(a))
+while(true)switch(s){case 0:P.eF("http://localhost:80/droppwd?email="+H.b(a))
 s=3
-return P.aa(p.a.rp(0,"http://localhost/droppwd?email="+H.b(a),t.z),$async$o8)
+return P.aa(p.a.rp(0,"http://localhost:80/droppwd?email="+H.b(a),t.z),$async$o8)
 case 3:if(c.d===200){q=!0
 s=1
 break}else{q=!1
