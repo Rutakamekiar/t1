@@ -27,4 +27,15 @@ public class ServerDao {
         connection.commit();
     }
 
+    public static void deleteServerFromUser( String username , String host) throws SQLException {
+        Connection connection = DBconnectionContainer.getDBconnection();
+
+        String sql = "delete from hosts_servers where login = ? and host = ? ;";
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setString(1, username);
+        preparedStatement.setString(2, host);
+        preparedStatement.execute();
+        connection.commit();
+    }
+
 }

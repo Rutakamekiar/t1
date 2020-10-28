@@ -41,9 +41,17 @@ public class ServerController {
     };
 
     public static Handler deleteUserFromServer = ctx -> {
-        String username = ctx.cookieStore("username");
+        String username = ctx.cookie("username");
+        String host = ctx.queryParam("host");
 
-
+        try {
+            ServerDao.deleteServerFromUser( username , host);
+        }
+        catch ( SQLException e){
+            ctx.json("{\"result\" : 0,\"message\": \"SQLException\"}");
+            ctx.status(404);
+            throw e;
+        }
         ctx.header("Access-Control-Allow-Origin", "*");
         ctx.status(201);
     };
