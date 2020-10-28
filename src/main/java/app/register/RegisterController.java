@@ -59,8 +59,12 @@ public class RegisterController {
         String email = ctx.queryParam("email");
         String newPwd = PasswordGenerator.generatePassword(8);
         String result = RegisterDao.dropPass(email,newPwd);
+        CustomEmail verificationEmail = new CustomEmail();
+
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(result);
+        if (jsonNode.get("result").asInt() == 2)
+            verificationEmail.sendDropPwdEmail(email,newPwd);
         ctx.header("Access-Control-Allow-Origin","*");
         ctx.json(jsonNode);
         ctx.status(201);
