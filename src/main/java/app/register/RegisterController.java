@@ -63,9 +63,9 @@ public class RegisterController {
 
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(result);
-        verificationEmail.sendDropPwdEmail(email,newPwd);
         if (jsonNode.get("result").asInt() == 2)
-            ctx.header("Access-Control-Allow-Origin","*");
+            verificationEmail.sendDropPwdEmail(email,newPwd);
+        ctx.header("Access-Control-Allow-Origin","*");
         ctx.json(jsonNode);
         ctx.status(201);
 
