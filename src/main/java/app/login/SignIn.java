@@ -27,9 +27,10 @@ public class SignIn {
         try {
             username = getQueryUsername(ctx);
             password = getQueryPassword(ctx);
+
             if (authenticate(username, password)) {
+                ctx.cookie("username", username);
                 ctx.header("Access-Control-Allow-Origin", "*").status(200);
-                //ctx.result("done").status(200);
             } else {
                 ctx.result("incorrect value").status(404);
             }
