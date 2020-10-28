@@ -5,6 +5,7 @@ import 'package:flutter_modular/flutter_modular.dart';
 import 'package:servelyzer/bloc/authorization_bloc.dart';
 import 'package:servelyzer/model/auth_model.dart';
 import 'package:servelyzer/style/my_colors.dart';
+import 'package:servelyzer/utils/constants.dart';
 import 'package:servelyzer/widget/base_button.dart';
 import 'package:servelyzer/widget/base_text_field.dart';
 import 'package:servelyzer/widget/my_dialog.dart';
@@ -31,9 +32,17 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
     });
   }
 
+  Future<String> loadAsset(BuildContext context) async {
+    return await DefaultAssetBundle.of(context).loadString('assets/host.txt');
+  }
+
   @override
   void initState() {
     super.initState();
+    loadAsset(context).then((value) {
+      Constants.url = value;
+      print(Constants.url);
+    });
     authorizationBloc.auth.listen((event) {
       setLoading(false);
       if (event) {
@@ -209,14 +218,26 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
                       isLoading: isLoading,
                       onPressed: checkFields,
                     ),
-                    SizedBox(height: 16,),
-                    FlatButton(
-                      onPressed: openRegistrationPage, child: Text("Зареєструватися", style: TextStyle(color: MyColors.green),),
+                    SizedBox(
+                      height: 16,
                     ),
                     FlatButton(
-                      onPressed: openResetPasswordPage, child: Text("Забув пароль", style: TextStyle(color: MyColors.green),),
+                      onPressed: openRegistrationPage,
+                      child: Text(
+                        "Зареєструватися",
+                        style: TextStyle(color: MyColors.green),
+                      ),
                     ),
-                    SizedBox(height: 16,)
+                    FlatButton(
+                      onPressed: openResetPasswordPage,
+                      child: Text(
+                        "Забув пароль",
+                        style: TextStyle(color: MyColors.green),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 16,
+                    )
                   ],
                 ),
               ),
