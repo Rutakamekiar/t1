@@ -50,10 +50,10 @@ public class AgentmsgDao {
     public static String getAgentmsgFromDB(String host, String fromDate, String toDate) throws SQLException {
         Connection connection = DBconnectionContainer.getDBconnection();
         String sql = "select data from hosts_info " +
-                "where boot_time < to_timestamp(?,'YYYY-MM-DD HH24:MI:SS') " +
-                "and boot_time > to_timestamp(?,'YYYY-MM-DD HH24:MI:SS') " +
+                "where at < to_timestamp(?,'YYYY-MM-DD HH24:MI:SS') " +
+                "and at > to_timestamp(?,'YYYY-MM-DD HH24:MI:SS') " +
                 "and host = ? " +
-                "order by boot_time;";
+                "order by at;";
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
         preparedStatement.setString(1, toDate);
         preparedStatement.setString(2, fromDate);
