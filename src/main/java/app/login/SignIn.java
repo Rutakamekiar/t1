@@ -5,8 +5,7 @@ import app.util.Path;
 import io.javalin.http.Handler;
 import org.mindrot.jbcrypt.BCrypt;
 
-import static app.util.RequestUtil.getQueryPassword;
-import static app.util.RequestUtil.getQueryUsername;
+import static app.util.RequestUtil.*;
 
 public class SignIn {
 
@@ -33,9 +32,12 @@ public class SignIn {
                 ctx.header("Access-Control-Allow-Origin", "*").status(200);
             } else {
                 ctx.result("incorrect value").status(404);
+                ctx.json(stringToJson("{\"result\" : 0,\"message\": \"incorrect value\"}"));
+                ctx.status(200);
             }
         } catch (Exception ex) {
-            ctx.result("error").status(404);
+            ctx.json(stringToJson("{\"result\" : 0,\"message\": \"Exception\"}"));
+            ctx.status(200);
         }
 
     };
