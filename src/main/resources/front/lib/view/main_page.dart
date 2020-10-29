@@ -29,6 +29,8 @@ class _MainPageState extends State<MainPage> {
   bool isLoadingServers = false;
   bool isLoadingLogin = true;
 
+  bool isEmptyData = true;
+
   @override
   void initState() {
     super.initState();
@@ -75,11 +77,18 @@ class _MainPageState extends State<MainPage> {
         if (currentId == hostsModel.hosts.length) {
           currentId = currentId - 1;
         }
+        setState(() {
+          isEmptyData = false;
+        });
         setLoading(true);
         mainBloc.dataFetcher(
             hostsModel.hosts[currentId].host,
             DateTime.now().subtract(Duration(hours: 1)).toUtc().toString(),
             DateTime.now().toUtc().toString());
+      } else {
+        setState(() {
+          isEmptyData = true;
+        });
       }
     }, onError: (e) {
       setLoadingServers(false);
@@ -141,92 +150,112 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MyColors.background,
-      body: isLoadingLogin ? Center(child: CircularProgressIndicator()) : Column(
-        children: [
-          Container(
-            height: 75,
-            alignment: Alignment.center,
-            width: double.infinity,
-            child: Container(
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-              alignment: MediaQuery.of(context).size.width <= listWight
-                  ? null
-                  : Alignment.centerRight,
-              constraints: BoxConstraints(maxWidth: maxWight),
-              child: BaseButton(
-                onPressed: openAuthorizationPage,
-                height: 45,
-                width: 175,
-                title: "Вийти",
-              ),
-            ),
-            decoration: BoxDecoration(color: Colors.white, boxShadow: [
-              BoxShadow(
-                  color: Color.fromRGBO(232, 228, 228, 0.5),
-                  offset: Offset(0, 14),
-                  blurRadius: 23)
-            ]),
-          ),
-          Expanded(
-            child: Container(
-              width: double.infinity,
-              constraints: BoxConstraints(maxWidth: maxWight),
-              child: ListView(
-                padding:
-                    EdgeInsets.only(left: 15, right: 15, top: 30, bottom: 30),
-                children: [
-                  Container(
-                    padding: EdgeInsets.only(
-                        left: 15, right: 15, top: 15, bottom: 15),
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(15)),
-                    height: 240,
-                    child: StreamBuilder<HostsModel>(
-                        stream: mainBloc.servers,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            HostsModel hostsModel = snapshot.data;
-                            return isLoadingServers
-                                ? Center(child: CircularProgressIndicator())
-                                : buildHostList(hostsModel);
-                          } else if (snapshot.hasError) {
-                            final exception = snapshot.error;
-                            return buildError("Помилка: $exception");
-                          } else {
-                            return Center(child: CircularProgressIndicator());
-                          }
-                        }),
+      body: isLoadingLogin
+          ? Center(child: CircularProgressIndicator())
+          : Column(
+              children: [
+                Container(
+                  height: 75,
+                  alignment: Alignment.center,
+                  width: double.infinity,
+                  child: Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                    alignment: MediaQuery.of(context).size.width <= listWight
+                        ? null
+                        : Alignment.centerRight,
+                    constraints: BoxConstraints(maxWidth: maxWight),
+                    child: BaseButton(
+                      onPressed: openAuthorizationPage,
+                      height: 45,
+                      width: 175,
+                      title: "Вийти",
+                    ),
                   ),
-                  StreamBuilder<DataListModel>(
-                      stream: mainBloc.data,
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          DataListModel dataModel = snapshot.data;
-                          return MediaQuery.of(context).size.width <= listWight
-                              ? buildList(dataModel.data)
-                              : buildRow(dataModel.data);
-                        } else if (snapshot.hasError) {
-                          String range = DateTime.now().subtract(Duration(hours: 1)).toUtc().toString() + " - " +
-                              DateTime.now().toUtc().toString();
-                          return buildError("Дані за проміжок часу $range не знайдені");
-                        } else {
-                          return isLoadingData
-                              ? Padding(
-                                  padding: const EdgeInsets.only(top: 30),
-                                  child: Center(
-                                      child: CircularProgressIndicator()),
-                                )
-                              : Container();
-                        }
-                      })
-                ],
-              ),
+                  decoration: BoxDecoration(color: Colors.white, boxShadow: [
+                    BoxShadow(
+                        color: Color.fromRGBO(232, 228, 228, 0.5),
+                        offset: Offset(0, 14),
+                        blurRadius: 23)
+                  ]),
+                ),
+                Expanded(
+                  child: Container(
+                    width: double.infinity,
+                    constraints: BoxConstraints(maxWidth: maxWight),
+                    child: ListView(
+                      padding: EdgeInsets.only(
+                          left: 15, right: 15, top: 30, bottom: 30),
+                      children: [
+                        Container(
+                          padding: EdgeInsets.only(
+                              left: 15, right: 15, top: 15, bottom: 15),
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(15)),
+                          height: 240,
+                          child: StreamBuilder<HostsModel>(
+                              stream: mainBloc.servers,
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData) {
+                                  HostsModel hostsModel = snapshot.data;
+                                  return isLoadingServers
+                                      ? Center(
+                                          child: CircularProgressIndicator())
+                                      : buildHostList(hostsModel);
+                                } else if (snapshot.hasError) {
+                                  final exception = snapshot.error;
+                                  return buildError("Помилка: $exception");
+                                } else {
+                                  return Center(
+                                      child: CircularProgressIndicator());
+                                }
+                              }),
+                        ),
+                        StreamBuilder<DataListModel>(
+                            stream: mainBloc.data,
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                DataListModel dataModel = snapshot.data;
+                                if (isLoadingData) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(top: 30),
+                                    child: Center(
+                                        child: CircularProgressIndicator()),
+                                  );
+                                }
+                                if (isEmptyData) {
+                                  return Container();
+                                }
+                                return MediaQuery.of(context).size.width <=
+                                        listWight
+                                    ? buildList(dataModel.data)
+                                    : buildRow(dataModel.data);
+                              } else if (snapshot.hasError) {
+                                String range = DateTime.now()
+                                        .subtract(Duration(hours: 1))
+                                        .toUtc()
+                                        .toString() +
+                                    " - " +
+                                    DateTime.now().toUtc().toString();
+                                return buildError(
+                                    "Дані за проміжок часу $range не знайдені");
+                              } else {
+                                return isLoadingData
+                                    ? Padding(
+                                        padding: const EdgeInsets.only(top: 30),
+                                        child: Center(
+                                            child: CircularProgressIndicator()),
+                                      )
+                                    : Container();
+                              }
+                            })
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -246,10 +275,12 @@ class _MainPageState extends State<MainPage> {
             showDialog(
               context: context,
               builder: (BuildContext context) => MyDialog(
-                content: "Ви впевнені, що хочите видалити ${hostsModel.hosts[id].host}?",
+                content:
+                    "Ви впевнені, що хочите видалити ${hostsModel.hosts[id].host}?",
                 negativeButton: "Ні",
                 positiveButton: "Так",
                 onPositive: () {
+                  Navigator.pop(context);
                   setLoadingServers(true);
                   mainBloc.deleteServer(hostsModel.hosts[id].host);
                 },
@@ -262,7 +293,10 @@ class _MainPageState extends State<MainPage> {
               setLoading(true);
               mainBloc.dataFetcher(
                   hostsModel.hosts[currentId].host,
-                  DateTime.now().subtract(Duration(hours: 1)).toUtc().toString(),
+                  DateTime.now()
+                      .subtract(Duration(hours: 1))
+                      .toUtc()
+                      .toString(),
                   DateTime.now().toUtc().toString());
             });
           },
