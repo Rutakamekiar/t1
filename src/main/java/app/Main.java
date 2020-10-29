@@ -32,11 +32,11 @@ public class Main {
         Javalin app = Javalin.create(config -> {
             config.server(() -> {
                 Server server = new Server();
-                //ServerConnector sslConnector = new ServerConnector(server, getSslContextFactory());
-                //sslConnector.setPort(443);
+                ServerConnector sslConnector = new ServerConnector(server, getSslContextFactory());
+                sslConnector.setPort(443);
                 ServerConnector connector = new ServerConnector(server);
                 connector.setPort(80);
-                server.setConnectors(new Connector[]{/*sslConnector,*/ connector});
+                server.setConnectors(new Connector[]{sslConnector, connector});
                 return server;
             });
             config.addStaticFiles("/front/build/web");
