@@ -40,7 +40,7 @@ public class Main {
                 return server;
             });
             config.addStaticFiles("/front/build/web");
-            //config.enforceSsl = true;
+            config.enforceSsl = true;
         }).start(); // valid endpoint for both connectors
 
         app.routes(() -> {
@@ -52,6 +52,7 @@ public class Main {
             get(Path.Web.VERIFICATE,RegisterController.verifyEmail);
             get(Path.Web.GETUSERSERVERS, ServerController.getUserServers);
             get(Path.Web.ISLOGIN, LoginController.isLogIned);
+            get(Path.Web.ROBOTSTXT, IndexController.getRobotsTXT);
             put(Path.Web.ADDSERVERTOUSER, ServerController.addServerToUser);
             delete(Path.Web.DELETESERVERFROMUSER, ServerController.deleteUserFromServer);
             post(Path.Web.LOGIN, LoginController.handleLoginPost);
