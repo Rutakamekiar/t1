@@ -58,7 +58,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
       }
     }, onError: (e) {
       setLoading(false);
-      DialogHelper.showInformDialog(context, "Виникла помылка: ${e.toString()}",
+      DialogHelper.showInformDialog(context, "Виникла помлика: ${e.toString()}",
           onPositive: () => Navigator.pop(context));
     });
     loginController.addListener(() {

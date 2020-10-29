@@ -44,7 +44,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
       }
     }, onError: (e) {
       setLoading(false);
-      DialogHelper.showInformDialog(context, "Виникла помылка: ${e.toString()}",
+      DialogHelper.showInformDialog(context, "Виникла помилка: ${e.toString()}",
           onPositive: () => Navigator.pop(context));
     });
     emailController.addListener(() {

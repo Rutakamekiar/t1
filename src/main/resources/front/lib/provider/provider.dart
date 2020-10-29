@@ -10,9 +10,8 @@ class Provider {
   Dio dio = Dio();
 
   Future<DataListModel> getData(String host, String from, String to) async {
-    Response response;
     print("${Constants.url}getmsg?host=$host&from=$from&to=$to");
-    response =
+    final response =
         await dio.get("${Constants.url}getmsg?host=$host&from=$from&to=$to");
     return DataListModel.fromJson(response.data);
   }
@@ -24,6 +23,28 @@ class Provider {
       return true;
     } else {
       return false;
+    }
+  }
+
+  Future<ResponseModel> logout() async {
+    try {
+      final response = await dio.get(
+        "${Constants.url}logout",
+      );
+      return ResponseModel.fromJson(response.data);
+    } catch (e) {
+      throw (e);
+    }
+  }
+
+  Future<ResponseModel> isLogin() async {
+    try {
+      final response = await dio.get(
+        "${Constants.url}isLogin",
+      );
+      return ResponseModel.fromJson(response.data);
+    } catch (e) {
+      throw (e);
     }
   }
 

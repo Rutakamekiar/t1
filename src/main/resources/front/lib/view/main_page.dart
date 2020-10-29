@@ -6,6 +6,7 @@ import 'package:servelyzer/bloc/main_bloc.dart';
 import 'package:servelyzer/model/data_model.dart';
 import 'package:servelyzer/model/hosts_model.dart';
 import 'package:servelyzer/style/my_colors.dart';
+import 'package:servelyzer/utils/dialog_helper.dart';
 import 'package:servelyzer/widget/base_button.dart';
 import 'package:servelyzer/widget/base_text_field.dart';
 import 'package:servelyzer/widget/my_dialog.dart';
@@ -20,7 +21,12 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   final mainBloc = MainBloc();
+
+  TextEditingController hostController = TextEditingController();
+
+  int currentId = 0;
   bool isLoadingData = false;
+  bool isLoadingServers = false;
 
   @override
   void initState() {
@@ -31,10 +37,32 @@ class _MainPageState extends State<MainPage> {
       setLoading(false);
     });
     mainBloc.getServers();
-    // mainBloc.dataFetcher(
-    //     "gor-tss",
-    //     DateTime.now().subtract(Duration(hours: 1)).toUtc().toString(),
-    //     DateTime.now().toUtc().toString());
+    mainBloc.servers.listen((data) {
+      setLoadingServers(false);
+    }, onError: (e) {
+      setLoadingServers(false);
+    });
+    mainBloc.add.listen((event) {
+      mainBloc.getServers();
+    }, onError: (e) {
+      setLoadingServers(false);
+      DialogHelper.showInformDialog(context, "Виникла помилка: ${e.toString()}",
+          onPositive: () => Navigator.pop(context));
+    });
+    mainBloc.delete.listen((event) {
+      mainBloc.getServers();
+    }, onError: (e) {
+      setLoadingServers(false);
+      DialogHelper.showInformDialog(context, "Виникла помилка: ${e.toString()}",
+          onPositive: () => Navigator.pop(context));
+    });
+  }
+
+  setLoadingServers(bool value) {
+    if (isLoadingServers != value)
+      setState(() {
+        isLoadingServers = value;
+      });
   }
 
   setLoading(bool value) {
@@ -61,6 +89,7 @@ class _MainPageState extends State<MainPage> {
   @override
   void dispose() {
     mainBloc.dispose();
+    hostController.dispose();
     super.dispose();
   }
 
@@ -115,7 +144,9 @@ class _MainPageState extends State<MainPage> {
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
                             HostsModel hostsModel = snapshot.data;
-                            return buildHostList(hostsModel);
+                            return isLoadingServers
+                                ? Center(child: CircularProgressIndicator())
+                                : buildHostList(hostsModel);
                           } else if (snapshot.hasError) {
                             final exception = snapshot.error;
                             return buildError(exception);
@@ -136,10 +167,13 @@ class _MainPageState extends State<MainPage> {
                           final exception = snapshot.error;
                           return buildError(exception);
                         } else {
-                          return isLoadingData ? Padding(
-                            padding: const EdgeInsets.only(top: 30),
-                            child: Center(child: CircularProgressIndicator()),
-                          ) : Container();
+                          return isLoadingData
+                              ? Padding(
+                                  padding: const EdgeInsets.only(top: 30),
+                                  child: Center(
+                                      child: CircularProgressIndicator()),
+                                )
+                              : Container();
                         }
                       })
                 ],
@@ -152,10 +186,32 @@ class _MainPageState extends State<MainPage> {
   }
 
   Container buildHostList(HostsModel hostsModel) {
+    print("fff");
+    List<Widget> list = List<Widget>();
     if (hostsModel.hosts != null && hostsModel.hosts.isNotEmpty) {
+      if (currentId == hostsModel.hosts.length) {
+        currentId = currentId - 1;
+      }
+      for (int i = 0; i < hostsModel.hosts.length; i++) {
+        Host host = hostsModel.hosts[i];
+        list.add(HostItem(
+          title: host.host,
+          id: i,
+          currentId: currentId,
+          onDelete: (id) {
+            setLoadingServers(true);
+            mainBloc.deleteServer(hostsModel.hosts[id].host);
+          },
+          onSelected: (id) {
+            setState(() {
+              currentId = id;
+            });
+          },
+        ));
+      }
       setLoading(true);
       mainBloc.dataFetcher(
-          hostsModel.hosts.first.host,
+          hostsModel.hosts[currentId].host,
           DateTime.now().subtract(Duration(hours: 1)).toUtc().toString(),
           DateTime.now().toUtc().toString());
     }
@@ -164,22 +220,31 @@ class _MainPageState extends State<MainPage> {
         children: [
           Expanded(
             child: Container(
-              decoration: BoxDecoration(
-                  border: Border.all(color: MyColors.grey),
-                  borderRadius: BorderRadius.circular(5)),
-              child: hostsModel.hosts == null || hostsModel.hosts.isEmpty
-                  ? Center(child: Text("Список хостів порожній"))
-                  : ListView(
-                      children: [],
-                    ),
-            ),
+                decoration: BoxDecoration(
+                    border: Border.all(color: MyColors.grey),
+                    borderRadius: BorderRadius.circular(5)),
+                child: hostsModel.hosts == null || hostsModel.hosts.isEmpty
+                    ? Center(child: Text("Список хостів порожній"))
+                    : ListView(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        children: list,
+                      )),
           ),
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Expanded(
                 child: BaseTextField(
-                    enable: !isLoadingData, label: "", errorText: "Введіть хост"),
+                    enable: !isLoadingData,
+                    textEditingController: hostController,
+                    onSubmitted: (value) {
+                      if(hostController.text.isNotEmpty) {
+                        setLoadingServers(true);
+                        mainBloc.addServer(hostController.text);
+                      }
+                    },
+                    label: "",
+                    errorText: "Введіть хост"),
               ),
               SizedBox(
                 width: 30,
@@ -189,7 +254,12 @@ class _MainPageState extends State<MainPage> {
                 width: 150,
                 height: 37,
                 title: "Додати",
-                onPressed: () {},
+                onPressed: () {
+                  if(hostController.text.isNotEmpty) {
+                    setLoadingServers(true);
+                    mainBloc.addServer(hostController.text);
+                  }
+                },
               )
             ],
           )
@@ -411,6 +481,50 @@ class _MainPageState extends State<MainPage> {
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class HostItem extends StatelessWidget {
+  final String title;
+  final Function(int) onSelected;
+  final int id;
+  final int currentId;
+  final Function(int) onDelete;
+
+  const HostItem({
+    Key key,
+    @required this.title,
+    this.onSelected,
+    this.id,
+    this.currentId,
+    this.onDelete,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+          color: id == currentId ? MyColors.green.withAlpha(20) : null,
+          border: Border(bottom: BorderSide(color: MyColors.grey))),
+      child: Row(
+        children: [
+          Expanded(
+              child: FlatButton(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  onPressed: () => onSelected(id),
+                  child: Text(
+                    title,
+                    style: TextStyle(fontSize: 20),
+                  ))),
+          FlatButton(
+              onPressed: () => onDelete(id),
+              child: Icon(
+                Icons.delete_outline,
+                color: Colors.redAccent,
+              ))
         ],
       ),
     );

@@ -19,6 +19,12 @@ class Repository {
 
   Future<HostsModel> getServers() => _provider.getServers();
 
+  Future<ResponseModel> isLogin() =>
+      _provider.isLogin();
+
+  Future<ResponseModel> logout() =>
+      _provider.logout();
+
   Future<ResponseModel> getResetPassword(String email) =>
       _provider.getResetPassword(email);
 
