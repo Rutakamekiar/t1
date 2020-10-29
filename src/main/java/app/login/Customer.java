@@ -1,5 +1,12 @@
 package app.login;
 
+import app.database.DBconnectionContainer;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 public class Customer {
     private String login;
     private String password;
@@ -28,4 +35,19 @@ public class Customer {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public static Customer getCustomerFromDB(String login ) throws SQLException, NoSuchFieldException {
+
+        Connection connection = DBconnectionContainer.getDBconnection();
+        String sql = "select pwd from users where login = ?;";
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setString(1, login);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        if (!rs.next())
+            throw new NoSuchFieldException();
+
+        return new Customer(login , rs.getString("pwd"));
+    }
+
 }

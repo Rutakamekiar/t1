@@ -5,17 +5,18 @@ import app.util.Path;
 import io.javalin.http.Handler;
 import org.mindrot.jbcrypt.BCrypt;
 
-import static app.util.RequestUtil.getQueryPassword;
-import static app.util.RequestUtil.getQueryUsername;
+import java.sql.SQLException;
+
+import static app.util.RequestUtil.*;
 
 public class SignIn {
 
-    public static boolean authenticate(String username, String password) {
+    public static boolean authenticate(String username, String password) throws NoSuchFieldException, SQLException {
         if (username == null || password == null) {
             return false;
         }
-        Customer customer = new Customer("team1","12345");
-        if (username.equals(customer.getLogin()) && password.equals(customer.getPassword())) {
+        Customer customer = Customer.getCustomerFromDB(username);
+        if ( password.equals(customer.getPassword())) {
             return true;
         }
         return false;
@@ -30,12 +31,17 @@ public class SignIn {
 
             if (authenticate(username, password)) {
                 ctx.cookie("username", username);
-                ctx.header("Access-Control-Allow-Origin", "*").status(200);
+                ctx.header("Access-Control-Allow-Origin", "*");
+                ctx.json(stringToJson("{\"result\" : 1,\"message\": \"welcome\"}"));
+                ctx.status(200);
             } else {
                 ctx.result("incorrect value").status(404);
+                ctx.json(stringToJson("{\"result\" : 0,\"message\": \"incorrect password\"}"));
+                ctx.status(200);
             }
-        } catch (Exception ex) {
-            ctx.result("error").status(404);
+        } catch (NoSuchFieldException ex) {
+            ctx.json(stringToJson("{\"result\" : 0,\"message\": \"missing user\"}"));
+            ctx.status(200);
         }
 
     };

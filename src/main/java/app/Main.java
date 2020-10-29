@@ -35,7 +35,7 @@ public class Main {
                 ServerConnector sslConnector = new ServerConnector(server, getSslContextFactory());
                 sslConnector.setPort(443);
                 ServerConnector connector = new ServerConnector(server);
-                connector.setPort(8080);
+                connector.setPort(80);
                 server.setConnectors(new Connector[]{sslConnector, connector});
                 return server;
             });
@@ -62,8 +62,24 @@ public class Main {
             post(Path.Web.DROPPWD, RegisterController.dropPwd);
         });
 
-        app.error(404, ViewUtil.notFound);
-
+        app.error(404,  ctx -> {
+            ctx.html("Generic 404 message");
+        });
+        app.error(500, ctx -> {
+            ctx.result("Generic 500 message");
+        });
+        app.error(501, ctx -> {
+            ctx.result("Generic 500 message");
+        });
+        app.error(502, ctx -> {
+            ctx.result("Generic 500 message");
+        });
+        app.error(503, ctx -> {
+            ctx.result("Generic 500 message");
+        });
+        app.error(504, ctx -> {
+            ctx.result("Generic 500 message");
+        });
 
     }
 

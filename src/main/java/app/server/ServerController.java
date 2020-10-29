@@ -27,7 +27,7 @@ public class ServerController {
         }
         catch (SQLException e){
             ctx.json(stringToJson("{\"result\" : 0,\"message\": \"SQLException\"}"));
-            ctx.status(404);
+            ctx.status(200);
             throw e;
         }
         ctx.header("Access-Control-Allow-Origin", "*");
@@ -45,11 +45,11 @@ public class ServerController {
         catch (NoSuchFieldException e)
         {
             ctx.json(stringToJson("{\"result\" : 0,\"message\": \"Host not found\"}"));
-            ctx.status(404);
+            ctx.status(200);
         }
         catch (PSQLException e){
             ctx.json(stringToJson("{\"result\" : 0,\"message\": \"Server already added\"}"));
-            ctx.status(404);
+            ctx.status(200);
         }
 
         ctx.header("Access-Control-Allow-Origin", "*");
@@ -65,11 +65,11 @@ public class ServerController {
         }
         catch ( SQLException e){
             ctx.json(stringToJson("{\"result\" : 0,\"message\": \"SQLException\"}"));
-            ctx.status(404);
+            ctx.status(200);
             throw e;
         }
         ctx.header("Access-Control-Allow-Origin", "*");
-        ctx.status(201);
+        ctx.status(200);
     };
 
 }
