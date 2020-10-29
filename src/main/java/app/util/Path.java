@@ -24,6 +24,7 @@ public class Path {
         public static final String ADDSERVERTOUSER = "/addServer";
         public static final String DELETESERVERFROMUSER = "/deleteServer";
         public static final String ISLOGIN = "/isLogin";
+        public static final String ROBOTSTXT = "/robots.txt";
     }
     /**
      * Contain paths of page resources
