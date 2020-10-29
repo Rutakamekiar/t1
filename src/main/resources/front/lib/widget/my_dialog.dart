@@ -47,6 +47,7 @@ class MyDialog extends StatelessWidget {
         Expanded(
             child: Center(
                 child: AutoSizeText(content,
+                    textAlign: TextAlign.center,
                     style: TextStyle(
                         color: Colors.black,
                         fontSize: 24,
@@ -66,6 +67,7 @@ class MyDialog extends StatelessWidget {
         Expanded(
             child: Center(
                 child: AutoSizeText(content,
+                    textAlign: TextAlign.center,
                     style: TextStyle(
                         color: Colors.black,
                         fontSize: 24,

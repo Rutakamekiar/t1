@@ -1,17 +1,20 @@
 import 'package:dio/dio.dart';
 import 'package:servelyzer/model/auth_model.dart';
 import 'package:servelyzer/model/data_model.dart';
+import 'package:servelyzer/model/hosts_model.dart';
 import 'package:servelyzer/model/registration_model.dart';
+import 'package:servelyzer/model/response_model.dart';
 import 'package:servelyzer/utils/constants.dart';
 
 class Provider {
   Dio dio = Dio();
 
-  Future<DataModel> getData(String host) async {
+  Future<DataListModel> getData(String host, String from, String to) async {
     Response response;
-    print("${Constants.url}getmsg?host=$host");
-    response = await dio.get("${Constants.url}getmsg?host=$host");
-    return DataModel.fromJson(response.data);
+    print("${Constants.url}getmsg?host=$host&from=$from&to=$to");
+    response =
+        await dio.get("${Constants.url}getmsg?host=$host&from=$from&to=$to");
+    return DataListModel.fromJson(response.data);
   }
 
   Future<bool> getAuth(AuthModel authModel) async {
@@ -24,27 +27,60 @@ class Provider {
     }
   }
 
-  Future<bool> getRegistration(RegistrationModel registrationModel) async {
-    print( "${Constants.url}register?login=${registrationModel.login}"
-        "&email=${registrationModel.email}&pwd=${registrationModel.pwd}");
-    final response = await dio.get(
-      "${Constants.url}register?login=${registrationModel.login}"
-      "&email=${registrationModel.email}&pwd=${registrationModel.pwd}",
-    );
-    if (response.statusCode == 200) {
+  Future<bool> deleteServer(String server) async {
+    try {
+      final response =
+          await dio.delete("${Constants.url}deleteServer?host=$server");
+      print(response.data);
       return true;
-    } else {
-      return false;
+    } catch (e) {
+      throw e;
     }
   }
 
-  Future<bool> getResetPassword(String email) async {
-    print( "${Constants.url}droppwd?email=$email");
-    final response = await dio.get("${Constants.url}droppwd?email=$email",);
-    if (response.statusCode == 200) {
+  Future<bool> addServer(String server) async {
+    try {
+      final response = await dio.put("${Constants.url}addServer?host=$server");
+      print(response.data);
       return true;
-    } else {
-      return false;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  Future<HostsModel> getServers() async {
+    try {
+      final response = await dio.get("${Constants.url}getServers");
+      return HostsModel.fromJson(response.data);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  Future<ResponseModel> getRegistration(
+      RegistrationModel registrationModel) async {
+    print("${Constants.url}register?login=${registrationModel.login}"
+        "&email=${registrationModel.email}&pwd=${registrationModel.pwd}");
+    try {
+      final response = await dio.post(
+        "${Constants.url}register?login=${registrationModel.login}"
+        "&email=${registrationModel.email}&pwd=${registrationModel.pwd}",
+      );
+      return ResponseModel.fromJson(response.data);
+    } catch (e) {
+      throw (e);
+    }
+  }
+
+  Future<ResponseModel> getResetPassword(String email) async {
+    print("${Constants.url}droppwd?email=$email");
+    try {
+      final response = await dio.post(
+        "${Constants.url}droppwd?email=$email",
+      );
+      return ResponseModel.fromJson(response.data);
+    } catch (e) {
+      throw (e);
     }
   }
 }

@@ -2,13 +2,15 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_modular/flutter_modular.dart';
 import 'package:servelyzer/bloc/reset_password_bloc.dart';
 import 'package:servelyzer/style/my_colors.dart';
+import 'package:servelyzer/utils/dialog_helper.dart';
 import 'package:servelyzer/widget/base_button.dart';
 import 'package:servelyzer/widget/base_text_field.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class ResetPasswordPage extends StatefulWidget{
+class ResetPasswordPage extends StatefulWidget {
   @override
   _ResetPasswordPageState createState() => _ResetPasswordPageState();
 }
@@ -22,25 +24,32 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
   bool emailError = false;
   bool isLoading = false;
 
+  openAuthPage() {
+    Modular.to.pushNamedAndRemoveUntil('/', (route) => false);
+  }
 
   @override
   void initState() {
     super.initState();
-    resetPasswordBloc.resetPassword.listen((event) {
-      print(event);
+    resetPasswordBloc.resetPassword.listen((responseModel) {
       setLoading(false);
-      if (event) {
-        ///////
+      if (responseModel.result == 2) {
+        DialogHelper.showInformDialog(
+            context, "Новий пароль відправлено на email",
+            onPositive: openAuthPage);
       } else {
-        // showInformDialog("Неправильний логін або пароль");
+        DialogHelper.showInformDialog(
+            context, "Користувача з даним email не знайдено",
+            onPositive: () => Navigator.pop(context));
       }
     }, onError: (e) {
       setLoading(false);
-      print(e);
-      // showInformDialog("Неправильний логін або пароль");
+      DialogHelper.showInformDialog(context, "Виникла помылка: ${e.toString()}",
+          onPositive: () => Navigator.pop(context));
     });
     emailController.addListener(() {
-      if(!EmailValidator.validate(emailController.text) && emailController.text.isNotEmpty){
+      if (!EmailValidator.validate(emailController.text) &&
+          emailController.text.isNotEmpty) {
         setState(() {
           emailErrorMessage = "Невірний формат";
         });
@@ -50,7 +59,6 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
       }
     });
   }
-
 
   @override
   void dispose() {
@@ -76,7 +84,8 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
       setEmailError(true);
       isValid = false;
     }
-    if(emailController.text.isNotEmpty && !EmailValidator.validate(emailController.text)){
+    if (emailController.text.isNotEmpty &&
+        !EmailValidator.validate(emailController.text)) {
       setState(() {
         emailErrorMessage = "Невірний формат";
       });
@@ -147,7 +156,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                     Container(
                       width: double.infinity,
                       constraints: BoxConstraints(maxWidth: 318),
-                      child:BaseTextField(
+                      child: BaseTextField(
                           textEditingController: emailController,
                           isError: emailError,
                           enable: !isLoading,

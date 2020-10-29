@@ -6,9 +6,12 @@ import 'package:flutter_modular/flutter_modular.dart';
 import 'package:servelyzer/bloc/registration_bloc.dart';
 import 'package:servelyzer/model/registration_model.dart';
 import 'package:servelyzer/style/my_colors.dart';
+import 'package:servelyzer/utils/dialog_helper.dart';
 import 'package:servelyzer/widget/base_button.dart';
 import 'package:servelyzer/widget/base_text_field.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+const int minPasswordLength = 8;
 
 class RegistrationPage extends StatefulWidget {
   @override
@@ -35,27 +38,35 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   final registrationBloc = RegistrationBloc();
 
+  openAuthPage() {
+    Modular.to.pushNamedAndRemoveUntil('/', (route) => false);
+  }
+
   @override
   void initState() {
     super.initState();
-    registrationBloc.registration.listen((event) {
-      print(event);
+    registrationBloc.registration.listen((responseModel) {
       setLoading(false);
-      if (event) {
-        openMainPage();
+      if (responseModel.result == 1) {
+        DialogHelper.showInformDialog(
+            context, "Лист з підтвердженням аккаунту відправлений на пошту",
+            onPositive: openAuthPage);
       } else {
-        // showInformDialog("Неправильний логін або пароль");
+        DialogHelper.showInformDialog(
+            context, "Користувач з таким логіном або email вже існує",
+            onPositive: () => Navigator.pop(context));
       }
     }, onError: (e) {
       setLoading(false);
-      print(e);
-      // showInformDialog("Неправильний логін або пароль");
+      DialogHelper.showInformDialog(context, "Виникла помылка: ${e.toString()}",
+          onPositive: () => Navigator.pop(context));
     });
     loginController.addListener(() {
       setLoginError(false);
     });
     emailController.addListener(() {
-      if(!EmailValidator.validate(emailController.text) && emailController.text.isNotEmpty){
+      if (!EmailValidator.validate(emailController.text) &&
+          emailController.text.isNotEmpty) {
         setState(() {
           emailErrorMessage = "Невірний формат";
         });
@@ -65,7 +76,16 @@ class _RegistrationPageState extends State<RegistrationPage> {
       }
     });
     passwordController.addListener(() {
-      setPasswordError(false);
+      if (passwordController.text.isNotEmpty &&
+          passwordController.text.length < minPasswordLength) {
+        setState(() {
+          passwordErrorMessage =
+              "Пароль має бути больше $minPasswordLength символів";
+        });
+        setPasswordError(true);
+      } else {
+        setPasswordError(false);
+      }
     });
     confirmPasswordController.addListener(() {
       setConfirmPasswordError(false);
@@ -134,6 +154,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
       isValid = false;
     }
     if (passwordController.text.isEmpty) {
+      setState(() {
+        passwordErrorMessage = "Введіть пароль";
+      });
       setPasswordError(true);
       isValid = false;
     }
@@ -144,7 +167,17 @@ class _RegistrationPageState extends State<RegistrationPage> {
       setConfirmPasswordError(true);
       isValid = false;
     }
-    if(emailController.text.isNotEmpty && !EmailValidator.validate(emailController.text)){
+    if (passwordController.text.isNotEmpty &&
+        passwordController.text.length < minPasswordLength) {
+      setState(() {
+        passwordErrorMessage =
+            "Пароль має бути больше $minPasswordLength символів";
+      });
+      setPasswordError(true);
+      isValid = false;
+    }
+    if (emailController.text.isNotEmpty &&
+        !EmailValidator.validate(emailController.text)) {
       setState(() {
         emailErrorMessage = "Невірний формат";
       });
@@ -163,8 +196,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
     if (isValid) {
       setLoading(true);
-      RegistrationModel registrationModel =
-      RegistrationModel(loginController.text, emailController.text, passwordController.text);
+      RegistrationModel registrationModel = RegistrationModel(
+          loginController.text, emailController.text, passwordController.text);
       registrationBloc.registrationFetcher(registrationModel);
     }
   }

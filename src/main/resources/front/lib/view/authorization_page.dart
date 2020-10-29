@@ -6,9 +6,9 @@ import 'package:servelyzer/bloc/authorization_bloc.dart';
 import 'package:servelyzer/model/auth_model.dart';
 import 'package:servelyzer/style/my_colors.dart';
 import 'package:servelyzer/utils/constants.dart';
+import 'package:servelyzer/utils/dialog_helper.dart';
 import 'package:servelyzer/widget/base_button.dart';
 import 'package:servelyzer/widget/base_text_field.dart';
-import 'package:servelyzer/widget/my_dialog.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AuthorizationPage extends StatefulWidget {
@@ -48,11 +48,11 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
       if (event) {
         openMainPage();
       } else {
-        showInformDialog("Неправильний логін або пароль");
+        DialogHelper.showInformDialog(context, "Неправильний логін або пароль", onPositive: ()=> Navigator.pop(context));
       }
     }, onError: (e) {
       setLoading(false);
-      showInformDialog("Неправильний логін або пароль");
+      DialogHelper.showInformDialog(context, "Неправильний логін або пароль", onPositive: ()=> Navigator.pop(context));
     });
     loginController.addListener(() {
       setLoginError(false);
@@ -60,19 +60,6 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
     passwordController.addListener(() {
       setPasswordError(false);
     });
-  }
-
-  showInformDialog(String text, {String button = "Ок"}) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) => MyDialog.information(
-        content: text,
-        button: button,
-        onPositive: () {
-          Navigator.pop(context);
-        },
-      ),
-    );
   }
 
   checkFields() {

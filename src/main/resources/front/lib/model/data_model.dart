@@ -1,3 +1,28 @@
+class DataListModel {
+  DataListModel({
+    this.data,
+    this.result,
+    this.message,
+  });
+
+  int result;
+  String message;
+  List<DataModel> data;
+
+  factory DataListModel.fromJson(Map<String, dynamic> json) => DataListModel(
+    data: json["data"] == null ? null : List<DataModel>.from(json["data"].map((x) => DataModel.fromJson(x))),
+    result: json["result"],
+    message: json["message"]
+  );
+
+  Map<String, dynamic> toJson() => {
+    "data": List<dynamic>.from(data.map((x) => x.toJson())),
+    "result": result,
+    "message": message
+  };
+}
+
+
 class DataModel {
   DataModel({
     this.host,
