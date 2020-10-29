@@ -27,20 +27,64 @@ class _MainPageState extends State<MainPage> {
   int currentId = 0;
   bool isLoadingData = false;
   bool isLoadingServers = false;
+  bool isLoadingLogin = true;
 
   @override
   void initState() {
     super.initState();
+
+    // isLoadingLogin = false;
+    // mainBloc.getServers();
+    mainBloc.loginFetcher();
+
     mainBloc.data.listen((data) {
       setLoading(false);
     }, onError: (e) {
       setLoading(false);
     });
-    mainBloc.getServers();
-    mainBloc.servers.listen((data) {
+    mainBloc.login.listen((event) {
+      if (event.result == 1) {
+        setState(() {
+          isLoadingLogin = false;
+        });
+        mainBloc.getServers();
+      } else {
+        DialogHelper.showInformDialog(
+            context, "Виникла помилка: ${event.message}",
+            onPositive: () => Modular.to.pushReplacementNamed('/auth'));
+      }
+    }, onError: (e) {
+      DialogHelper.showInformDialog(context, "Виникла помилка: ${e.toString()}",
+          onPositive: () => Modular.to.pushReplacementNamed('/auth'));
+    });
+    mainBloc.logout.listen((event) {
+      if (event.result == 1) {
+        Modular.to.pushReplacementNamed('/auth');
+      } else {
+        DialogHelper.showInformDialog(
+            context, "Виникла помилка: ${event.message}",
+            onPositive: () => Modular.to.pushReplacementNamed('/auth'));
+      }
+    }, onError: (e) {
+      DialogHelper.showInformDialog(context, "Виникла помилка: ${e.toString()}",
+          onPositive: () => Modular.to.pushReplacementNamed('/auth'));
+    });
+    mainBloc.servers.listen((hostsModel) {
       setLoadingServers(false);
+      if (hostsModel.hosts != null && hostsModel.hosts.isNotEmpty) {
+        if (currentId == hostsModel.hosts.length) {
+          currentId = currentId - 1;
+        }
+        setLoading(true);
+        mainBloc.dataFetcher(
+            hostsModel.hosts[currentId].host,
+            DateTime.now().subtract(Duration(hours: 1)).toUtc().toString(),
+            DateTime.now().toUtc().toString());
+      }
     }, onError: (e) {
       setLoadingServers(false);
+      DialogHelper.showInformDialog(context, "Виникла помилка: ${e.toString()}",
+          onPositive: () => Navigator.pop(context));
     });
     mainBloc.add.listen((event) {
       mainBloc.getServers();
@@ -80,7 +124,7 @@ class _MainPageState extends State<MainPage> {
         negativeButton: "Ні",
         positiveButton: "Так",
         onPositive: () {
-          Modular.to.pushReplacementNamed('/');
+          mainBloc.logoutFetcher();
         },
       ),
     );
@@ -97,7 +141,7 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MyColors.background,
-      body: Column(
+      body: isLoadingLogin ? Center(child: CircularProgressIndicator()) : Column(
         children: [
           Container(
             height: 75,
@@ -209,12 +253,8 @@ class _MainPageState extends State<MainPage> {
           },
         ));
       }
-      setLoading(true);
-      mainBloc.dataFetcher(
-          hostsModel.hosts[currentId].host,
-          DateTime.now().subtract(Duration(hours: 1)).toUtc().toString(),
-          DateTime.now().toUtc().toString());
     }
+
     return Container(
       child: Column(
         children: [
@@ -235,10 +275,9 @@ class _MainPageState extends State<MainPage> {
             children: [
               Expanded(
                 child: BaseTextField(
-                    enable: !isLoadingData,
                     textEditingController: hostController,
                     onSubmitted: (value) {
-                      if(hostController.text.isNotEmpty) {
+                      if (hostController.text.isNotEmpty) {
                         setLoadingServers(true);
                         mainBloc.addServer(hostController.text);
                       }
@@ -250,12 +289,12 @@ class _MainPageState extends State<MainPage> {
                 width: 30,
               ),
               BaseButton(
-                isLoading: isLoadingData,
+                isLoading: false,
                 width: 150,
                 height: 37,
                 title: "Додати",
                 onPressed: () {
-                  if(hostController.text.isNotEmpty) {
+                  if (hostController.text.isNotEmpty) {
                     setLoadingServers(true);
                     mainBloc.addServer(hostController.text);
                   }
@@ -288,17 +327,6 @@ class _MainPageState extends State<MainPage> {
         SizedBox(
           height: 20,
         ),
-        BaseButton(
-          onPressed: () {
-            setLoading(true);
-            mainBloc.dataFetcher("potapuff.example.com", "2020-09-29 18:45:52",
-                "2020-10-29 20:45:52");
-          },
-          height: 35,
-          width: 175,
-          isLoading: isLoadingData,
-          title: "Повторити",
-        ),
       ],
     );
   }
@@ -312,7 +340,7 @@ class _MainPageState extends State<MainPage> {
         MainPageItem(
           title: "Поточне використання CPU",
           child: LineChart(
-            chartData(linesCpuData(dataModels)),
+            chartData(linesCpuData(dataModels), isCPU: true),
             swapAnimationDuration: const Duration(milliseconds: 250),
           ),
         ),
@@ -327,28 +355,51 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-  LineChartData chartData(List<LineChartBarData> data) {
+  LineChartData chartData(List<LineChartBarData> data, {bool isCPU = false}) {
     return LineChartData(
       lineTouchData: LineTouchData(
         touchTooltipData: LineTouchTooltipData(
-          tooltipBgColor: Colors.blueGrey.withOpacity(0.8),
-        ),
+            tooltipBgColor: Colors.blueGrey.withOpacity(0.8),
+            getTooltipItems: (touchedSpots) {
+              List<LineTooltipItem> list = List<LineTooltipItem>();
+              touchedSpots.forEach((element) {
+                String time =
+                    DateTime.fromMillisecondsSinceEpoch(element.x.floor())
+                            .hour
+                            .toString() +
+                        ":" +
+                        DateTime.fromMillisecondsSinceEpoch(element.x.floor())
+                            .minute
+                            .toString()
+                            .padLeft(2, "0");
+                list.add(LineTooltipItem(
+                    time + " - " + element.y.toString(),
+                    TextStyle(
+                        color: MyColors.green, fontWeight: FontWeight.bold)));
+              });
+              return list;
+            }),
         touchCallback: (LineTouchResponse touchResponse) {},
         handleBuiltInTouches: true,
       ),
       gridData: FlGridData(
         show: false,
       ),
+      minX: data.first.spots.first.x,
+      maxX: data.first.spots.last.x,
+      minY: isCPU ? 0 : 100,
+      maxY: isCPU ? 100 : 500,
       titlesData: FlTitlesData(
         bottomTitles: SideTitles(
           showTitles: true,
-          reservedSize: 30,
           getTextStyles: (value) => const TextStyle(
             color: Color(0xff72719b),
             fontWeight: FontWeight.bold,
-            fontSize: 14,
+            fontSize: 12,
           ),
-          margin: 10,
+          margin: 16,
+          interval: 600000,
+          reservedSize: 5,
           getTitles: (value) {
             String time = DateTime.fromMillisecondsSinceEpoch(value.floor())
                     .hour
@@ -365,19 +416,19 @@ class _MainPageState extends State<MainPage> {
           showTitles: true,
           getTextStyles: (value) => const TextStyle(
             color: Color(0xff75729e),
-            fontWeight: FontWeight.bold,
-            fontSize: 14,
+            fontSize: 11,
           ),
-          margin: 8,
-          reservedSize: 30,
+          margin: 16,
+          interval: isCPU ? 10 : 50,
+          reservedSize: 10,
         ),
       ),
       borderData: FlBorderData(
         show: true,
         border: const Border(
           bottom: BorderSide(
-            color: Color(0xff4e4965),
-            width: 4,
+            color: MyColors.grey,
+            width: 1,
           ),
           left: BorderSide(
             color: Colors.transparent,
@@ -406,9 +457,7 @@ class _MainPageState extends State<MainPage> {
     final LineChartBarData lineChartBarData1 = LineChartBarData(
       spots: spots,
       isCurved: true,
-      colors: [
-        const Color(0xff4af699),
-      ],
+      colors: [MyColors.green],
       barWidth: 4,
       isStrokeCapRound: true,
       dotData: FlDotData(
@@ -435,9 +484,7 @@ class _MainPageState extends State<MainPage> {
     final LineChartBarData lineChartBarData1 = LineChartBarData(
       spots: spots,
       isCurved: true,
-      colors: [
-        const Color(0xff4af699),
-      ],
+      colors: [MyColors.green],
       barWidth: 4,
       isStrokeCapRound: true,
       dotData: FlDotData(
@@ -464,7 +511,7 @@ class _MainPageState extends State<MainPage> {
             child: MainPageItem(
               title: "Поточне використання CPU",
               child: LineChart(
-                chartData(linesCpuData(dataModels)),
+                chartData(linesCpuData(dataModels), isCPU: true),
                 swapAnimationDuration: const Duration(milliseconds: 250),
               ),
             ),
@@ -523,7 +570,7 @@ class HostItem extends StatelessWidget {
               onPressed: () => onDelete(id),
               child: Icon(
                 Icons.delete_outline,
-                color: Colors.redAccent,
+                color: MyColors.red,
               ))
         ],
       ),
@@ -546,11 +593,12 @@ class MainPageItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: double.infinity,
       margin: EdgeInsets.only(bottom: 30),
       padding: EdgeInsets.symmetric(horizontal: 30, vertical: 35),
       decoration: BoxDecoration(
           color: Colors.white, borderRadius: BorderRadius.circular(15)),
-      height: 240,
+      height: 300,
       child: child,
     );
   }

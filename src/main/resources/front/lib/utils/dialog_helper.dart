@@ -6,6 +6,7 @@ class DialogHelper {
       {String button = "Ок", @required VoidCallback onPositive}) {
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext context) => MyDialog.information(
         content: text,
         button: button,

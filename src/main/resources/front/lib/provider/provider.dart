@@ -28,7 +28,7 @@ class Provider {
 
   Future<ResponseModel> logout() async {
     try {
-      final response = await dio.get(
+      final response = await dio.post(
         "${Constants.url}logout",
       );
       return ResponseModel.fromJson(response.data);

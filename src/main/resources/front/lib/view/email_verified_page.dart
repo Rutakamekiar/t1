@@ -12,7 +12,7 @@ class EmailVerifiedPage extends StatefulWidget {
 
 class _EmailVerifiedPageState extends State<EmailVerifiedPage> {
   openAuthPage() {
-    Modular.to.pushNamedAndRemoveUntil('/', (route) => false);
+    Modular.to.pushNamedAndRemoveUntil('/auth', (route) => false);
   }
 
   _launchURL() async {

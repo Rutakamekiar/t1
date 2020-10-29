@@ -929,6 +929,7 @@ file:///Users/dmitriy/t1/src/main/resources/front/.dart_tool/flutter_build/08a91
 file:///Users/dmitriy/t1/src/main/resources/front/.dart_tool/package_config.json
 file:///Users/dmitriy/t1/src/main/resources/front/lib/bloc/authorization_bloc.dart
 file:///Users/dmitriy/t1/src/main/resources/front/lib/bloc/base/bloc.dart
+file:///Users/dmitriy/t1/src/main/resources/front/lib/bloc/login_check_bloc.dart
 file:///Users/dmitriy/t1/src/main/resources/front/lib/bloc/main_bloc.dart
 file:///Users/dmitriy/t1/src/main/resources/front/lib/bloc/registration_bloc.dart
 file:///Users/dmitriy/t1/src/main/resources/front/lib/bloc/reset_password_bloc.dart
@@ -946,6 +947,7 @@ file:///Users/dmitriy/t1/src/main/resources/front/lib/utils/constants.dart
 file:///Users/dmitriy/t1/src/main/resources/front/lib/utils/dialog_helper.dart
 file:///Users/dmitriy/t1/src/main/resources/front/lib/view/authorization_page.dart
 file:///Users/dmitriy/t1/src/main/resources/front/lib/view/email_verified_page.dart
+file:///Users/dmitriy/t1/src/main/resources/front/lib/view/login_check_page.dart
 file:///Users/dmitriy/t1/src/main/resources/front/lib/view/main_page.dart
 file:///Users/dmitriy/t1/src/main/resources/front/lib/view/registration_page.dart
 file:///Users/dmitriy/t1/src/main/resources/front/lib/view/reset_password_page.dart
