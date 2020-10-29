@@ -44,7 +44,6 @@ public class ServerDao {
         preparedStatement2.setString(1, username);
         preparedStatement2.setString(2, host);
         preparedStatement2.executeUpdate();
-        connection.commit();
     }
 
     public static void deleteServerFromUser( String username , String host) throws SQLException {
@@ -55,7 +54,6 @@ public class ServerDao {
         preparedStatement.setString(1, username);
         preparedStatement.setString(2, host);
         preparedStatement.execute();
-        connection.commit();
     }
 
 }

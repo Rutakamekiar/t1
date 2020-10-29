@@ -1,9 +1,5 @@
 package app.email;
 
-import org.apache.commons.mail.DefaultAuthenticator;
-import org.apache.commons.mail.EmailException;
-import org.apache.commons.mail.HtmlEmail;
-
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
@@ -17,13 +13,13 @@ import java.util.Properties;
 public class CustomEmail {
     /**
      * Field of email
-     * @see HtmlEmail
+     * @see Message
      */
     private Message email;
 
     /**
      * Set up main email properties
-     * @throws EmailException
+     * @throws MessagingException
      */
     public CustomEmail() throws MessagingException  {
         final String username = "serveryzerteam@gmail.com";
@@ -42,12 +38,6 @@ public class CustomEmail {
                 });
         email = new MimeMessage(session);
         email.setFrom(new InternetAddress("serveryzerteam@gmail.com"));
-        /*email = new HtmlEmail();
-        email.setHostName("smtp.gmail.com");
-        email.setSmtpPort(587);
-        email.setAuthenticator(new DefaultAuthenticator("serveryzerteam@gmail.com", "t1tssqa1"));
-        email.setStartTLSEnabled(true);
-        email.setFrom("serveryzerteam@gmail.com");*/
     }
 
     /**
@@ -55,7 +45,7 @@ public class CustomEmail {
      * @param receiver email of receiver
      * @param login login of user
      * @param token verification token
-     * @throws EmailException
+     * @throws MessagingException
      */
     public void sendVerificationEmail(String receiver, String login, String token) throws MessagingException {
         email.setSubject("Serveryzer email verification");
@@ -74,7 +64,7 @@ public class CustomEmail {
      * Send email with new password
      * @param receiver email of receiver
      * @param newPwd new password to send
-     * @throws EmailException
+     * @throws MessagingException
      */
     public void sendDropPwdEmail(String receiver, String newPwd) throws MessagingException {
         email.setSubject("Serveryzer drop password");

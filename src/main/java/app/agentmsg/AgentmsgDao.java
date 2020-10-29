@@ -37,7 +37,7 @@ public class AgentmsgDao {
         preparedStatement.setTimestamp(4, dateStringToTimestamp(message.get("at").toString()));
         preparedStatement.setString(5, mapToJson(message));
         preparedStatement.execute();
-        connection.commit();
+
     }
 
     /**
