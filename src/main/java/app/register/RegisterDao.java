@@ -40,7 +40,7 @@ public class RegisterDao {
             ps.setInt(5,0);
             ps.setString(6, token);
             ps.executeUpdate();
-            connection.commit();
+
             return true;
         } else {
             return false;
@@ -58,7 +58,7 @@ public class RegisterDao {
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
         preparedStatement.setString(1,token);
         preparedStatement.executeUpdate();
-        connection.commit();
+
     }
 
     /**
@@ -84,7 +84,7 @@ public class RegisterDao {
                 preparedStatement.setString(1, newPassword);
                 preparedStatement.setString(2, email);
                 preparedStatement.executeUpdate();
-                connection.commit();
+
                 result = "{\"result\" : 2,\"message\": \"Password dropped check email\"}";
             }
         }   else {
