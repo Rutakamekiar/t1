@@ -193,7 +193,7 @@ class _MainPageState extends State<MainPage> {
                                 : buildHostList(hostsModel);
                           } else if (snapshot.hasError) {
                             final exception = snapshot.error;
-                            return buildError(exception);
+                            return buildError("Помилка: $exception");
                           } else {
                             return Center(child: CircularProgressIndicator());
                           }
@@ -208,8 +208,9 @@ class _MainPageState extends State<MainPage> {
                               ? buildList(dataModel.data)
                               : buildRow(dataModel.data);
                         } else if (snapshot.hasError) {
-                          final exception = snapshot.error;
-                          return buildError(exception);
+                          String range = DateTime.now().subtract(Duration(hours: 1)).toUtc().toString() + " - " +
+                              DateTime.now().toUtc().toString();
+                          return buildError("Дані за проміжок часу $range не знайдені");
                         } else {
                           return isLoadingData
                               ? Padding(
@@ -230,7 +231,6 @@ class _MainPageState extends State<MainPage> {
   }
 
   Container buildHostList(HostsModel hostsModel) {
-    print("fff");
     List<Widget> list = List<Widget>();
     if (hostsModel.hosts != null && hostsModel.hosts.isNotEmpty) {
       if (currentId == hostsModel.hosts.length) {
@@ -243,12 +243,27 @@ class _MainPageState extends State<MainPage> {
           id: i,
           currentId: currentId,
           onDelete: (id) {
-            setLoadingServers(true);
-            mainBloc.deleteServer(hostsModel.hosts[id].host);
+            showDialog(
+              context: context,
+              builder: (BuildContext context) => MyDialog(
+                content: "Ви впевнені, що хочите видалити ${hostsModel.hosts[id].host}?",
+                negativeButton: "Ні",
+                positiveButton: "Так",
+                onPositive: () {
+                  setLoadingServers(true);
+                  mainBloc.deleteServer(hostsModel.hosts[id].host);
+                },
+              ),
+            );
           },
           onSelected: (id) {
             setState(() {
               currentId = id;
+              setLoading(true);
+              mainBloc.dataFetcher(
+                  hostsModel.hosts[currentId].host,
+                  DateTime.now().subtract(Duration(hours: 1)).toUtc().toString(),
+                  DateTime.now().toUtc().toString());
             });
           },
         ));
@@ -307,7 +322,7 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-  Column buildError(Object exception) {
+  Column buildError(String message) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -319,7 +334,8 @@ class _MainPageState extends State<MainPage> {
         SizedBox(
           height: 20,
         ),
-        AutoSizeText("Помилка: $exception",
+        AutoSizeText(message,
+            textAlign: TextAlign.center,
             style: TextStyle(
                 color: Colors.black,
                 fontSize: 24,
