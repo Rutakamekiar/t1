@@ -9,6 +9,7 @@ class Provider {
 
   Future<DataModel> getData(String host) async {
     Response response;
+    print("${Constants.url}getmsg?host=$host");
     response = await dio.get("${Constants.url}getmsg?host=$host");
     return DataModel.fromJson(response.data);
   }

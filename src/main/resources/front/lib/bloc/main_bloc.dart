@@ -11,16 +11,16 @@ class MainBloc extends Bloc {
   Stream<DataModel> get data => _dataFetcher.stream;
 
   dataFetcher(String host) async {
-    // try {/
+    try {
       DataModel dataModel = await _repository.getData(host);
       if(dataModel.result == 0){
         throw Exception(dataModel.message);
       } else {
         _dataFetcher.sink.add(dataModel);
       }
-    // } catch (e) {
-    //   _dataFetcher.sink.addError(e);
-    // }
+    } catch (e) {
+      _dataFetcher.sink.addError(e);
+    }
   }
 
   @override

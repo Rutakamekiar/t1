@@ -35,11 +35,11 @@ class DataModel {
         bootTime: json["boot_time"],
         publicKey: json["public_key"],
         agentVersion: json["agent_version"],
-        cpu: List<Cpu>.from(json["cpu"].map((x) => Cpu.fromJson(x))),
-        disks: List<Disk>.from(json["disks"].map((x) => Disk.fromJson(x))),
-        load: List<double>.from(json["load"].map((x) => x.toDouble())),
-        memory: Memory.fromJson(json["memory"]),
-        network:
+        cpu: json["cpu"] == null ? null : List<Cpu>.from(json["cpu"].map((x) => Cpu.fromJson(x))),
+        disks: json["disks"] == null ? null : List<Disk>.from(json["disks"].map((x) => Disk.fromJson(x))),
+        load: json["load"] == null ? null : List<double>.from(json["load"].map((x) => x.toDouble())),
+        memory: json["memory"] == null ? null : Memory.fromJson(json["memory"]),
+        network: json["network"] == null ? null :
             List<Network>.from(json["network"].map((x) => Network.fromJson(x))),
       );
 

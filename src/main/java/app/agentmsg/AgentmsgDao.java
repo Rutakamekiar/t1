@@ -60,21 +60,15 @@ public class AgentmsgDao {
         preparedStatement.setString(3, host);
         ResultSet rs = preparedStatement.executeQuery();
 
-
-
         if (!rs.next())
             return "{\"result\" : 0,\"message\": \"Host not found\"}";
-
         String allobjects = "";
-
         do {
             allobjects+= rs.getString("data") + ",";
         }
         while (rs.next()) ;
-
         allobjects = allobjects.substring(0,allobjects.length()-1);
         allobjects = "{ \"data\": [ " + allobjects + "] }";
-        System.out.println(allobjects);
         return allobjects;
     }
 

@@ -5,6 +5,7 @@ import app.index.IndexController;
 import app.login.LoginController;
 import app.login.SignIn;
 import app.register.RegisterController;
+import app.server.ServerController;
 import app.user.UserDao;
 import app.util.Filters;
 import app.util.HerokuUtil;
@@ -16,9 +17,7 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
-import static io.javalin.apibuilder.ApiBuilder.before;
-import static io.javalin.apibuilder.ApiBuilder.get;
-import static io.javalin.apibuilder.ApiBuilder.post;
+import static io.javalin.apibuilder.ApiBuilder.*;
 
 
 /**
@@ -33,15 +32,15 @@ public class Main {
         Javalin app = Javalin.create(config -> {
             config.server(() -> {
                 Server server = new Server();
-                ServerConnector sslConnector = new ServerConnector(server, getSslContextFactory());
-                sslConnector.setPort(443);
+                //ServerConnector sslConnector = new ServerConnector(server, getSslContextFactory());
+                //sslConnector.setPort(443);
                 ServerConnector connector = new ServerConnector(server);
                 connector.setPort(80);
-                server.setConnectors(new Connector[]{sslConnector, connector});
+                server.setConnectors(new Connector[]{/*sslConnector,*/ connector});
                 return server;
             });
             config.addStaticFiles("/front/build/web");
-            config.enforceSsl = true;
+            //config.enforceSsl = true;
         }).start(); // valid endpoint for both connectors
 
         app.routes(() -> {
@@ -51,6 +50,9 @@ public class Main {
             get(Path.Web.LOGIN, LoginController.serveLoginPage);
             get(Path.Web.GETAGENTMSG, AgentmsgController.getMessage);
             get(Path.Web.VERIFICATE,RegisterController.verifyEmail);
+            get(Path.Web.GETUSERSERVERS, ServerController.getUserServers);
+            put(Path.Web.ADDSERVERTOUSER, ServerController.addServerToUser);
+            delete(Path.Web.DELETESERVERFROMUSER, ServerController.deleteUserFromServer);
             post(Path.Web.LOGIN, LoginController.handleLoginPost);
             post(Path.Web.LOGOUT, LoginController.handleLogoutPost);
             post(Path.Web.SIGNIN, SignIn.logIn);

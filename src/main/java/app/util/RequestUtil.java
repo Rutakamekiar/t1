@@ -1,6 +1,9 @@
 package app.util;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.http.Context;
 
 public class RequestUtil {
@@ -43,6 +46,12 @@ public class RequestUtil {
         String loginRedirect = ctx.sessionAttribute("loginRedirect");
         ctx.sessionAttribute("loginRedirect", null);
         return loginRedirect;
+    }
+
+    public static JsonNode stringToJson(String message) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode jsonNode = objectMapper.readTree(message);
+        return jsonNode;
     }
 
 }
