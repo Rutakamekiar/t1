@@ -51,6 +51,7 @@ public class Main {
             get(Path.Web.GETAGENTMSG, AgentmsgController.getMessage);
             get(Path.Web.VERIFICATE,RegisterController.verifyEmail);
             get(Path.Web.GETUSERSERVERS, ServerController.getUserServers);
+            get(Path.Web.ISLOGIN, LoginController.isLogIned);
             put(Path.Web.ADDSERVERTOUSER, ServerController.addServerToUser);
             delete(Path.Web.DELETESERVERFROMUSER, ServerController.deleteUserFromServer);
             post(Path.Web.LOGIN, LoginController.handleLoginPost);

@@ -23,6 +23,7 @@ public class Path {
         public static final String GETUSERSERVERS = "/getServers";
         public static final String ADDSERVERTOUSER = "/addServer";
         public static final String DELETESERVERFROMUSER = "/deleteServer";
+        public static final String ISLOGIN = "/isLogin";
     }
     /**
      * Contain paths of page resources

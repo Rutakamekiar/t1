@@ -11,6 +11,17 @@ import static app.util.RequestUtil.*;
 
 public class LoginController {
 
+
+    public static Handler isLogIned = ctx -> {
+        if( ctx.cookie("username") == null ){
+            ctx.json(stringToJson("{\"result\" : 0,\"message\": \"user is not logined\"}"));
+            ctx.status(200);
+        } else {
+            ctx.json(stringToJson("{\"result\" : 1,\"message\": \"user is logined\"}"));
+            ctx.status(200);
+        }
+    };
+
     public static Handler serveLoginPage = ctx -> {
         Map<String, Object> model = ViewUtil.baseModel(ctx);
         model.put("loggedOut", removeSessionAttrLoggedOut(ctx));
