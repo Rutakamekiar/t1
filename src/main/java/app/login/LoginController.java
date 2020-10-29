@@ -46,9 +46,9 @@ public class LoginController {
     };
 
     public static Handler handleLogoutPost = ctx -> {
-        ctx.sessionAttribute("currentUser", null);
-        ctx.sessionAttribute("loggedOut", "true");
-        ctx.redirect(Path.Web.LOGIN);
+        ctx.removeCookie("username");
+        ctx.json(stringToJson("{\"result\" : 1,\"message\": \"user is logedout\"}"));
+        ctx.status(200);
     };
 
     // The origin of the request (request.pathInfo()) is saved in the session so
