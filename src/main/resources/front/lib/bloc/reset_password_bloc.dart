@@ -1,13 +1,14 @@
 import 'package:rxdart/rxdart.dart';
+import 'package:servelyzer/model/response_model.dart';
 import 'package:servelyzer/repository/repository.dart';
 
 import 'base/bloc.dart';
 
 class ResetPasswordBloc extends Bloc {
   final _repository = Repository();
-  final _resetPasswordFetcher = PublishSubject<bool>();
+  final _resetPasswordFetcher = PublishSubject<ResponseModel>();
 
-  Stream<bool> get resetPassword => _resetPasswordFetcher.stream;
+  Stream<ResponseModel> get resetPassword => _resetPasswordFetcher.stream;
 
   resetPasswordFetcher(String email) async {
     try {

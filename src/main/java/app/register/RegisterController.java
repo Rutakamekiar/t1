@@ -50,6 +50,7 @@ public class RegisterController {
         ctx.header("Access-Control-Allow-Origin","*");
         ctx.status(201);
         ctx.result("user verified");
+        ctx.redirect("/#/verification");
     };
     /**
      * Drop password API
