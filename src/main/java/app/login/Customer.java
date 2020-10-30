@@ -1,6 +1,7 @@
 package app.login;
 
 import app.database.DBconnectionContainer;
+import sun.jvm.hotspot.oops.ExceptionTableElement;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -39,13 +40,17 @@ public class Customer {
     public static Customer getCustomerFromDB(String login ) throws SQLException, NoSuchFieldException {
 
         Connection connection = DBconnectionContainer.getDBconnection();
-        String sql = "select pwd from users where login = ?;";
+        String sql = "select pwd , verification from users where login = ?;";
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
         preparedStatement.setString(1, login);
         ResultSet rs = preparedStatement.executeQuery();
 
         if (!rs.next())
             throw new NoSuchFieldException();
+
+        if(!rs.getString("verification").equals(1)){
+            throw new ExceptionInInitializerError();
+        }
 
         return new Customer(login , rs.getString("pwd"));
     }
