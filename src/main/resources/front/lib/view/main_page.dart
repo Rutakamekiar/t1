@@ -29,7 +29,7 @@ class _MainPageState extends State<MainPage> {
   bool isLoadingServers = false;
   bool isLoadingLogin = true;
 
-  bool isEmptyData = true;
+  bool isEmptyData = false;
 
   @override
   void initState() {
@@ -83,7 +83,7 @@ class _MainPageState extends State<MainPage> {
         setLoading(true);
         mainBloc.dataFetcher(
             hostsModel.hosts[currentId].host,
-            DateTime.now().subtract(Duration(hours: 1)).toUtc().toString(),
+            DateTime.now().subtract(Duration(days: 1)).toUtc().toString(),
             DateTime.now().toUtc().toString());
       } else {
         setState(() {
@@ -218,6 +218,7 @@ class _MainPageState extends State<MainPage> {
                               if (snapshot.hasData) {
                                 DataListModel dataModel = snapshot.data;
                                 if (isLoadingData) {
+                                  print("loading");
                                   return Padding(
                                     padding: const EdgeInsets.only(top: 30),
                                     child: Center(
@@ -225,6 +226,7 @@ class _MainPageState extends State<MainPage> {
                                   );
                                 }
                                 if (isEmptyData) {
+                                  print("tttt");
                                   return Container();
                                 }
                                 return MediaQuery.of(context).size.width <=
@@ -448,7 +450,7 @@ class _MainPageState extends State<MainPage> {
             fontSize: 12,
           ),
           margin: 16,
-          interval: 600000,
+          interval: 7200000,
           reservedSize: 5,
           getTitles: (value) {
             String time = DateTime.fromMillisecondsSinceEpoch(value.floor())
