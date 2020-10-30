@@ -296,7 +296,7 @@ class _MainPageState extends State<MainPage> {
               mainBloc.dataFetcher(
                   hostsModel.hosts[currentId].host,
                   DateTime.now()
-                      .subtract(Duration(hours: 1))
+                      .subtract(Duration(days: 1))
                       .toUtc()
                       .toString(),
                   DateTime.now().toUtc().toString());
