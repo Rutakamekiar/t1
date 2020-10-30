@@ -43,6 +43,13 @@ public class SignIn {
             ctx.json(stringToJson("{\"result\" : 0,\"message\": \"missing user\"}"));
             ctx.status(200);
         }
+        catch (ExceptionInInitializerError e){
+            ctx.status(401);
+        }
+        catch (SQLException e){
+            ctx.json(stringToJson("{\"result\" : 0,\"message\": \"something went wrong\"}"));
+            ctx.status(200);
+        }
 
     };
 
