@@ -1,7 +1,7 @@
 package app.login;
 
 import app.database.DBconnectionContainer;
-import sun.jvm.hotspot.oops.ExceptionTableElement;
+
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -48,7 +48,7 @@ public class Customer {
         if (!rs.next())
             throw new NoSuchFieldException();
 
-        if(!rs.getString("verification").equals(1)){
+        if(rs.getInt("verification") == 0){
             throw new ExceptionInInitializerError();
         }
 
