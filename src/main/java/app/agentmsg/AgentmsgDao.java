@@ -29,13 +29,15 @@ public class AgentmsgDao {
      */
     public static void addAgentmsgToDB(String uid, Map<String, Object> message) throws SQLException, ParseException, JsonProcessingException {
         Connection connection = DBconnectionContainer.getDBconnection();
-        String sql = "INSERT INTO hosts_info (\"id\", \"host\", \"boot_time\" , \"at\" , \"data\") Values (?, ? , ?, ? , to_json(?::json) )";
+        String sql = "INSERT INTO hosts_info (\"id\", \"public_key\", \"private_key\", \"host\" , \"boot_time\" , \"at\" , \"data\") Values (?, ? , ? , ? , ?, ? , to_json(?::json) )";
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
         preparedStatement.setString(1, uid);
-        preparedStatement.setString(2, message.get("host").toString());
-        preparedStatement.setTimestamp(3, dateStringToTimestamp(message.get("boot_time").toString()));
-        preparedStatement.setTimestamp(4, dateStringToTimestamp(message.get("at").toString()));
-        preparedStatement.setString(5, mapToJson(message));
+        preparedStatement.setString(2, message.get("public_key").toString());
+        preparedStatement.setString(3, "empty");
+        preparedStatement.setString(4, message.get("host").toString());
+        preparedStatement.setTimestamp(5, dateStringToTimestamp(message.get("boot_time").toString()));
+        preparedStatement.setTimestamp(6, dateStringToTimestamp(message.get("at").toString()));
+        preparedStatement.setString(7, mapToJson(message));
         preparedStatement.execute();
 
     }
@@ -43,21 +45,21 @@ public class AgentmsgDao {
     /**
      * Get last information about host from DB
      *
-     * @param host host name to get information about
+     * @param public_key host name to get information about
      * @return String with information about host in json or message that host not found in json
      * @throws SQLException
      */
-    public static String getAgentmsgFromDB(String host, String fromDate, String toDate) throws SQLException {
+    public static String getAgentmsgFromDB(String public_key, String fromDate, String toDate) throws SQLException {
         Connection connection = DBconnectionContainer.getDBconnection();
         String sql = "select data from hosts_info " +
                 "where at < to_timestamp(?,'YYYY-MM-DD HH24:MI:SS') " +
                 "and at > to_timestamp(?,'YYYY-MM-DD HH24:MI:SS') " +
-                "and host = ? " +
+                "and public_key = ? " +
                 "order by at;";
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
         preparedStatement.setString(1, toDate);
         preparedStatement.setString(2, fromDate);
-        preparedStatement.setString(3, host);
+        preparedStatement.setString(3, public_key);
         ResultSet rs = preparedStatement.executeQuery();
 
         if (!rs.next())

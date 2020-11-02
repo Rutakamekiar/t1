@@ -12,7 +12,7 @@ public class ServerDao {
 
     public static String getUserServers( String username ) throws SQLException, NoSuchFieldException {
         Connection connection = DBconnectionContainer.getDBconnection();
-        String sql = "select host from hosts_servers where login = ?;";
+        String sql = "select publicKey from hosts_servers where login = ?;";
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
         preparedStatement.setString(1, username);
         ResultSet rs = preparedStatement.executeQuery();
@@ -29,11 +29,11 @@ public class ServerDao {
         return result + "] }";
     }
 
-    public static void addServerToUser( String username , String host) throws SQLException, NoSuchFieldException {
+    public static void addServerToUser( String username , String publicKey) throws SQLException, NoSuchFieldException {
         Connection connection = DBconnectionContainer.getDBconnection();
-        String sql1 = "select * from hosts_info where host = ?;";
+        String sql1 = "select * from hosts_info where publicKey = ?;";
         PreparedStatement preparedStatement1 = connection.prepareStatement(sql1);
-        preparedStatement1.setString(1, host);
+        preparedStatement1.setString(1, publicKey);
         ResultSet rs1 = preparedStatement1.executeQuery();
 
         if (!rs1.next())
@@ -42,17 +42,17 @@ public class ServerDao {
         String sql2 = "insert into hosts_servers values ( ? , ?);";
         PreparedStatement preparedStatement2 = connection.prepareStatement(sql2);
         preparedStatement2.setString(1, username);
-        preparedStatement2.setString(2, host);
+        preparedStatement2.setString(2, publicKey);
         preparedStatement2.executeUpdate();
     }
 
-    public static void deleteServerFromUser( String username , String host) throws SQLException {
+    public static void deleteServerFromUser( String username , String publicKey) throws SQLException {
         Connection connection = DBconnectionContainer.getDBconnection();
 
-        String sql = "delete from hosts_servers where login = ? and host = ? ;";
+        String sql = "delete from hosts_servers where login = ? and publicKey = ? ;";
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
         preparedStatement.setString(1, username);
-        preparedStatement.setString(2, host);
+        preparedStatement.setString(2, publicKey);
         preparedStatement.execute();
     }
 
