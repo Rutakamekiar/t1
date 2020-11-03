@@ -20,10 +20,10 @@ public class ServerDao {
         if (!rs.next())
             throw new NoSuchFieldException();
 
-        String result = "{ \"hosts\":[ " + "{ \"host\" :\"" + rs.getString("host") + "\"}";
+        String result = "{ \"hosts\":[ " + "{ \"host\" :\"" + rs.getString("public_key") + "\"}";
 
         while (rs.next()) {
-            result = result + ", { \"host\" :\"" + rs.getString("host") + "\"}";
+            result = result + ", { \"host\" :\"" + rs.getString("public_key") + "\"}";
         }
 
         return result + "] }";
