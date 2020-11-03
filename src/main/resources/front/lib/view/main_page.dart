@@ -39,6 +39,11 @@ class _MainPageState extends State<MainPage> {
     // mainBloc.getServers();
     mainBloc.loginFetcher();
 
+    // mainBloc.dataFetcher(
+    //     "gor-tss",
+    //     DateTime.now().subtract(Duration(days: 1)).toUtc().toString(),
+    //     DateTime.now().toUtc().toString());
+
     mainBloc.data.listen((data) {
       setLoading(false);
     }, onError: (e) {
@@ -218,7 +223,6 @@ class _MainPageState extends State<MainPage> {
                               if (snapshot.hasData) {
                                 DataListModel dataModel = snapshot.data;
                                 if (isLoadingData) {
-                                  print("loading");
                                   return Padding(
                                     padding: const EdgeInsets.only(top: 30),
                                     child: Center(
@@ -226,7 +230,6 @@ class _MainPageState extends State<MainPage> {
                                   );
                                 }
                                 if (isEmptyData) {
-                                  print("tttt");
                                   return Container();
                                 }
                                 return MediaQuery.of(context).size.width <=

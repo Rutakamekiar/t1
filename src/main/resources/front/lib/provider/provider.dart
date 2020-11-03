@@ -10,9 +10,9 @@ class Provider {
   Dio dio = Dio();
 
   Future<DataListModel> getData(String host, String from, String to) async {
-    print("${Constants.url}getmsg?host=$host&from=$from&to=$to");
+    print("${Constants.url}getmsg?public_key=$host&from=$from&to=$to");
     final response =
-        await dio.get("${Constants.url}getmsg?host=$host&from=$from&to=$to");
+        await dio.get("${Constants.url}getmsg?public_key=$host&from=$from&to=$to");
     return DataListModel.fromJson(response.data);
   }
 
@@ -51,7 +51,7 @@ class Provider {
   Future<bool> deleteServer(String server) async {
     try {
       final response =
-          await dio.delete("${Constants.url}deleteServer?host=$server");
+          await dio.delete("${Constants.url}deleteServer?public_key=$server");
       print(response.data);
       return true;
     } catch (e) {
@@ -61,7 +61,7 @@ class Provider {
 
   Future<bool> addServer(String server) async {
     try {
-      final response = await dio.put("${Constants.url}addServer?host=$server");
+      final response = await dio.put("${Constants.url}addServer?public_key=$server");
       print(response.data);
       return true;
     } catch (e) {
