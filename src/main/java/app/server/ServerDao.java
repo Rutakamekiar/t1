@@ -12,7 +12,7 @@ public class ServerDao {
 
     public static String getUserServers( String username ) throws SQLException, NoSuchFieldException {
         Connection connection = DBconnectionContainer.getDBconnection();
-        String sql = "select publicKey from hosts_servers where login = ?;";
+        String sql = "select public_key from hosts_servers where login = ?;";
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
         preparedStatement.setString(1, username);
         ResultSet rs = preparedStatement.executeQuery();
@@ -31,7 +31,7 @@ public class ServerDao {
 
     public static void addServerToUser( String username , String publicKey) throws SQLException, NoSuchFieldException {
         Connection connection = DBconnectionContainer.getDBconnection();
-        String sql1 = "select * from hosts_info where publicKey = ?;";
+        String sql1 = "select * from hosts_info where public_key = ?;";
         PreparedStatement preparedStatement1 = connection.prepareStatement(sql1);
         preparedStatement1.setString(1, publicKey);
         ResultSet rs1 = preparedStatement1.executeQuery();
@@ -49,7 +49,7 @@ public class ServerDao {
     public static void deleteServerFromUser( String username , String publicKey) throws SQLException {
         Connection connection = DBconnectionContainer.getDBconnection();
 
-        String sql = "delete from hosts_servers where login = ? and publicKey = ? ;";
+        String sql = "delete from hosts_servers where login = ? and public_key = ? ;";
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
         preparedStatement.setString(1, username);
         preparedStatement.setString(2, publicKey);

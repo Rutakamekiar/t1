@@ -63,7 +63,7 @@ public class AgentmsgDao {
         ResultSet rs = preparedStatement.executeQuery();
 
         if (!rs.next())
-            return "{\"result\" : 0,\"message\": \"Host not found\"}";
+            return "{\"result\" : 0,\"message\": \"there is no data for selected period for this Host\"}";
         String allobjects = "";
         do {
             allobjects+= rs.getString("data") + ",";
