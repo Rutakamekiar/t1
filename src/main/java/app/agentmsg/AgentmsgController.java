@@ -34,16 +34,15 @@ public class AgentmsgController {
      * @see Handler
      */
     public static Handler getMessage = ctx -> {
-        String host = ctx.queryParam("host");
+        String publicKey = ctx.queryParam("public_key");
         String fromDate = ctx.queryParam("from");
         String toDate = ctx.queryParam("to");
-        String result = AgentmsgDao.getAgentmsgFromDB(host , fromDate, toDate);
+        String result = AgentmsgDao.getAgentmsgFromDB(publicKey , fromDate, toDate);
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(result);
         ctx.header("Access-Control-Allow-Origin","*");
         ctx.json(jsonNode);
         ctx.status(201);
-
     };
 
 

@@ -37,10 +37,10 @@ public class ServerController {
 
     public static Handler addServerToUser = ctx -> {
         String username = ctx.cookie("username");
-        String host = ctx.queryParam("host");
+        String publicKey = ctx.queryParam("public_key");
 
         try {
-            ServerDao.addServerToUser( username , host);
+            ServerDao.addServerToUser( username , publicKey);
         }
         catch (NoSuchFieldException e)
         {
@@ -58,10 +58,10 @@ public class ServerController {
 
     public static Handler deleteUserFromServer = ctx -> {
         String username = ctx.cookie("username");
-        String host = ctx.queryParam("host");
+        String publicKey = ctx.queryParam("public_key");
 
         try {
-            ServerDao.deleteServerFromUser( username , host);
+            ServerDao.deleteServerFromUser( username , publicKey);
         }
         catch ( SQLException e){
             ctx.json(stringToJson("{\"result\" : 0,\"message\": \"SQLException\"}"));
