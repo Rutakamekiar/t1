@@ -40,8 +40,8 @@ class _MainPageState extends State<MainPage> {
     mainBloc.loginFetcher();
 
     // mainBloc.dataFetcher(
-    //     "gor-tss",
-    //     DateTime.now().subtract(Duration(days: 1)).toUtc().toString(),
+    //     "t1-tss2020",
+    //     DateTime.now().subtract(Duration(days: 10)).toUtc().toString(),
     //     DateTime.now().toUtc().toString());
 
     mainBloc.data.listen((data) {
@@ -298,10 +298,7 @@ class _MainPageState extends State<MainPage> {
               setLoading(true);
               mainBloc.dataFetcher(
                   hostsModel.hosts[currentId].host,
-                  DateTime.now()
-                      .subtract(Duration(days: 1))
-                      .toUtc()
-                      .toString(),
+                  DateTime.now().subtract(Duration(days: 1)).toUtc().toString(),
                   DateTime.now().toUtc().toString());
             });
           },
@@ -393,14 +390,14 @@ class _MainPageState extends State<MainPage> {
           height: 30,
         ),
         MainPageItem(
-          title: "Поточне використання CPU",
+          title: "Використання CPU",
           child: LineChart(
             chartData(linesCpuData(dataModels), isCPU: true),
             swapAnimationDuration: const Duration(milliseconds: 250),
           ),
         ),
         MainPageItem(
-          title: "Поточне використання пам’яті",
+          title: "Використання пам’яті",
           child: LineChart(
             chartData(linesMemoryData(dataModels)),
             swapAnimationDuration: const Duration(milliseconds: 250),
@@ -444,6 +441,24 @@ class _MainPageState extends State<MainPage> {
       maxX: data.first.spots.last.x,
       minY: isCPU ? 0 : 100,
       maxY: isCPU ? 100 : 500,
+      axisTitleData: FlAxisTitleData(
+        leftTitle: AxisTitle(
+            showTitle: true,
+            titleText: isCPU ? "CPU, %" : "Пам'ять, mb",
+            margin: 10,
+            textStyle: TextStyle(
+                color: Colors.black,
+                fontSize: 12,
+                fontStyle: FontStyle.italic,
+                fontWeight: FontWeight.w400)),
+          bottomTitle: AxisTitle(
+              margin: 10,
+              showTitle: true,
+              titleText: "Час",
+              textStyle: TextStyle(
+                  color: Colors.black,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400))),
       titlesData: FlTitlesData(
         bottomTitles: SideTitles(
           showTitles: true,
@@ -564,7 +579,7 @@ class _MainPageState extends State<MainPage> {
         children: [
           Expanded(
             child: MainPageItem(
-              title: "Поточне використання CPU",
+              title: "Використання CPU",
               child: LineChart(
                 chartData(linesCpuData(dataModels), isCPU: true),
                 swapAnimationDuration: const Duration(milliseconds: 250),
@@ -576,7 +591,7 @@ class _MainPageState extends State<MainPage> {
           ),
           Expanded(
             child: MainPageItem(
-              title: "Поточне використання пам’яті",
+              title: "Використання пам’яті",
               child: LineChart(
                 chartData(linesMemoryData(dataModels)),
                 swapAnimationDuration: const Duration(milliseconds: 250),
@@ -653,8 +668,26 @@ class MainPageItem extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 30, vertical: 35),
       decoration: BoxDecoration(
           color: Colors.white, borderRadius: BorderRadius.circular(15)),
-      height: 300,
-      child: child,
+      height: 320,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AutoSizeText(
+            title,
+            maxLines: 2,
+            style: TextStyle(
+                color: Colors.black, fontSize: 24, fontWeight: FontWeight.w400),
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          Expanded(
+              child: Padding(
+            padding: const EdgeInsets.only(left: 10),
+            child: child,
+          )),
+        ],
+      ),
     );
   }
 }
