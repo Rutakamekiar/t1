@@ -16,13 +16,13 @@ class Provider {
     return DataListModel.fromJson(response.data);
   }
 
-  Future<bool> getAuth(AuthModel authModel) async {
-    FormData formData = new FormData.fromMap(authModel.toMap());
-    final response = await dio.post("${Constants.url}signin", data: formData);
-    if (response.statusCode == 200) {
-      return true;
-    } else {
-      return false;
+  Future<ResponseModel> getAuth(AuthModel authModel) async {
+    try {
+      FormData formData = new FormData.fromMap(authModel.toMap());
+      final response = await dio.post("${Constants.url}signin", data: formData);
+      return ResponseModel.fromJson(response.data);
+    } catch (e) {
+      throw e;
     }
   }
 

@@ -45,14 +45,20 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
     });
     authorizationBloc.auth.listen((event) {
       setLoading(false);
-      if (event) {
-        openMainPage();
+      if(event != null ) {
+        if (event.result == 1) {
+          openMainPage();
+        } else {
+          DialogHelper.showInformDialog(
+              context, "Неправильний логін або пароль",
+              onPositive: () => Navigator.pop(context));
+        }
       } else {
-        DialogHelper.showInformDialog(context, "Неправильний логін або пароль", onPositive: ()=> Navigator.pop(context));
+        DialogHelper.showInformDialog(context, "Користувач неактивований", onPositive: ()=> Navigator.pop(context));
       }
     }, onError: (e) {
       setLoading(false);
-      DialogHelper.showInformDialog(context, "Неправильний логін або пароль", onPositive: ()=> Navigator.pop(context));
+      DialogHelper.showInformDialog(context, "Виникла помилка: ${e.toString()}", onPositive: ()=> Navigator.pop(context));
     });
     loginController.addListener(() {
       setLoginError(false);
