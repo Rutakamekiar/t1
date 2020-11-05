@@ -17,7 +17,7 @@ public class LoginController {
             ctx.json(stringToJson("{\"result\" : 0,\"message\": \"user is not logined\"}"));
             ctx.status(200);
         } else {
-            ctx.json(stringToJson("{\"result\" : 1,\"message\": \"user is logined\"}"));
+            ctx.json(stringToJson("{\"result\" : 1,\"message\": \"user is logined\",\"user\": \"" + ctx.cookie("username") +"\"}"));
             ctx.status(200);
         }
     };
