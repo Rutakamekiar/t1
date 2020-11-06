@@ -40,7 +40,7 @@ public class Main {
                 return server;
             });
             config.addStaticFiles("/front/build/web");
-            config.enforceSsl = true;
+            //config.enforceSsl = true;
         }).start(); // valid endpoint for both connectors
 
         app.routes(() -> {
