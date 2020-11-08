@@ -85,6 +85,7 @@ public class Main {
     }
 
     private static SslContextFactory getSslContextFactory() {
+        //noinspection deprecation
         SslContextFactory sslContextFactory = new SslContextFactory();
         sslContextFactory.setKeyStorePath(Main.class.getResource("/sertificates/keystore_tss").toExternalForm());
         sslContextFactory.setKeyStorePassword("tss123");

@@ -64,14 +64,14 @@ public class AgentmsgDao {
 
         if (!rs.next())
             return "{\"result\" : 0,\"message\": \"there is no data for selected period for this Host\"}";
-        String allobjects = "";
+        StringBuilder allobjects = new StringBuilder();
         do {
-            allobjects+= rs.getString("data") + ",";
+            allobjects.append(rs.getString("data")).append(",");
         }
         while (rs.next()) ;
-        allobjects = allobjects.substring(0,allobjects.length()-1);
-        allobjects = "{ \"data\": [ " + allobjects + "] }";
-        return allobjects;
+        allobjects = new StringBuilder(allobjects.substring(0, allobjects.length() - 1));
+        allobjects = new StringBuilder("{ \"data\": [ " + allobjects + "] }");
+        return allobjects.toString();
     }
 
 
