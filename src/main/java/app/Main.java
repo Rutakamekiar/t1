@@ -1,6 +1,7 @@
 package app;
 
 import app.agentmsg.AgentmsgController;
+import app.avatar.AvatarController;
 import app.index.IndexController;
 import app.login.LoginController;
 import app.login.SignIn;
@@ -61,6 +62,8 @@ public class Main {
             post(Path.Web.AGENTMSG, AgentmsgController.processMessage);
             post(Path.Web.REGISTER, RegisterController.register);
             post(Path.Web.DROPPWD, RegisterController.dropPwd);
+            post(Path.Web.SETAVATAR, AvatarController.setAvatar);
+            get(Path.Web.GETAVATAR, AvatarController.getAvatar);
         });
 
         app.error(404,  ctx -> {
