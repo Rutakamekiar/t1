@@ -7,6 +7,9 @@ import java.sql.SQLException;
 import static app.util.RequestUtil.stringToJson;
 
 public class AvatarController {
+    /**
+     * Set avatar to user API
+     */
     public static Handler setAvatar = ctx -> {
         try {
             String avatar = ctx.body();
@@ -28,6 +31,9 @@ public class AvatarController {
         ctx.header("Access-Control-Allow-Origin", "*");
     };
 
+    /**
+     * Get avatar of user API
+     */
     public static Handler getAvatar = ctx -> {
         try {
             String user = ctx.cookie("username");

@@ -7,7 +7,19 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Class to connect avatar APIs with DB
+ * @author Zhuravlev Yuriu
+ * @version 1.0
+ */
 public class AvatarDao {
+    /**
+     * Insert users avatar in base64 to db
+     * @param user owner of avatar
+     * @param avatar avatar in base64
+     * @throws SQLException
+     * @throws NoSuchFieldException no such user
+     */
     public static void setAvatar (String user, String avatar) throws SQLException, NoSuchFieldException {
         Connection connection = DBconnectionContainer.getDBconnection();
         String check = "select verification from users where login = ?";
@@ -25,6 +37,13 @@ public class AvatarDao {
         preparedStatement.executeUpdate();
     }
 
+    /**
+     * Get avatar in base64
+     * @param login owner of avatar
+     * @return avatar of user in base64
+     * @throws SQLException
+     * @throws NoSuchFieldException no such user
+     */
     public static String getAvatar(String login) throws SQLException, NoSuchFieldException {
         Connection connection = DBconnectionContainer.getDBconnection();
         String sql = "SELECT avatar FROM users WHERE login = ?";
