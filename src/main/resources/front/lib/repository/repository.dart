@@ -11,7 +11,7 @@ class Repository {
   Future<DataListModel> getData(String host, String from, String to) =>
       _provider.getData(host, from, to);
 
-  Future<bool> getAuth(AuthModel authModel) => _provider.getAuth(authModel);
+  Future<ResponseModel> getAuth(AuthModel authModel) => _provider.getAuth(authModel);
 
   Future<bool> deleteServer(String server) => _provider.deleteServer(server);
 

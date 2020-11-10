@@ -2,16 +2,19 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
+import 'package:intl/intl.dart';
 import 'package:servelyzer/bloc/main_bloc.dart';
 import 'package:servelyzer/model/data_model.dart';
 import 'package:servelyzer/model/hosts_model.dart';
+import 'package:servelyzer/model/response_model.dart';
 import 'package:servelyzer/style/my_colors.dart';
 import 'package:servelyzer/utils/dialog_helper.dart';
 import 'package:servelyzer/widget/base_button.dart';
 import 'package:servelyzer/widget/base_text_field.dart';
+import 'package:servelyzer/widget/my_date_dialog.dart';
 import 'package:servelyzer/widget/my_dialog.dart';
 
-const double maxWight = 1010;
+const double maxWight = 1110;
 const double listWight = 600;
 
 class MainPage extends StatefulWidget {
@@ -28,16 +31,33 @@ class _MainPageState extends State<MainPage> {
   bool isLoadingData = false;
   bool isLoadingServers = false;
   bool isLoadingLogin = true;
+  HostsModel hostsModel;
+
+  DateTime minTime = DateTime.now().subtract(Duration(hours: 2)).toUtc();
+  DateTime maxTime = DateTime.now().toUtc();
+
+  String minTimeText = "";
+      String maxTimeText = "";
 
   bool isEmptyData = false;
+  ResponseModel userResponse;
 
   @override
   void initState() {
     super.initState();
+    minTimeText = DateFormat('dd.MM kk:mm')
+        .format(minTime.toLocal());
+    maxTimeText = DateFormat('dd.MM kk:mm')
+        .format(maxTime.toLocal());
 
     // isLoadingLogin = false;
     // mainBloc.getServers();
     mainBloc.loginFetcher();
+
+    // mainBloc.dataFetcher(
+    //     "t1-tss2020",
+    //     DateTime.now().subtract(Duration(days: 10)).toUtc().toString(),
+    //     DateTime.now().toUtc().toString());
 
     mainBloc.data.listen((data) {
       setLoading(false);
@@ -49,6 +69,7 @@ class _MainPageState extends State<MainPage> {
         setState(() {
           isLoadingLogin = false;
         });
+        userResponse = event;
         mainBloc.getServers();
       } else {
         DialogHelper.showInformDialog(
@@ -71,8 +92,9 @@ class _MainPageState extends State<MainPage> {
       DialogHelper.showInformDialog(context, "Виникла помилка: ${e.toString()}",
           onPositive: () => Modular.to.pushReplacementNamed('/auth'));
     });
-    mainBloc.servers.listen((hostsModel) {
+    mainBloc.servers.listen((model) {
       setLoadingServers(false);
+      hostsModel = model;
       if (hostsModel.hosts != null && hostsModel.hosts.isNotEmpty) {
         if (currentId == hostsModel.hosts.length) {
           currentId = currentId - 1;
@@ -83,8 +105,8 @@ class _MainPageState extends State<MainPage> {
         setLoading(true);
         mainBloc.dataFetcher(
             hostsModel.hosts[currentId].host,
-            DateTime.now().subtract(Duration(days: 1)).toUtc().toString(),
-            DateTime.now().toUtc().toString());
+            minTime.toUtc().toString(),
+            maxTime.toUtc().toString());
       } else {
         setState(() {
           isEmptyData = true;
@@ -116,6 +138,57 @@ class _MainPageState extends State<MainPage> {
       setState(() {
         isLoadingServers = value;
       });
+  }
+
+  openMinTimeDialog() {
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) => MyDateDialog(
+              onPositive: (date) {
+                Navigator.pop(context);
+                setState(() {
+                  minTime = date;
+                  minTimeText = DateFormat('dd.MM kk:mm')
+                      .format(minTime.toLocal());
+                  if (hostsModel?.hosts != null && hostsModel.hosts.isNotEmpty) {
+                    setLoading(true);
+                    mainBloc.dataFetcher(
+                        hostsModel.hosts[currentId].host,
+                        minTime.toUtc().toString(),
+                        maxTime.toUtc().toString());
+                  }
+                });
+              },
+              initTime: minTime,
+              maxTime: maxTime,
+            ));
+  }
+
+  openMaxTimeDialog() {
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) => MyDateDialog(
+          onPositive: (date) {
+            Navigator.pop(context);
+            setState(() {
+              maxTime = date;
+              maxTimeText = DateFormat('dd.MM kk:mm')
+                  .format(maxTime.toLocal());
+              if (hostsModel?.hosts != null && hostsModel.hosts.isNotEmpty) {
+                setLoading(true);
+                mainBloc.dataFetcher(
+                    hostsModel.hosts[currentId].host,
+                    minTime.toUtc().toString(),
+                    maxTime.toUtc().toString());
+              }
+            });
+          },
+          initTime: maxTime,
+          minTime: minTime,
+          maxTime: DateTime.now(),
+        ));
   }
 
   setLoading(bool value) {
@@ -188,6 +261,42 @@ class _MainPageState extends State<MainPage> {
                           left: 15, right: 15, top: 30, bottom: 30),
                       children: [
                         Container(
+                            padding: EdgeInsets.only(
+                                left: 15, right: 15, top: 15, bottom: 15),
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(15)),
+                            height: 75,
+                            child: Row(
+                              mainAxisAlignment:
+                                  MediaQuery.of(context).size.width <= listWight
+                                      ? MainAxisAlignment.center
+                                      : MainAxisAlignment.start,
+                              children: [
+                                Container(
+                                    padding: EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: MyColors.grey),
+                                    child: Image.asset(
+                                      "assets/camera.png",
+                                      width: 35,
+                                      height: 35,
+                                      color: Colors.white,
+                                    )),
+                                SizedBox(
+                                  width: 16,
+                                ),
+                                Text(
+                                  userResponse?.user ?? "username",
+                                  style: TextStyle(fontSize: 20),
+                                )
+                              ],
+                            )),
+                        SizedBox(
+                          height: 30,
+                        ),
+                        Container(
                           padding: EdgeInsets.only(
                               left: 15, right: 15, top: 15, bottom: 15),
                           decoration: BoxDecoration(
@@ -212,13 +321,68 @@ class _MainPageState extends State<MainPage> {
                                 }
                               }),
                         ),
+                        SizedBox(
+                          height: 30,
+                        ),
+                        Container(
+                            padding: EdgeInsets.only(
+                                left: 15, right: 15, top: 15, bottom: 15),
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(15)),
+                            height: 105,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text("Проміжок:"),
+                                SizedBox(
+                                  width: 16,
+                                ),
+                                FlatButton(
+                                    onPressed: openMinTimeDialog,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
+                                    padding: EdgeInsets.zero,
+                                    child: Container(
+                                      padding: EdgeInsets.all(16),
+                                      decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          border:
+                                              Border.all(color: MyColors.grey)),
+                                      child: Text(minTimeText),
+                                    )),
+                                SizedBox(
+                                  width: 16,
+                                ),
+                                Text("до"),
+                                SizedBox(
+                                  width: 16,
+                                ),
+                                FlatButton(
+                                    onPressed: openMaxTimeDialog,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
+                                    padding: EdgeInsets.zero,
+                                    child: Container(
+                                      padding: EdgeInsets.all(16),
+                                      decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          border:
+                                              Border.all(color: MyColors.grey)),
+                                      child: Text(maxTimeText),
+                                    )),
+                              ],
+                            )),
                         StreamBuilder<DataListModel>(
                             stream: mainBloc.data,
                             builder: (context, snapshot) {
                               if (snapshot.hasData) {
                                 DataListModel dataModel = snapshot.data;
                                 if (isLoadingData) {
-                                  print("loading");
                                   return Padding(
                                     padding: const EdgeInsets.only(top: 30),
                                     child: Center(
@@ -226,7 +390,6 @@ class _MainPageState extends State<MainPage> {
                                   );
                                 }
                                 if (isEmptyData) {
-                                  print("tttt");
                                   return Container();
                                 }
                                 return MediaQuery.of(context).size.width <=
@@ -234,12 +397,9 @@ class _MainPageState extends State<MainPage> {
                                     ? buildList(dataModel.data)
                                     : buildRow(dataModel.data);
                               } else if (snapshot.hasError) {
-                                String range = DateTime.now()
-                                        .subtract(Duration(hours: 1))
-                                        .toUtc()
-                                        .toString() +
+                                String range = minTime.toLocal().toString() +
                                     " - " +
-                                    DateTime.now().toUtc().toString();
+                                    maxTime.toLocal().toString();
                                 return buildError(
                                     "Дані за проміжок часу $range не знайдені");
                               } else {
@@ -295,11 +455,8 @@ class _MainPageState extends State<MainPage> {
               setLoading(true);
               mainBloc.dataFetcher(
                   hostsModel.hosts[currentId].host,
-                  DateTime.now()
-                      .subtract(Duration(days: 1))
-                      .toUtc()
-                      .toString(),
-                  DateTime.now().toUtc().toString());
+                  minTime.toUtc().toString(),
+                  maxTime.toUtc().toString());
             });
           },
         ));
@@ -334,7 +491,7 @@ class _MainPageState extends State<MainPage> {
                       }
                     },
                     label: "",
-                    errorText: "Введіть хост"),
+                    errorText: "Введіть public key"),
               ),
               SizedBox(
                 width: 30,
@@ -362,6 +519,9 @@ class _MainPageState extends State<MainPage> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
+        SizedBox(
+          height: 30,
+        ),
         Icon(
           Icons.warning_amber_rounded,
           size: 50,
@@ -390,14 +550,14 @@ class _MainPageState extends State<MainPage> {
           height: 30,
         ),
         MainPageItem(
-          title: "Поточне використання CPU",
+          title: "Використання CPU",
           child: LineChart(
             chartData(linesCpuData(dataModels), isCPU: true),
             swapAnimationDuration: const Duration(milliseconds: 250),
           ),
         ),
         MainPageItem(
-          title: "Поточне використання пам’яті",
+          title: "Використання пам’яті",
           child: LineChart(
             chartData(linesMemoryData(dataModels)),
             swapAnimationDuration: const Duration(milliseconds: 250),
@@ -408,6 +568,19 @@ class _MainPageState extends State<MainPage> {
   }
 
   LineChartData chartData(List<LineChartBarData> data, {bool isCPU = false}) {
+    double firstTime = data.first.spots.first.x;
+    double lastTime = data.first.spots.last.x;
+
+    print(firstTime);
+    print(lastTime);
+
+    double interval = 7200000;
+    if (firstTime < lastTime) {
+      interval = (lastTime - firstTime) / 2;
+    } else if (firstTime > lastTime) {
+      interval = (firstTime - lastTime) / 2;
+    }
+
     return LineChartData(
       lineTouchData: LineTouchData(
         touchTooltipData: LineTouchTooltipData(
@@ -415,15 +588,8 @@ class _MainPageState extends State<MainPage> {
             getTooltipItems: (touchedSpots) {
               List<LineTooltipItem> list = List<LineTooltipItem>();
               touchedSpots.forEach((element) {
-                String time =
-                    DateTime.fromMillisecondsSinceEpoch(element.x.floor())
-                            .hour
-                            .toString() +
-                        ":" +
-                        DateTime.fromMillisecondsSinceEpoch(element.x.floor())
-                            .minute
-                            .toString()
-                            .padLeft(2, "0");
+                String time = DateFormat('dd.MM kk:mm').format(
+                    DateTime.fromMillisecondsSinceEpoch(element.x.floor()));
                 list.add(LineTooltipItem(
                     time + " - " + element.y.toString(),
                     TextStyle(
@@ -441,6 +607,24 @@ class _MainPageState extends State<MainPage> {
       maxX: data.first.spots.last.x,
       minY: isCPU ? 0 : 100,
       maxY: isCPU ? 100 : 500,
+      axisTitleData: FlAxisTitleData(
+          leftTitle: AxisTitle(
+              showTitle: true,
+              titleText: isCPU ? "CPU, %" : "Пам'ять, mb",
+              margin: 10,
+              textStyle: TextStyle(
+                  color: Colors.black,
+                  fontSize: 12,
+                  fontStyle: FontStyle.italic,
+                  fontWeight: FontWeight.w400)),
+          bottomTitle: AxisTitle(
+              margin: 10,
+              showTitle: true,
+              titleText: "Час",
+              textStyle: TextStyle(
+                  color: Colors.black,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400))),
       titlesData: FlTitlesData(
         bottomTitles: SideTitles(
           showTitles: true,
@@ -450,17 +634,11 @@ class _MainPageState extends State<MainPage> {
             fontSize: 12,
           ),
           margin: 16,
-          interval: 7200000,
+          interval: interval,
           reservedSize: 5,
           getTitles: (value) {
-            String time = DateTime.fromMillisecondsSinceEpoch(value.floor())
-                    .hour
-                    .toString() +
-                ":" +
-                DateTime.fromMillisecondsSinceEpoch(value.floor())
-                    .minute
-                    .toString()
-                    .padLeft(2, "0");
+            String time = DateFormat('dd.MM kk:mm')
+                .format(DateTime.fromMillisecondsSinceEpoch(value.floor()));
             return time;
           },
         ),
@@ -561,7 +739,7 @@ class _MainPageState extends State<MainPage> {
         children: [
           Expanded(
             child: MainPageItem(
-              title: "Поточне використання CPU",
+              title: "Використання CPU",
               child: LineChart(
                 chartData(linesCpuData(dataModels), isCPU: true),
                 swapAnimationDuration: const Duration(milliseconds: 250),
@@ -573,7 +751,7 @@ class _MainPageState extends State<MainPage> {
           ),
           Expanded(
             child: MainPageItem(
-              title: "Поточне використання пам’яті",
+              title: "Використання пам’яті",
               child: LineChart(
                 chartData(linesMemoryData(dataModels)),
                 swapAnimationDuration: const Duration(milliseconds: 250),
@@ -650,8 +828,26 @@ class MainPageItem extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 30, vertical: 35),
       decoration: BoxDecoration(
           color: Colors.white, borderRadius: BorderRadius.circular(15)),
-      height: 300,
-      child: child,
+      height: 320,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AutoSizeText(
+            title,
+            maxLines: 2,
+            style: TextStyle(
+                color: Colors.black, fontSize: 24, fontWeight: FontWeight.w400),
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          Expanded(
+              child: Padding(
+            padding: const EdgeInsets.only(left: 10, right: 30),
+            child: child,
+          )),
+        ],
+      ),
     );
   }
 }

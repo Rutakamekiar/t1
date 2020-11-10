@@ -110,6 +110,12 @@
       "languageVersion": "2.3"
     },
     {
+      "name": "intl",
+      "rootUri": "file:///Users/dmitriy/.pub-cache/hosted/pub.dartlang.org/intl-0.16.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.5"
+    },
+    {
       "name": "js",
       "rootUri": "file:///Users/dmitriy/.pub-cache/hosted/pub.dartlang.org/js-0.6.3-nullsafety.1",
       "packageUri": "lib/",
@@ -260,7 +266,7 @@
       "languageVersion": "2.7"
     }
   ],
-  "generated": "2020-10-29T17:18:10.858730Z",
+  "generated": "2020-11-05T19:09:15.623786Z",
   "generator": "pub",
   "generatorVersion": "2.11.0-213.1.beta"
 }
