@@ -1,5 +1,11 @@
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:html';
+import 'dart:isolate';
+import 'dart:typed_data';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:intl/intl.dart';
@@ -9,6 +15,7 @@ import 'package:servelyzer/model/hosts_model.dart';
 import 'package:servelyzer/model/response_model.dart';
 import 'package:servelyzer/style/my_colors.dart';
 import 'package:servelyzer/utils/dialog_helper.dart';
+import 'package:servelyzer/view/profile_widget.dart';
 import 'package:servelyzer/widget/base_button.dart';
 import 'package:servelyzer/widget/base_text_field.dart';
 import 'package:servelyzer/widget/my_date_dialog.dart';
@@ -37,18 +44,26 @@ class _MainPageState extends State<MainPage> {
   DateTime maxTime = DateTime.now().toUtc();
 
   String minTimeText = "";
-      String maxTimeText = "";
+  String maxTimeText = "";
+  Uint8List uploadedImage;
 
   bool isEmptyData = false;
   ResponseModel userResponse;
+  Isolate isolate;
+  Worker myWorker = new Worker('worker.js');
 
   @override
   void initState() {
     super.initState();
-    minTimeText = DateFormat('dd.MM kk:mm')
-        .format(minTime.toLocal());
-    maxTimeText = DateFormat('dd.MM kk:mm')
-        .format(maxTime.toLocal());
+
+    myWorker.onMessage.listen((e) {
+      setState(() {
+        uploadedImage = e.data;
+      });
+    });
+
+    minTimeText = DateFormat('dd.MM kk:mm').format(minTime.toLocal());
+    maxTimeText = DateFormat('dd.MM kk:mm').format(maxTime.toLocal());
 
     // isLoadingLogin = false;
     // mainBloc.getServers();
@@ -103,10 +118,8 @@ class _MainPageState extends State<MainPage> {
           isEmptyData = false;
         });
         setLoading(true);
-        mainBloc.dataFetcher(
-            hostsModel.hosts[currentId].host,
-            minTime.toUtc().toString(),
-            maxTime.toUtc().toString());
+        mainBloc.dataFetcher(hostsModel.hosts[currentId].host,
+            minTime.toUtc().toString(), maxTime.toUtc().toString());
       } else {
         setState(() {
           isEmptyData = true;
@@ -149,14 +162,13 @@ class _MainPageState extends State<MainPage> {
                 Navigator.pop(context);
                 setState(() {
                   minTime = date;
-                  minTimeText = DateFormat('dd.MM kk:mm')
-                      .format(minTime.toLocal());
-                  if (hostsModel?.hosts != null && hostsModel.hosts.isNotEmpty) {
+                  minTimeText =
+                      DateFormat('dd.MM kk:mm').format(minTime.toLocal());
+                  if (hostsModel?.hosts != null &&
+                      hostsModel.hosts.isNotEmpty) {
                     setLoading(true);
-                    mainBloc.dataFetcher(
-                        hostsModel.hosts[currentId].host,
-                        minTime.toUtc().toString(),
-                        maxTime.toUtc().toString());
+                    mainBloc.dataFetcher(hostsModel.hosts[currentId].host,
+                        minTime.toUtc().toString(), maxTime.toUtc().toString());
                   }
                 });
               },
@@ -170,25 +182,24 @@ class _MainPageState extends State<MainPage> {
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) => MyDateDialog(
-          onPositive: (date) {
-            Navigator.pop(context);
-            setState(() {
-              maxTime = date;
-              maxTimeText = DateFormat('dd.MM kk:mm')
-                  .format(maxTime.toLocal());
-              if (hostsModel?.hosts != null && hostsModel.hosts.isNotEmpty) {
-                setLoading(true);
-                mainBloc.dataFetcher(
-                    hostsModel.hosts[currentId].host,
-                    minTime.toUtc().toString(),
-                    maxTime.toUtc().toString());
-              }
-            });
-          },
-          initTime: maxTime,
-          minTime: minTime,
-          maxTime: DateTime.now(),
-        ));
+              onPositive: (date) {
+                Navigator.pop(context);
+                setState(() {
+                  maxTime = date;
+                  maxTimeText =
+                      DateFormat('dd.MM kk:mm').format(maxTime.toLocal());
+                  if (hostsModel?.hosts != null &&
+                      hostsModel.hosts.isNotEmpty) {
+                    setLoading(true);
+                    mainBloc.dataFetcher(hostsModel.hosts[currentId].host,
+                        minTime.toUtc().toString(), maxTime.toUtc().toString());
+                  }
+                });
+              },
+              initTime: maxTime,
+              minTime: minTime,
+              maxTime: DateTime.now(),
+            ));
   }
 
   setLoading(bool value) {
@@ -210,6 +221,25 @@ class _MainPageState extends State<MainPage> {
         },
       ),
     );
+  }
+
+  _startFilePicker() async {
+    InputElement uploadInput = FileUploadInputElement();
+    uploadInput.click();
+    uploadInput.onChange.listen((e) async {
+      final files = uploadInput.files;
+      if (files.length == 1) {
+        final file = files[0];
+        FileReader reader = FileReader();
+        reader.onLoadEnd.listen((e) async {
+          myWorker.postMessage(reader.result);
+        });
+        reader.onError.listen((fileEvent) {
+          print("error");
+        });
+        reader.readAsArrayBuffer(file);
+      }
+    });
   }
 
   @override
@@ -260,39 +290,11 @@ class _MainPageState extends State<MainPage> {
                       padding: EdgeInsets.only(
                           left: 15, right: 15, top: 30, bottom: 30),
                       children: [
-                        Container(
-                            padding: EdgeInsets.only(
-                                left: 15, right: 15, top: 15, bottom: 15),
-                            decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(15)),
-                            height: 75,
-                            child: Row(
-                              mainAxisAlignment:
-                                  MediaQuery.of(context).size.width <= listWight
-                                      ? MainAxisAlignment.center
-                                      : MainAxisAlignment.start,
-                              children: [
-                                Container(
-                                    padding: EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: MyColors.grey),
-                                    child: Image.asset(
-                                      "assets/camera.png",
-                                      width: 35,
-                                      height: 35,
-                                      color: Colors.white,
-                                    )),
-                                SizedBox(
-                                  width: 16,
-                                ),
-                                Text(
-                                  userResponse?.user ?? "username",
-                                  style: TextStyle(fontSize: 20),
-                                )
-                              ],
-                            )),
+                        ProfileWidget(
+                          imageByte: uploadedImage,
+                          onImagePressed: _startFilePicker,
+                          userResponse: userResponse,
+                        ),
                         SizedBox(
                           height: 30,
                         ),
@@ -453,10 +455,8 @@ class _MainPageState extends State<MainPage> {
             setState(() {
               currentId = id;
               setLoading(true);
-              mainBloc.dataFetcher(
-                  hostsModel.hosts[currentId].host,
-                  minTime.toUtc().toString(),
-                  maxTime.toUtc().toString());
+              mainBloc.dataFetcher(hostsModel.hosts[currentId].host,
+                  minTime.toUtc().toString(), maxTime.toUtc().toString());
             });
           },
         ));
