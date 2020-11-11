@@ -14,9 +14,14 @@ public class AvatarController {
         try {
             String avatar = ctx.body();
             String user = ctx.cookie("username");
-            AvatarDao.setAvatar(user, avatar);
-            ctx.json(stringToJson("{\"result\" : 1,\"message\": \"avatar updated\"}"));
-            ctx.status(200);
+            if (user == null){
+                ctx.json(stringToJson("{\"result\" : 0,\"message\": \"user is not logined\"}"));
+                ctx.status(200);
+            } else {
+                AvatarDao.setAvatar(user, avatar);
+                ctx.json(stringToJson("{\"result\" : 1,\"message\": \"avatar updated\"}"));
+                ctx.status(200);
+            }
         } catch (NoSuchFieldException ex) {
             ctx.json(stringToJson("{\"result\" : 0,\"message\": \"missing user\"}"));
             ctx.status(200);
@@ -37,9 +42,14 @@ public class AvatarController {
     public static Handler getAvatar = ctx -> {
         try {
             String user = ctx.cookie("username");
-            String avatar = AvatarDao.getAvatar(user);
-            ctx.json(stringToJson("{\"result\" : 1,\"message\": \""+avatar+"\"}"));
-            ctx.status(200);
+            if (user == null){
+                ctx.json(stringToJson("{\"result\" : 0,\"message\": \"user is not logined\"}"));
+                ctx.status(200);
+            } else {
+                String avatar = AvatarDao.getAvatar(user);
+                ctx.json(stringToJson("{\"result\" : 1,\"message\": \"" + avatar + "\"}"));
+                ctx.status(200);
+            }
         } catch (NoSuchFieldException ex) {
             ctx.json(stringToJson("{\"result\" : 0,\"message\": \"missing user\"}"));
             ctx.status(200);

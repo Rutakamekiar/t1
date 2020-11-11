@@ -48,12 +48,13 @@ public class ServerDao {
 
     public static void deleteServerFromUser( String username , String publicKey) throws SQLException {
         Connection connection = DBconnectionContainer.getDBconnection();
-
         String sql = "delete from hosts_servers where login = ? and public_key = ? ;";
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
         preparedStatement.setString(1, username);
         preparedStatement.setString(2, publicKey);
         preparedStatement.execute();
     }
+
+
 
 }
