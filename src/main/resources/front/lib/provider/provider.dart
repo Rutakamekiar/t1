@@ -26,6 +26,25 @@ class Provider {
     }
   }
 
+  Future<ResponseModel> setAvatar(String image) async {
+    try {
+      // FormData formData = new FormData.fromMap(authModel.toMap());
+      final response = await dio.post("${Constants.url}setavatar", data: image);
+      return ResponseModel.fromJson(response.data);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  Future<ResponseModel> getAvatar() async {
+    try {
+      final response = await dio.get("${Constants.url}getavatar");
+      return ResponseModel.fromJson(response.data);
+    } catch (e) {
+      throw e;
+    }
+  }
+
   Future<ResponseModel> logout() async {
     try {
       final response = await dio.post(

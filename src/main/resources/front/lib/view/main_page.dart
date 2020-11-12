@@ -1,4 +1,5 @@
 // ignore: avoid_web_libraries_in_flutter
+import 'dart:convert';
 import 'dart:html';
 import 'dart:isolate';
 import 'dart:typed_data';
@@ -48,6 +49,7 @@ class _MainPageState extends State<MainPage> {
   Uint8List uploadedImage;
 
   bool isEmptyData = false;
+  bool isLoadingAvatar = true;
   ResponseModel userResponse;
   Isolate isolate;
   Worker myWorker = new Worker('worker.js');
@@ -57,15 +59,51 @@ class _MainPageState extends State<MainPage> {
     super.initState();
 
     myWorker.onMessage.listen((e) {
+      String imageData = base64Encode(e.data);
+      mainBloc.setAvatar(imageData);
+    });
+
+    mainBloc.avatar.listen((event) {
       setState(() {
-        uploadedImage = e.data;
+        isLoadingAvatar = false;
       });
+      if(event.result == 1){
+        var imageData = base64Decode(event.message);
+        setState(() {
+          uploadedImage = imageData;
+        });
+      }
+    }, onError: (e) {
+      setState(() {
+        isLoadingAvatar = false;
+      });
+    });
+
+    mainBloc.newAvatar.listen((event) {
+      if(event.result == 1){
+        Navigator.pop(context);
+        setState(() {
+          isLoadingAvatar = true;
+        });
+        mainBloc.getAvatar();
+      } else {
+        Navigator.pop(context);
+        DialogHelper.showInformDialog(
+            context, "Виникла помилка при завантажені",
+            onPositive: () => Navigator.pop(context));
+      }
+    }, onError: (e) {
+      Navigator.pop(context);
+      DialogHelper.showInformDialog(
+          context, "Виникла помилка при завантажені",
+          onPositive: () => Navigator.pop(context));
     });
 
     minTimeText = DateFormat('dd.MM kk:mm').format(minTime.toLocal());
     maxTimeText = DateFormat('dd.MM kk:mm').format(maxTime.toLocal());
 
     // isLoadingLogin = false;
+    // isLoadingAvatar = false;
     // mainBloc.getServers();
     mainBloc.loginFetcher();
 
@@ -84,6 +122,7 @@ class _MainPageState extends State<MainPage> {
         setState(() {
           isLoadingLogin = false;
         });
+        mainBloc.getAvatar();
         userResponse = event;
         mainBloc.getServers();
       } else {
@@ -227,6 +266,7 @@ class _MainPageState extends State<MainPage> {
     InputElement uploadInput = FileUploadInputElement();
     uploadInput.click();
     uploadInput.onChange.listen((e) async {
+      DialogHelper.showLoadingDialog(context, "Завантаження зображення");
       final files = uploadInput.files;
       if (files.length == 1) {
         final file = files[0];
@@ -235,6 +275,7 @@ class _MainPageState extends State<MainPage> {
           myWorker.postMessage(reader.result);
         });
         reader.onError.listen((fileEvent) {
+          Navigator.pop(context);
           print("error");
         });
         reader.readAsArrayBuffer(file);
@@ -292,6 +333,7 @@ class _MainPageState extends State<MainPage> {
                       children: [
                         ProfileWidget(
                           imageByte: uploadedImage,
+                          isLoadingAvatar: isLoadingAvatar,
                           onImagePressed: _startFilePicker,
                           userResponse: userResponse,
                         ),

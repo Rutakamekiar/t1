@@ -28,6 +28,12 @@ class Repository {
   Future<ResponseModel> getResetPassword(String email) =>
       _provider.getResetPassword(email);
 
+  Future<ResponseModel> setAvatar(String image) =>
+      _provider.setAvatar(image);
+
+  Future<ResponseModel> getAvatar() =>
+      _provider.getAvatar();
+
   Future<ResponseModel> getRegistration(RegistrationModel registrationModel) =>
       _provider.getRegistration(registrationModel);
 }
