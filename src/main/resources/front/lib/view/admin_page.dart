@@ -1,5 +1,5 @@
-// ignore: avoid_web_libraries_in_flutter
 import 'dart:convert';
+// ignore: avoid_web_libraries_in_flutter
 import 'dart:html';
 import 'dart:typed_data';
 
@@ -14,6 +14,7 @@ import 'package:servelyzer/utils/dialog_helper.dart';
 import 'package:servelyzer/view/profile_widget.dart';
 import 'package:servelyzer/widget/base_button.dart';
 import 'package:servelyzer/widget/my_dialog.dart';
+import 'package:servelyzer/widget/my_status_picker.dart';
 
 const double maxWight = 1110;
 const double listWight = 600;
@@ -40,6 +41,22 @@ class _AdminPageState extends State<AdminPage> {
     // _adminBloc.usersFetcher();
 
     _adminBloc.loginFetcher();
+
+    _adminBloc.clearHosts.listen((event) {
+      _adminBloc.usersFetcher();
+    });
+
+    _adminBloc.clearAvatar.listen((event) {
+      _adminBloc.usersFetcher();
+    });
+
+    _adminBloc.setFreeUser.listen((event) {
+      _adminBloc.usersFetcher();
+    });
+
+    _adminBloc.setPremiumUser.listen((event) {
+      _adminBloc.usersFetcher();
+    });
 
     _myWorker.onMessage.listen((e) {
       String imageData = base64Encode(e.data);
@@ -104,6 +121,45 @@ class _AdminPageState extends State<AdminPage> {
         reader.readAsArrayBuffer(file);
       }
     });
+  }
+
+  _changeUserStatus(String login, UserStatus status) {
+    String dropdownValue = "Free";
+    switch (status) {
+      case UserStatus.FREE:
+        dropdownValue = "Free";
+        break;
+      case UserStatus.PREMIUM:
+        dropdownValue = "Premium";
+        break;
+    }
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) => MyStatusPicker(
+        content: "Оберіть статус",
+        onPositive: (newStatus) {
+          switch (newStatus) {
+            case "Free":
+              _adminBloc.setFreeUserFetcher(login);
+              break;
+            case "Premium":
+              _adminBloc.setPremiumUserFetcher(login);
+              break;
+          }
+          Navigator.pop(context);
+        },
+        dropdownValue: dropdownValue,
+      ),
+    );
+  }
+
+  _clearAvatar(String login) {
+    _adminBloc.clearAvatarFetcher(login);
+  }
+
+  _clearHosts(String login) {
+    _adminBloc.clearHostsFetcher(login);
   }
 
   _openAuthorizationPage() {
@@ -188,7 +244,7 @@ class _AdminPageState extends State<AdminPage> {
                 ),
                 Container(
                   width: double.infinity,
-                  margin: EdgeInsets.only(top: 30, left: 15, right: 15),
+                  padding: EdgeInsets.only(top: 30, left: 15, right: 15),
                   constraints: BoxConstraints(maxWidth: maxWight),
                   child: ProfileWidget(
                     imageByte: _uploadedImage,
@@ -207,8 +263,15 @@ class _AdminPageState extends State<AdminPage> {
                               // return ListView(
                               //     padding: EdgeInsets.only(
                               //         left: 15, right: 15, top: 30, bottom: 15),
-                              //     children: [UserItem(), UserItem(), UserItem()]);
-
+                              //     children: [
+                              //       UserItem(
+                              //         onChangeStatus: _changeUserStatus,
+                              //         onClearAvatar: _clearAvatar,
+                              //         onClearHosts: _clearHosts,
+                              //       ),
+                              //       UserItem(),
+                              //       UserItem()
+                              //     ]);
                               if (snapshot.hasData) {
                                 UsersModel usersModel = snapshot.data;
                                 return ListView.builder(
@@ -223,6 +286,9 @@ class _AdminPageState extends State<AdminPage> {
                                       User user = usersModel.users[index];
                                       return UserItem(
                                         user: user,
+                                        onChangeStatus: _changeUserStatus,
+                                        onClearAvatar: _clearAvatar,
+                                        onClearHosts: _clearHosts,
                                       );
                                     });
                               } else if (snapshot.hasError) {
@@ -240,7 +306,7 @@ class _AdminPageState extends State<AdminPage> {
 class UserItem extends StatelessWidget {
   final User user;
   final Function(String) onClearHosts;
-  final Function(String) onChangeStatus;
+  final Function(String, UserStatus) onChangeStatus;
   final Function(String) onClearAvatar;
 
   const UserItem(
@@ -297,69 +363,136 @@ class UserItem extends StatelessWidget {
       margin: EdgeInsets.only(bottom: 15),
       decoration: BoxDecoration(
           color: Colors.white, borderRadius: BorderRadius.circular(15)),
-      child: Row(
-        children: [
-          Expanded(child: Text("Username")),
-          SizedBox(
-            width: 30,
-          ),
-          Text(_getVerificationStatus()),
-          SizedBox(
-            width: 30,
-          ),
-          FlatButton(
-            onPressed: onClearAvatar(user.login),
-            child: Container(
-              alignment: Alignment.center,
-              height: 50,
-              child: Text(
-                _getAvatarStatus(),
-                style: TextStyle(
-                    color: MyColors.green, fontWeight: FontWeight.bold),
-              ),
+      child: MediaQuery.of(context).size.width <= 950
+          ? ExpansionTile(
+              childrenPadding: EdgeInsets.symmetric(vertical: 10),
+              children: [
+                Text(_getVerificationStatus()),
+                SizedBox(
+                  height: 10,
+                ),
+                FlatButton(
+                  onPressed: () => onClearAvatar(user?.login),
+                  child: Container(
+                    alignment: Alignment.center,
+                    height: 50,
+                    child: Text(
+                      _getAvatarStatus(),
+                      style: TextStyle(
+                          color: MyColors.green, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      side: BorderSide(color: MyColors.green)),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                FlatButton(
+                  onPressed: () =>
+                      onChangeStatus(user?.login, user?.userStatus),
+                  child: Container(
+                    alignment: Alignment.center,
+                    height: 50,
+                    child: Text(
+                      _getStatus(),
+                      style: TextStyle(
+                          color: MyColors.green, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      side: BorderSide(color: MyColors.green)),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                FlatButton(
+                  onPressed: () => onClearHosts(user?.login),
+                  child: Container(
+                    alignment: Alignment.center,
+                    height: 50,
+                    child: Text(
+                      "Очистити список хостів",
+                      style: TextStyle(
+                          color: MyColors.green, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      side: BorderSide(color: MyColors.green)),
+                )
+              ],
+              title: Center(child: Text(user?.login ?? "Username")),
+            )
+          : buildRow(),
+    );
+  }
+
+  Row buildRow() {
+    return Row(
+      children: [
+        Expanded(child: Text(user?.login ?? "Username")),
+        SizedBox(
+          width: 30,
+        ),
+        Text(_getVerificationStatus()),
+        SizedBox(
+          width: 30,
+        ),
+        FlatButton(
+          onPressed: () => onClearAvatar(user?.login),
+          child: Container(
+            alignment: Alignment.center,
+            height: 50,
+            child: Text(
+              _getAvatarStatus(),
+              style:
+                  TextStyle(color: MyColors.green, fontWeight: FontWeight.bold),
             ),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-                side: BorderSide(color: MyColors.green)),
           ),
-          SizedBox(
-            width: 30,
-          ),
-          FlatButton(
-            onPressed: onChangeStatus(user.login),
-            child: Container(
-              alignment: Alignment.center,
-              height: 50,
-              child: Text(
-                _getStatus(),
-                style: TextStyle(
-                    color: MyColors.green, fontWeight: FontWeight.bold),
-              ),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+              side: BorderSide(color: MyColors.green)),
+        ),
+        SizedBox(
+          width: 30,
+        ),
+        FlatButton(
+          onPressed: () => onChangeStatus(user?.login, user?.userStatus),
+          child: Container(
+            alignment: Alignment.center,
+            height: 50,
+            child: Text(
+              _getStatus(),
+              style:
+                  TextStyle(color: MyColors.green, fontWeight: FontWeight.bold),
             ),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-                side: BorderSide(color: MyColors.green)),
           ),
-          SizedBox(
-            width: 30,
-          ),
-          FlatButton(
-            onPressed: onClearHosts(user.login),
-            child: Container(
-              alignment: Alignment.center,
-              height: 50,
-              child: Text(
-                "Очистити список хостів",
-                style: TextStyle(
-                    color: MyColors.green, fontWeight: FontWeight.bold),
-              ),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+              side: BorderSide(color: MyColors.green)),
+        ),
+        SizedBox(
+          width: 30,
+        ),
+        FlatButton(
+          onPressed: () => onClearHosts(user?.login),
+          child: Container(
+            alignment: Alignment.center,
+            height: 50,
+            child: Text(
+              "Очистити список хостів",
+              style:
+                  TextStyle(color: MyColors.green, fontWeight: FontWeight.bold),
             ),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-                side: BorderSide(color: MyColors.green)),
-          )
-        ],
-      ),
+          ),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+              side: BorderSide(color: MyColors.green)),
+        )
+      ],
     );
   }
 }

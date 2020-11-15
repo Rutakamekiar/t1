@@ -18,6 +18,14 @@ class Repository {
 
   Future<bool> addServer(String server) => _provider.addServer(server);
 
+  Future<ResponseModel> clearAvatar(String login) => _provider.clearAvatar(login);
+
+  Future<ResponseModel> clearHosts(String login) => _provider.clearHosts(login);
+
+  Future<ResponseModel> setFreeUser(String login) => _provider.setFreeUser(login);
+
+  Future<ResponseModel> setPremiumUser(String login) => _provider.setPremiumUser(login);
+
   Future<HostsModel> getServers() => _provider.getServers();
 
   Future<ResponseModel> isLogin() =>

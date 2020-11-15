@@ -27,6 +27,42 @@ class Provider {
     }
   }
 
+  Future<ResponseModel> clearAvatar(String login) async {
+    try {
+      final response = await dio.post("${Constants.url}admindropavatar?login=$login");
+      return ResponseModel.fromJson(response.data);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  Future<ResponseModel> clearHosts(String login) async {
+    try {
+      final response = await dio.post("${Constants.url}dropuserhosts?login=$login");
+      return ResponseModel.fromJson(response.data);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  Future<ResponseModel> setFreeUser(String login) async {
+    try {
+      final response = await dio.post("${Constants.url}adminsetfree?login=$login");
+      return ResponseModel.fromJson(response.data);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  Future<ResponseModel> setPremiumUser(String login) async {
+    try {
+      final response = await dio.post("${Constants.url}adminsetpremium?login=$login");
+      return ResponseModel.fromJson(response.data);
+    } catch (e) {
+      throw e;
+    }
+  }
+
   Future<UsersModel> getUsers() async {
     try {
       final response = await dio.post("${Constants.url}getallusersadmin");

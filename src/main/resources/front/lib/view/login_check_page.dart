@@ -17,11 +17,9 @@ class _LoginCheckPageState extends State<LoginCheckPage> {
     super.initState();
     _loginCheckBloc.loginFetcher();
     _loginCheckBloc.login.listen(_checkUser, onError: (e) {
+      // Modular.to.pushReplacementNamed('/admin');
       Modular.to.pushReplacementNamed('/auth');
     });
-
-    // Modular.to.pushReplacementNamed('/admin');
-
   }
 
   void _checkUser(ResponseModel response) {
