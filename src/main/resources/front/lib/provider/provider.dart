@@ -4,6 +4,7 @@ import 'package:servelyzer/model/data_model.dart';
 import 'package:servelyzer/model/hosts_model.dart';
 import 'package:servelyzer/model/registration_model.dart';
 import 'package:servelyzer/model/response_model.dart';
+import 'package:servelyzer/model/users_model.dart';
 import 'package:servelyzer/utils/constants.dart';
 
 class Provider {
@@ -26,9 +27,17 @@ class Provider {
     }
   }
 
+  Future<UsersModel> getUsers() async {
+    try {
+      final response = await dio.post("${Constants.url}getallusersadmin");
+      return UsersModel.fromJson(response.data);
+    } catch (e) {
+      throw e;
+    }
+  }
+
   Future<ResponseModel> setAvatar(String image) async {
     try {
-      // FormData formData = new FormData.fromMap(authModel.toMap());
       final response = await dio.post("${Constants.url}setavatar", data: image);
       return ResponseModel.fromJson(response.data);
     } catch (e) {

@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:servelyzer/style/my_colors.dart';
+import 'package:servelyzer/view/admin_page.dart';
 import 'package:servelyzer/view/email_verified_page.dart';
 import 'package:servelyzer/view/login_check_page.dart';
 import 'package:servelyzer/view/main_page.dart';
@@ -26,6 +27,7 @@ class AppModule extends MainModule {
         ModularRouter('/verification', child: (_, __) => EmailVerifiedPage()),
         ModularRouter('/registration', child: (_, __) => RegistrationPage()),
         ModularRouter('/reset', child: (_, __) => ResetPasswordPage()),
+        ModularRouter('/admin', child: (_, __) => AdminPage()),
       ];
 
   @override

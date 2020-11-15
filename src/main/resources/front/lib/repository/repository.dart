@@ -3,6 +3,7 @@ import 'package:servelyzer/model/data_model.dart';
 import 'package:servelyzer/model/hosts_model.dart';
 import 'package:servelyzer/model/registration_model.dart';
 import 'package:servelyzer/model/response_model.dart';
+import 'package:servelyzer/model/users_model.dart';
 import 'package:servelyzer/provider/provider.dart';
 
 class Repository {
@@ -21,6 +22,9 @@ class Repository {
 
   Future<ResponseModel> isLogin() =>
       _provider.isLogin();
+
+  Future<UsersModel> getUsers() =>
+      _provider.getUsers();
 
   Future<ResponseModel> logout() =>
       _provider.logout();

@@ -945,6 +945,7 @@ file:///Users/dmitriy/fvm/versions/beta/packages/flutter_web_plugins/lib/src/plu
 file:///Users/dmitriy/fvm/versions/beta/packages/flutter_web_plugins/lib/src/plugin_registry.dart
 file:///Users/dmitriy/t1/src/main/resources/front/.dart_tool/flutter_build/08a91310cf50253a282fb398558accae/main.dart
 file:///Users/dmitriy/t1/src/main/resources/front/.dart_tool/package_config.json
+file:///Users/dmitriy/t1/src/main/resources/front/lib/bloc/admin_bloc.dart
 file:///Users/dmitriy/t1/src/main/resources/front/lib/bloc/authorization_bloc.dart
 file:///Users/dmitriy/t1/src/main/resources/front/lib/bloc/base/bloc.dart
 file:///Users/dmitriy/t1/src/main/resources/front/lib/bloc/login_check_bloc.dart
@@ -958,11 +959,13 @@ file:///Users/dmitriy/t1/src/main/resources/front/lib/model/data_model.dart
 file:///Users/dmitriy/t1/src/main/resources/front/lib/model/hosts_model.dart
 file:///Users/dmitriy/t1/src/main/resources/front/lib/model/registration_model.dart
 file:///Users/dmitriy/t1/src/main/resources/front/lib/model/response_model.dart
+file:///Users/dmitriy/t1/src/main/resources/front/lib/model/users_model.dart
 file:///Users/dmitriy/t1/src/main/resources/front/lib/provider/provider.dart
 file:///Users/dmitriy/t1/src/main/resources/front/lib/repository/repository.dart
 file:///Users/dmitriy/t1/src/main/resources/front/lib/style/my_colors.dart
 file:///Users/dmitriy/t1/src/main/resources/front/lib/utils/constants.dart
 file:///Users/dmitriy/t1/src/main/resources/front/lib/utils/dialog_helper.dart
+file:///Users/dmitriy/t1/src/main/resources/front/lib/view/admin_page.dart
 file:///Users/dmitriy/t1/src/main/resources/front/lib/view/authorization_page.dart
 file:///Users/dmitriy/t1/src/main/resources/front/lib/view/email_verified_page.dart
 file:///Users/dmitriy/t1/src/main/resources/front/lib/view/login_check_page.dart
@@ -974,3 +977,4 @@ file:///Users/dmitriy/t1/src/main/resources/front/lib/widget/base_button.dart
 file:///Users/dmitriy/t1/src/main/resources/front/lib/widget/base_text_field.dart
 file:///Users/dmitriy/t1/src/main/resources/front/lib/widget/my_date_dialog.dart
 file:///Users/dmitriy/t1/src/main/resources/front/lib/widget/my_dialog.dart
+file:///Users/dmitriy/t1/src/main/resources/front/lib/widget/my_loading_dialog.dart
