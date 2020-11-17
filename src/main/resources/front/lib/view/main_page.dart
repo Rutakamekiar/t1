@@ -1,5 +1,11 @@
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:html';
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:intl/intl.dart';
@@ -9,6 +15,7 @@ import 'package:servelyzer/model/hosts_model.dart';
 import 'package:servelyzer/model/response_model.dart';
 import 'package:servelyzer/style/my_colors.dart';
 import 'package:servelyzer/utils/dialog_helper.dart';
+import 'package:servelyzer/view/profile_widget.dart';
 import 'package:servelyzer/widget/base_button.dart';
 import 'package:servelyzer/widget/base_text_field.dart';
 import 'package:servelyzer/widget/my_date_dialog.dart';
@@ -23,54 +30,98 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  final mainBloc = MainBloc();
+  final _mainBloc = MainBloc();
 
-  TextEditingController hostController = TextEditingController();
+  TextEditingController _hostController = TextEditingController();
 
-  int currentId = 0;
-  bool isLoadingData = false;
-  bool isLoadingServers = false;
-  bool isLoadingLogin = true;
-  HostsModel hostsModel;
+  int _currentId = 0;
+  bool _isLoadingData = false;
+  bool _isLoadingServers = false;
+  bool _isLoadingLogin = true;
+  HostsModel _hostsModel;
 
-  DateTime minTime = DateTime.now().subtract(Duration(hours: 2)).toUtc();
-  DateTime maxTime = DateTime.now().toUtc();
+  DateTime _minTime = DateTime.now().subtract(Duration(hours: 2)).toUtc();
+  DateTime _maxTime = DateTime.now().toUtc();
 
-  String minTimeText = "";
-      String maxTimeText = "";
+  String _minTimeText = "";
+  String _maxTimeText = "";
+  Uint8List _uploadedImage;
 
-  bool isEmptyData = false;
-  ResponseModel userResponse;
+  bool _isEmptyData = false;
+  bool _isLoadingAvatar = true;
+  ResponseModel _userResponse;
+  Worker _myWorker = new Worker('worker.js');
 
   @override
   void initState() {
     super.initState();
-    minTimeText = DateFormat('dd.MM kk:mm')
-        .format(minTime.toLocal());
-    maxTimeText = DateFormat('dd.MM kk:mm')
-        .format(maxTime.toLocal());
+    _myWorker.onMessage.listen((e) {
+      String imageData = base64Encode(e.data);
+      _mainBloc.setAvatar(imageData);
+    });
+
+    _mainBloc.avatar.listen((event) {
+      setState(() {
+        _isLoadingAvatar = false;
+      });
+      if(event.result == 1){
+        var imageData = base64Decode(event.message);
+        setState(() {
+          _uploadedImage = imageData;
+        });
+      }
+    }, onError: (e) {
+      setState(() {
+        _isLoadingAvatar = false;
+      });
+    });
+
+    _mainBloc.newAvatar.listen((event) {
+      if(event.result == 1){
+        Navigator.pop(context);
+        setState(() {
+          _isLoadingAvatar = true;
+        });
+        _mainBloc.getAvatar();
+      } else {
+        Navigator.pop(context);
+        DialogHelper.showInformDialog(
+            context, "Виникла помилка при завантажені",
+            onPositive: () => Navigator.pop(context));
+      }
+    }, onError: (e) {
+      Navigator.pop(context);
+      DialogHelper.showInformDialog(
+          context, "Виникла помилка при завантажені",
+          onPositive: () => Navigator.pop(context));
+    });
+
+    _minTimeText = DateFormat('dd.MM kk:mm').format(_minTime.toLocal());
+    _maxTimeText = DateFormat('dd.MM kk:mm').format(_maxTime.toLocal());
 
     // isLoadingLogin = false;
+    // isLoadingAvatar = false;
     // mainBloc.getServers();
-    mainBloc.loginFetcher();
+    _mainBloc.loginFetcher();
 
     // mainBloc.dataFetcher(
     //     "t1-tss2020",
     //     DateTime.now().subtract(Duration(days: 10)).toUtc().toString(),
     //     DateTime.now().toUtc().toString());
 
-    mainBloc.data.listen((data) {
-      setLoading(false);
+    _mainBloc.data.listen((data) {
+      _setLoading(false);
     }, onError: (e) {
-      setLoading(false);
+      _setLoading(false);
     });
-    mainBloc.login.listen((event) {
+    _mainBloc.login.listen((event) {
       if (event.result == 1) {
         setState(() {
-          isLoadingLogin = false;
+          _isLoadingLogin = false;
         });
-        userResponse = event;
-        mainBloc.getServers();
+        _mainBloc.getAvatar();
+        _userResponse = event;
+        _mainBloc.getServers();
       } else {
         DialogHelper.showInformDialog(
             context, "Виникла помилка: ${event.message}",
@@ -80,7 +131,7 @@ class _MainPageState extends State<MainPage> {
       DialogHelper.showInformDialog(context, "Виникла помилка: ${e.toString()}",
           onPositive: () => Modular.to.pushReplacementNamed('/auth'));
     });
-    mainBloc.logout.listen((event) {
+    _mainBloc.logout.listen((event) {
       if (event.result == 1) {
         Modular.to.pushReplacementNamed('/auth');
       } else {
@@ -92,55 +143,53 @@ class _MainPageState extends State<MainPage> {
       DialogHelper.showInformDialog(context, "Виникла помилка: ${e.toString()}",
           onPositive: () => Modular.to.pushReplacementNamed('/auth'));
     });
-    mainBloc.servers.listen((model) {
-      setLoadingServers(false);
-      hostsModel = model;
-      if (hostsModel.hosts != null && hostsModel.hosts.isNotEmpty) {
-        if (currentId == hostsModel.hosts.length) {
-          currentId = currentId - 1;
+    _mainBloc.servers.listen((model) {
+      _setLoadingServers(false);
+      _hostsModel = model;
+      if (_hostsModel.hosts != null && _hostsModel.hosts.isNotEmpty) {
+        if (_currentId == _hostsModel.hosts.length) {
+          _currentId = _currentId - 1;
         }
         setState(() {
-          isEmptyData = false;
+          _isEmptyData = false;
         });
-        setLoading(true);
-        mainBloc.dataFetcher(
-            hostsModel.hosts[currentId].host,
-            minTime.toUtc().toString(),
-            maxTime.toUtc().toString());
+        _setLoading(true);
+        _mainBloc.dataFetcher(_hostsModel.hosts[_currentId].host,
+            _minTime.toUtc().toString(), _maxTime.toUtc().toString());
       } else {
         setState(() {
-          isEmptyData = true;
+          _isEmptyData = true;
         });
       }
     }, onError: (e) {
-      setLoadingServers(false);
+      _setLoadingServers(false);
       DialogHelper.showInformDialog(context, "Виникла помилка: ${e.toString()}",
           onPositive: () => Navigator.pop(context));
     });
-    mainBloc.add.listen((event) {
-      mainBloc.getServers();
+    _mainBloc.add.listen((event) {
+      _mainBloc.getServers();
     }, onError: (e) {
-      setLoadingServers(false);
+      _setLoadingServers(false);
       DialogHelper.showInformDialog(context, "Виникла помилка: ${e.toString()}",
           onPositive: () => Navigator.pop(context));
     });
-    mainBloc.delete.listen((event) {
-      mainBloc.getServers();
+    _mainBloc.delete.listen((event) {
+      _mainBloc.getServers();
     }, onError: (e) {
-      setLoadingServers(false);
+      _setLoadingServers(false);
       DialogHelper.showInformDialog(context, "Виникла помилка: ${e.toString()}",
           onPositive: () => Navigator.pop(context));
     });
   }
 
-  setLoadingServers(bool value) {
-    if (isLoadingServers != value)
+  _setLoadingServers(bool value) {
+    if (_isLoadingServers != value)
       setState(() {
-        isLoadingServers = value;
+        _isLoadingServers = value;
       });
   }
 
-  openMinTimeDialog() {
+  _openMinTimeDialog() {
     showDialog(
         context: context,
         barrierDismissible: false,
@@ -148,57 +197,55 @@ class _MainPageState extends State<MainPage> {
               onPositive: (date) {
                 Navigator.pop(context);
                 setState(() {
-                  minTime = date;
-                  minTimeText = DateFormat('dd.MM kk:mm')
-                      .format(minTime.toLocal());
-                  if (hostsModel?.hosts != null && hostsModel.hosts.isNotEmpty) {
-                    setLoading(true);
-                    mainBloc.dataFetcher(
-                        hostsModel.hosts[currentId].host,
-                        minTime.toUtc().toString(),
-                        maxTime.toUtc().toString());
+                  _minTime = date;
+                  _minTimeText =
+                      DateFormat('dd.MM kk:mm').format(_minTime.toLocal());
+                  if (_hostsModel?.hosts != null &&
+                      _hostsModel.hosts.isNotEmpty) {
+                    _setLoading(true);
+                    _mainBloc.dataFetcher(_hostsModel.hosts[_currentId].host,
+                        _minTime.toUtc().toString(), _maxTime.toUtc().toString());
                   }
                 });
               },
-              initTime: minTime,
-              maxTime: maxTime,
+              initTime: _minTime,
+              maxTime: _maxTime,
             ));
   }
 
-  openMaxTimeDialog() {
+  _openMaxTimeDialog() {
     showDialog(
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) => MyDateDialog(
-          onPositive: (date) {
-            Navigator.pop(context);
-            setState(() {
-              maxTime = date;
-              maxTimeText = DateFormat('dd.MM kk:mm')
-                  .format(maxTime.toLocal());
-              if (hostsModel?.hosts != null && hostsModel.hosts.isNotEmpty) {
-                setLoading(true);
-                mainBloc.dataFetcher(
-                    hostsModel.hosts[currentId].host,
-                    minTime.toUtc().toString(),
-                    maxTime.toUtc().toString());
-              }
-            });
-          },
-          initTime: maxTime,
-          minTime: minTime,
-          maxTime: DateTime.now(),
-        ));
+              onPositive: (date) {
+                Navigator.pop(context);
+                setState(() {
+                  _maxTime = date;
+                  _maxTimeText =
+                      DateFormat('dd.MM kk:mm').format(_maxTime.toLocal());
+                  if (_hostsModel?.hosts != null &&
+                      _hostsModel.hosts.isNotEmpty) {
+                    _setLoading(true);
+                    _mainBloc.dataFetcher(_hostsModel.hosts[_currentId].host,
+                        _minTime.toUtc().toString(), _maxTime.toUtc().toString());
+                  }
+                });
+              },
+              initTime: _maxTime,
+              minTime: _minTime,
+              maxTime: DateTime.now(),
+            ));
   }
 
-  setLoading(bool value) {
-    if (isLoadingData != value)
+  _setLoading(bool value) {
+    if (_isLoadingData != value)
       setState(() {
-        isLoadingData = value;
+        _isLoadingData = value;
       });
   }
 
-  openAuthorizationPage() {
+  _openAuthorizationPage() {
     showDialog(
       context: context,
       builder: (BuildContext context) => MyDialog(
@@ -206,16 +253,37 @@ class _MainPageState extends State<MainPage> {
         negativeButton: "Ні",
         positiveButton: "Так",
         onPositive: () {
-          mainBloc.logoutFetcher();
+          _mainBloc.logoutFetcher();
         },
       ),
     );
   }
 
+  _startFilePicker() async {
+    InputElement uploadInput = FileUploadInputElement();
+    uploadInput.click();
+    uploadInput.onChange.listen((e) async {
+      DialogHelper.showLoadingDialog(context, "Завантаження зображення");
+      final files = uploadInput.files;
+      if (files.length == 1) {
+        final file = files[0];
+        FileReader reader = FileReader();
+        reader.onLoadEnd.listen((e) async {
+          _myWorker.postMessage(reader.result);
+        });
+        reader.onError.listen((fileEvent) {
+          Navigator.pop(context);
+          print("error");
+        });
+        reader.readAsArrayBuffer(file);
+      }
+    });
+  }
+
   @override
   void dispose() {
-    mainBloc.dispose();
-    hostController.dispose();
+    _mainBloc.dispose();
+    _hostController.dispose();
     super.dispose();
   }
 
@@ -223,7 +291,7 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MyColors.background,
-      body: isLoadingLogin
+      body: _isLoadingLogin
           ? Center(child: CircularProgressIndicator())
           : Column(
               children: [
@@ -239,7 +307,7 @@ class _MainPageState extends State<MainPage> {
                         : Alignment.centerRight,
                     constraints: BoxConstraints(maxWidth: maxWight),
                     child: BaseButton(
-                      onPressed: openAuthorizationPage,
+                      onPressed: _openAuthorizationPage,
                       height: 45,
                       width: 175,
                       title: "Вийти",
@@ -260,39 +328,12 @@ class _MainPageState extends State<MainPage> {
                       padding: EdgeInsets.only(
                           left: 15, right: 15, top: 30, bottom: 30),
                       children: [
-                        Container(
-                            padding: EdgeInsets.only(
-                                left: 15, right: 15, top: 15, bottom: 15),
-                            decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(15)),
-                            height: 75,
-                            child: Row(
-                              mainAxisAlignment:
-                                  MediaQuery.of(context).size.width <= listWight
-                                      ? MainAxisAlignment.center
-                                      : MainAxisAlignment.start,
-                              children: [
-                                Container(
-                                    padding: EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: MyColors.grey),
-                                    child: Image.asset(
-                                      "assets/camera.png",
-                                      width: 35,
-                                      height: 35,
-                                      color: Colors.white,
-                                    )),
-                                SizedBox(
-                                  width: 16,
-                                ),
-                                Text(
-                                  userResponse?.user ?? "username",
-                                  style: TextStyle(fontSize: 20),
-                                )
-                              ],
-                            )),
+                        ProfileWidget(
+                          imageByte: _uploadedImage,
+                          isLoadingAvatar: _isLoadingAvatar,
+                          onImagePressed: _startFilePicker,
+                          userResponse: _userResponse,
+                        ),
                         SizedBox(
                           height: 30,
                         ),
@@ -304,11 +345,11 @@ class _MainPageState extends State<MainPage> {
                               borderRadius: BorderRadius.circular(15)),
                           height: 240,
                           child: StreamBuilder<HostsModel>(
-                              stream: mainBloc.servers,
+                              stream: _mainBloc.servers,
                               builder: (context, snapshot) {
                                 if (snapshot.hasData) {
                                   HostsModel hostsModel = snapshot.data;
-                                  return isLoadingServers
+                                  return _isLoadingServers
                                       ? Center(
                                           child: CircularProgressIndicator())
                                       : buildHostList(hostsModel);
@@ -339,7 +380,7 @@ class _MainPageState extends State<MainPage> {
                                   width: 16,
                                 ),
                                 FlatButton(
-                                    onPressed: openMinTimeDialog,
+                                    onPressed: _openMinTimeDialog,
                                     shape: RoundedRectangleBorder(
                                         borderRadius:
                                             BorderRadius.circular(10)),
@@ -351,7 +392,7 @@ class _MainPageState extends State<MainPage> {
                                               BorderRadius.circular(10),
                                           border:
                                               Border.all(color: MyColors.grey)),
-                                      child: Text(minTimeText),
+                                      child: Text(_minTimeText),
                                     )),
                                 SizedBox(
                                   width: 16,
@@ -361,7 +402,7 @@ class _MainPageState extends State<MainPage> {
                                   width: 16,
                                 ),
                                 FlatButton(
-                                    onPressed: openMaxTimeDialog,
+                                    onPressed: _openMaxTimeDialog,
                                     shape: RoundedRectangleBorder(
                                         borderRadius:
                                             BorderRadius.circular(10)),
@@ -373,23 +414,23 @@ class _MainPageState extends State<MainPage> {
                                               BorderRadius.circular(10),
                                           border:
                                               Border.all(color: MyColors.grey)),
-                                      child: Text(maxTimeText),
+                                      child: Text(_maxTimeText),
                                     )),
                               ],
                             )),
                         StreamBuilder<DataListModel>(
-                            stream: mainBloc.data,
+                            stream: _mainBloc.data,
                             builder: (context, snapshot) {
                               if (snapshot.hasData) {
                                 DataListModel dataModel = snapshot.data;
-                                if (isLoadingData) {
+                                if (_isLoadingData) {
                                   return Padding(
                                     padding: const EdgeInsets.only(top: 30),
                                     child: Center(
                                         child: CircularProgressIndicator()),
                                   );
                                 }
-                                if (isEmptyData) {
+                                if (_isEmptyData) {
                                   return Container();
                                 }
                                 return MediaQuery.of(context).size.width <=
@@ -397,13 +438,13 @@ class _MainPageState extends State<MainPage> {
                                     ? buildList(dataModel.data)
                                     : buildRow(dataModel.data);
                               } else if (snapshot.hasError) {
-                                String range = minTime.toLocal().toString() +
+                                String range = _minTime.toLocal().toString() +
                                     " - " +
-                                    maxTime.toLocal().toString();
+                                    _maxTime.toLocal().toString();
                                 return buildError(
                                     "Дані за проміжок часу $range не знайдені");
                               } else {
-                                return isLoadingData
+                                return _isLoadingData
                                     ? Padding(
                                         padding: const EdgeInsets.only(top: 30),
                                         child: Center(
@@ -424,15 +465,15 @@ class _MainPageState extends State<MainPage> {
   Container buildHostList(HostsModel hostsModel) {
     List<Widget> list = List<Widget>();
     if (hostsModel.hosts != null && hostsModel.hosts.isNotEmpty) {
-      if (currentId == hostsModel.hosts.length) {
-        currentId = currentId - 1;
+      if (_currentId == hostsModel.hosts.length) {
+        _currentId = _currentId - 1;
       }
       for (int i = 0; i < hostsModel.hosts.length; i++) {
         Host host = hostsModel.hosts[i];
         list.add(HostItem(
           title: host.host,
           id: i,
-          currentId: currentId,
+          currentId: _currentId,
           onDelete: (id) {
             showDialog(
               context: context,
@@ -443,20 +484,18 @@ class _MainPageState extends State<MainPage> {
                 positiveButton: "Так",
                 onPositive: () {
                   Navigator.pop(context);
-                  setLoadingServers(true);
-                  mainBloc.deleteServer(hostsModel.hosts[id].host);
+                  _setLoadingServers(true);
+                  _mainBloc.deleteServer(hostsModel.hosts[id].host);
                 },
               ),
             );
           },
           onSelected: (id) {
             setState(() {
-              currentId = id;
-              setLoading(true);
-              mainBloc.dataFetcher(
-                  hostsModel.hosts[currentId].host,
-                  minTime.toUtc().toString(),
-                  maxTime.toUtc().toString());
+              _currentId = id;
+              _setLoading(true);
+              _mainBloc.dataFetcher(hostsModel.hosts[_currentId].host,
+                  _minTime.toUtc().toString(), _maxTime.toUtc().toString());
             });
           },
         ));
@@ -483,11 +522,11 @@ class _MainPageState extends State<MainPage> {
             children: [
               Expanded(
                 child: BaseTextField(
-                    textEditingController: hostController,
+                    textEditingController: _hostController,
                     onSubmitted: (value) {
-                      if (hostController.text.isNotEmpty) {
-                        setLoadingServers(true);
-                        mainBloc.addServer(hostController.text);
+                      if (_hostController.text.isNotEmpty) {
+                        _setLoadingServers(true);
+                        _mainBloc.addServer(_hostController.text);
                       }
                     },
                     label: "",
@@ -502,9 +541,9 @@ class _MainPageState extends State<MainPage> {
                 height: 37,
                 title: "Додати",
                 onPressed: () {
-                  if (hostController.text.isNotEmpty) {
-                    setLoadingServers(true);
-                    mainBloc.addServer(hostController.text);
+                  if (_hostController.text.isNotEmpty) {
+                    _setLoadingServers(true);
+                    _mainBloc.addServer(_hostController.text);
                   }
                 },
               )

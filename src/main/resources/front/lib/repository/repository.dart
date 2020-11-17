@@ -3,6 +3,7 @@ import 'package:servelyzer/model/data_model.dart';
 import 'package:servelyzer/model/hosts_model.dart';
 import 'package:servelyzer/model/registration_model.dart';
 import 'package:servelyzer/model/response_model.dart';
+import 'package:servelyzer/model/users_model.dart';
 import 'package:servelyzer/provider/provider.dart';
 
 class Repository {
@@ -17,16 +18,33 @@ class Repository {
 
   Future<bool> addServer(String server) => _provider.addServer(server);
 
+  Future<ResponseModel> clearAvatar(String login) => _provider.clearAvatar(login);
+
+  Future<ResponseModel> clearHosts(String login) => _provider.clearHosts(login);
+
+  Future<ResponseModel> setFreeUser(String login) => _provider.setFreeUser(login);
+
+  Future<ResponseModel> setPremiumUser(String login) => _provider.setPremiumUser(login);
+
   Future<HostsModel> getServers() => _provider.getServers();
 
   Future<ResponseModel> isLogin() =>
       _provider.isLogin();
+
+  Future<UsersModel> getUsers() =>
+      _provider.getUsers();
 
   Future<ResponseModel> logout() =>
       _provider.logout();
 
   Future<ResponseModel> getResetPassword(String email) =>
       _provider.getResetPassword(email);
+
+  Future<ResponseModel> setAvatar(String image) =>
+      _provider.setAvatar(image);
+
+  Future<ResponseModel> getAvatar() =>
+      _provider.getAvatar();
 
   Future<ResponseModel> getRegistration(RegistrationModel registrationModel) =>
       _provider.getRegistration(registrationModel);

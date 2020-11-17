@@ -1,6 +1,8 @@
 package app.login;
 
 import io.javalin.http.Handler;
+
+import java.sql.SQLException;
 import java.util.Map;
 
 import app.user.UserController;
@@ -17,8 +19,34 @@ public class LoginController {
             ctx.json(stringToJson("{\"result\" : 0,\"message\": \"user is not logined\"}"));
             ctx.status(200);
         } else {
-            ctx.json(stringToJson("{\"result\" : 1,\"message\": \"user is logined\",\"user\": \"" + ctx.cookie("username") +"\"}"));
-            ctx.status(200);
+            try {
+                int userStatus = Customer.checkUserStatusFromDB(ctx.cookie("username"));
+                String stringUserStatus;
+                switch (userStatus) {
+                    case 1:
+                        stringUserStatus = "free";
+                        break;
+                    case 2:
+                        stringUserStatus = "premium";
+                        break;
+                    case 3:
+                        stringUserStatus = "admin";
+                        break;
+                    default:
+                        stringUserStatus = "strange status";
+                        break;
+                }
+                ctx.json(stringToJson("{\"result\" : 1,\"message\": \"user is logined\",\"user\": \""
+                        + ctx.cookie("username") + "\", \"user-status\": \"" + stringUserStatus + "\"}"));
+                ctx.status(200);
+            } catch (NoSuchFieldException ex) {
+                ctx.json(stringToJson("{\"result\" : 0,\"message\": \"missing user\"}"));
+                ctx.status(200);
+            }
+            catch (SQLException e){
+                ctx.json(stringToJson("{\"result\" : 0,\"message\": \"something went wrong\"}"));
+                ctx.status(200);
+            }
         }
     };
 

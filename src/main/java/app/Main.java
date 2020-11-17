@@ -1,16 +1,15 @@
 package app;
 
+import app.admin.AdminController;
 import app.agentmsg.AgentmsgController;
+import app.avatar.AvatarController;
 import app.index.IndexController;
 import app.login.LoginController;
 import app.login.SignIn;
 import app.register.RegisterController;
 import app.server.ServerController;
-import app.user.UserDao;
 import app.util.Filters;
-import app.util.HerokuUtil;
 import app.util.Path;
-import app.util.ViewUtil;
 import io.javalin.Javalin;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
@@ -61,6 +60,13 @@ public class Main {
             post(Path.Web.AGENTMSG, AgentmsgController.processMessage);
             post(Path.Web.REGISTER, RegisterController.register);
             post(Path.Web.DROPPWD, RegisterController.dropPwd);
+            post(Path.Web.SETAVATAR, AvatarController.setAvatar);
+            get(Path.Web.GETAVATAR, AvatarController.getAvatar);
+            get(Path.Web.GETALLUSERSADMIN, AdminController.getAllUsers);
+            post(Path.Web.ADMINSETFREE, AdminController.setFreeUser);
+            post(Path.Web.ADMINSETPREMIUM, AdminController.setPremiumUser);
+            post(Path.Web.ADMINDROPAVATAR,AdminController.dropAvatar);
+            post(Path.Web.DROPUSERHOSTS,AdminController.dropUserHosts);
         });
 
         app.error(404,  ctx -> {

@@ -11,14 +11,15 @@ import java.sql.SQLException;
 public class Customer {
     private String login;
     private String password;
-    private String email;
+    private String status;
 
     public Customer() {
     }
 
-    public Customer(String login, String password) {
+    public Customer(String login, String password, String status) {
         this.login = login;
         this.password = password;
+        this.status = status;
     }
 
     public String getLogin() {
@@ -37,10 +38,19 @@ public class Customer {
         this.password = password;
     }
 
+    public String getStatus() { return status; }
+
+    /**
+     * Get user-status and password of user with login
+     * @param login login of user
+     * @return Customer with login, password and status from db
+     * @throws SQLException
+     * @throws NoSuchFieldException
+     */
     public static Customer getCustomerFromDB(String login ) throws SQLException, NoSuchFieldException {
 
         Connection connection = DBconnectionContainer.getDBconnection();
-        String sql = "select pwd , verification from users where login = ?;";
+        String sql = "select pwd , verification, status from users where login = ?;";
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
         preparedStatement.setString(1, login);
         ResultSet rs = preparedStatement.executeQuery();
@@ -51,8 +61,32 @@ public class Customer {
         if(rs.getInt("verification") == 0){
             throw new ExceptionInInitializerError();
         }
-
-        return new Customer(login , rs.getString("pwd"));
+        String userStatus;
+        switch (rs.getInt("status")){
+            case 1:
+                userStatus = "free";
+                break;
+            case 2:
+                userStatus = "premium";
+                break;
+            case 3:
+                userStatus = "admin";
+                break;
+            default:
+                userStatus = "strange status";
+                break;
+        }
+        return new Customer(login , rs.getString("pwd"), userStatus);
     }
 
+    public static int checkUserStatusFromDB(String login) throws SQLException, NoSuchFieldException {
+        Connection connection = DBconnectionContainer.getDBconnection();
+        String sql = "select status from users where login = ?;";
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setString(1, login);
+        ResultSet rs = preparedStatement.executeQuery();
+        if (!rs.next())
+            throw new NoSuchFieldException();
+        return rs.getInt("status");
+    }
 }

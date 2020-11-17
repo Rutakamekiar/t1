@@ -11,11 +11,10 @@ import static app.util.RequestUtil.*;
 
 public class SignIn {
 
-    public static boolean authenticate(String username, String password) throws NoSuchFieldException, SQLException {
-        if (username == null || password == null) {
+    public static boolean authenticate(Customer customer, String password) throws NoSuchFieldException, SQLException {
+        if (customer.getLogin() == null || password == null) {
             return false;
         }
-        Customer customer = Customer.getCustomerFromDB(username);
         if ( password.equals(customer.getPassword())) {
             return true;
         }
@@ -28,11 +27,11 @@ public class SignIn {
         try {
             username = getQueryUsername(ctx);
             password = getQueryPassword(ctx);
-
-            if (authenticate(username, password)) {
+            Customer customer = Customer.getCustomerFromDB(username);
+            if (authenticate(customer, password)) {
                 ctx.cookie("username", username);
                 ctx.header("Access-Control-Allow-Origin", "*");
-                ctx.json(stringToJson("{\"result\" : 1,\"message\": \"welcome\"}"));
+                ctx.json(stringToJson("{\"result\" : 1,\"message\": \"welcome\", \"user-status\" : \""+customer.getStatus()+"\"}"));
                 ctx.status(200);
             } else {
                 ctx.result("incorrect value").status(404);

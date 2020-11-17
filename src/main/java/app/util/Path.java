@@ -25,6 +25,13 @@ public class Path {
         public static final String DELETESERVERFROMUSER = "/deleteServer";
         public static final String ISLOGIN = "/isLogin";
         public static final String ROBOTSTXT = "/robots.txt";
+        public static final String GETAVATAR = "/getavatar";
+        public static final String SETAVATAR = "/setavatar";
+        public static final String GETALLUSERSADMIN = "/getallusersadmin";
+        public static final String ADMINSETFREE = "/adminsetfree";
+        public static final String ADMINSETPREMIUM = "/adminsetpremium";
+        public static final String ADMINDROPAVATAR = "/admindropavatar";
+        public static final String DROPUSERHOSTS = "/dropuserhosts";
     }
     /**
      * Contain paths of page resources

@@ -4,6 +4,7 @@ import 'package:servelyzer/model/data_model.dart';
 import 'package:servelyzer/model/hosts_model.dart';
 import 'package:servelyzer/model/registration_model.dart';
 import 'package:servelyzer/model/response_model.dart';
+import 'package:servelyzer/model/users_model.dart';
 import 'package:servelyzer/utils/constants.dart';
 
 class Provider {
@@ -20,6 +21,69 @@ class Provider {
     try {
       FormData formData = new FormData.fromMap(authModel.toMap());
       final response = await dio.post("${Constants.url}signin", data: formData);
+      return ResponseModel.fromJson(response.data);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  Future<ResponseModel> clearAvatar(String login) async {
+    try {
+      final response = await dio.post("${Constants.url}admindropavatar?login=$login");
+      return ResponseModel.fromJson(response.data);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  Future<ResponseModel> clearHosts(String login) async {
+    try {
+      final response = await dio.post("${Constants.url}dropuserhosts?login=$login");
+      return ResponseModel.fromJson(response.data);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  Future<ResponseModel> setFreeUser(String login) async {
+    try {
+      final response = await dio.post("${Constants.url}adminsetfree?login=$login");
+      return ResponseModel.fromJson(response.data);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  Future<ResponseModel> setPremiumUser(String login) async {
+    try {
+      final response = await dio.post("${Constants.url}adminsetpremium?login=$login");
+      return ResponseModel.fromJson(response.data);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  Future<UsersModel> getUsers() async {
+    try {
+      final response = await dio.post("${Constants.url}getallusersadmin");
+      return UsersModel.fromJson(response.data);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  Future<ResponseModel> setAvatar(String image) async {
+    try {
+      final response = await dio.post("${Constants.url}setavatar", data: image);
+      return ResponseModel.fromJson(response.data);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  Future<ResponseModel> getAvatar() async {
+    try {
+      final response = await dio.get("${Constants.url}getavatar");
       return ResponseModel.fromJson(response.data);
     } catch (e) {
       throw e;
