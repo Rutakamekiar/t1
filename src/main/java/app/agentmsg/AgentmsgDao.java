@@ -102,4 +102,9 @@ public class AgentmsgDao {
         return mapper.writeValueAsString(message);
     }
 
+    private static boolean isKeyRight(String public_key){
+
+        return true;
+    }
+
 }

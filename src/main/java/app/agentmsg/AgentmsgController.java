@@ -26,6 +26,8 @@ public class AgentmsgController {
      * @see Handler
      */
     public static Handler processMessage = ctx -> {
+        String privateKey = ctx.header("Sign");
+        System.out.println(privateKey);
         Agentmsg.saveAgentmsg(ctx.body());
         ctx.status(201);
     };
@@ -35,9 +37,7 @@ public class AgentmsgController {
      */
     public static Handler getMessage = ctx -> {
         String publicKey = ctx.queryParam("public_key");
-        String fromDate = ctx.queryParam("from");
-        String toDate = ctx.queryParam("to");
-        String result = AgentmsgDao.getAgentmsgFromDB(publicKey , fromDate, toDate);
+        String result = AgentmsgDao.getAgentmsgFromDB(publicKey , ctx.queryParam("from"), ctx.queryParam("to"));
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(result);
         ctx.header("Access-Control-Allow-Origin","*");
