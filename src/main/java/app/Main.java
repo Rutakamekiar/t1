@@ -59,7 +59,9 @@ public class Main {
             post(Path.Web.SIGNIN, SignIn.logIn);
             post(Path.Web.AGENTMSG, AgentmsgController.processMessage);
             post(Path.Web.REGISTER, RegisterController.register);
+            post(Path.Web.REGISTER_WITH_LOC, RegisterController.registerWithLoc);
             post(Path.Web.DROPPWD, RegisterController.dropPwd);
+            post(Path.Web.DROPPWD_WITH_LOC, RegisterController.dropPwdWithLoc);
             post(Path.Web.SETAVATAR, AvatarController.setAvatar);
             get(Path.Web.GETAVATAR, AvatarController.getAvatar);
             get(Path.Web.GETALLUSERSADMIN, AdminController.getAllUsers);

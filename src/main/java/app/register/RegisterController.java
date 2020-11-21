@@ -28,7 +28,7 @@ public class RegisterController {
         if (RegisterDao.insertRegister(email,login,pwd,token)){
             result = "{\"result\" : 1,\"message\": \"User inserted\"}";
             CustomEmail verificationEmail = new CustomEmail();
-            verificationEmail.sendVerificationEmail(email,login,token);
+            verificationEmail.sendVerificationEmail(email,login,token,"en");
         }
         else {
             result = "{\"result\" : 0,\"message\": \"Such email or login already exist\"}";
@@ -38,7 +38,28 @@ public class RegisterController {
         ctx.header("Access-Control-Allow-Origin","*");
         ctx.json(jsonNode);
         ctx.status(201);
+    };
 
+    public static Handler registerWithLoc = ctx -> {
+        String login = ctx.queryParam("login");
+        String email = ctx.queryParam("email");
+        String pwd = ctx.queryParam("pwd");
+        String lang = ctx.queryParam("lang");
+        String token = UUID.randomUUID().toString();
+        String result;
+        if (RegisterDao.insertRegister(email,login,pwd,token)){
+            result = "{\"result\" : 1,\"message\": \"User inserted\"}";
+            CustomEmail verificationEmail = new CustomEmail();
+            verificationEmail.sendVerificationEmail(email,login,token,lang);
+        }
+        else {
+            result = "{\"result\" : 0,\"message\": \"Such email or login already exist\"}";
+        }
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode jsonNode = objectMapper.readTree(result);
+        ctx.header("Access-Control-Allow-Origin","*");
+        ctx.json(jsonNode);
+        ctx.status(201);
     };
     /**
      * Verification of email API
@@ -64,10 +85,24 @@ public class RegisterController {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(result);
         if (jsonNode.get("result").asInt() == 2)
-            verificationEmail.sendDropPwdEmail(email,newPwd);
+            verificationEmail.sendDropPwdEmail(email,newPwd,"en");
         ctx.header("Access-Control-Allow-Origin","*");
         ctx.json(jsonNode);
         ctx.status(201);
+    };
 
+    public static Handler dropPwdWithLoc = ctx -> {
+        String email = ctx.queryParam("email");
+        String lang = ctx.queryParam("lang");
+        String newPwd = PasswordGenerator.generatePassword(8);
+        String result = RegisterDao.dropPass(email,newPwd);
+        CustomEmail verificationEmail = new CustomEmail();
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode jsonNode = objectMapper.readTree(result);
+        if (jsonNode.get("result").asInt() == 2)
+            verificationEmail.sendDropPwdEmail(email,newPwd,lang);
+        ctx.header("Access-Control-Allow-Origin","*");
+        ctx.json(jsonNode);
+        ctx.status(201);
     };
 }

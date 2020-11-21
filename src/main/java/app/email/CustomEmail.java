@@ -47,11 +47,24 @@ public class CustomEmail {
      * @param token verification token
      * @throws MessagingException
      */
-    public void sendVerificationEmail(String receiver, String login, String token) throws MessagingException {
-        email.setSubject("Serveryzer email verification");
-        String body = "<p>Dear " + login + ".</p>" +
-                "<p>To finish registration follow this <a href=\"https://t1.tss2020.site/email_verificate?token="+token+"\">link</a>.</p><br>" +
-                "<p style=\"font-style: italic;\">Your Serveryzer team.</p>";
+    public void sendVerificationEmail(String receiver, String login, String token, String locale) throws MessagingException {
+        String body;
+        switch (locale) {
+            case "en":
+                email.setSubject("Serveryzer email verification");
+                body = "<p>Dear " + login + ".</p>" +
+                        "<p>To finish registration follow this <a href=\"https://t1.tss2020.site/email_verificate?token=" + token + "\">link</a>.</p><br>" +
+                        "<p style=\"font-style: italic;\">Your Serveryzer team.</p>";
+                break;
+            case "ua":
+                email.setSubject("Верифікація аккаунту Serveryzer");
+                body = "<p>Шановний " + login + ".</p>" +
+                        "<p>Для завершення реєстрації перейдіть за <a href=\"https://t1.tss2020.site/email_verificate?token=" + token + "\">посиланням</a>.</p><br>" +
+                        "<p style=\"font-style: italic;\">Ваша команда Serveryzer.</p>";
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + locale);
+        }
         email.setContent(body, "text/html; charset=utf-8");
         email.setRecipients(
                 Message.RecipientType.TO,
@@ -66,12 +79,26 @@ public class CustomEmail {
      * @param newPwd new password to send
      * @throws MessagingException
      */
-    public void sendDropPwdEmail(String receiver, String newPwd) throws MessagingException {
-        email.setSubject("Serveryzer drop password");
-        String body = "<p>Dear user.</p>" +
-                "<p>You dropped password.</p>" +
-                "<p>Your new password: <span style=\"font-style: italic; text-decoration: underline;\">"+newPwd+"</span></p>"+
-                "<br><p style=\"font-style: italic;\">Your Serveryzer team.</p>";
+    public void sendDropPwdEmail(String receiver, String newPwd, String locale) throws MessagingException {
+        String body;
+        switch (locale) {
+            case "en":
+                email.setSubject("Serveryzer drop password");
+                body = "<p>Dear user.</p>" +
+                        "<p>You dropped password.</p>" +
+                        "<p>Your new password: <span style=\"font-style: italic; text-decoration: underline;\">" + newPwd + "</span></p>" +
+                        "<br><p style=\"font-style: italic;\">Your Serveryzer team.</p>";
+                break;
+            case "ua":
+                email.setSubject("Скидання паролю аккакунту Serveryzer");
+                body = "<p>Шановний користувач.</p>" +
+                        "<p>Ви скинули свій пароль.</p>" +
+                        "<p>Ваш новий пароль: <span style=\"font-style: italic; text-decoration: underline;\">" + newPwd + "</span></p>" +
+                        "<br><p style=\"font-style: italic;\">Ваша команда Serveryzer.</p>";
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + locale);
+        }
         email.setContent(body, "text/html; charset=utf-8");
         email.setRecipients(
                 Message.RecipientType.TO,

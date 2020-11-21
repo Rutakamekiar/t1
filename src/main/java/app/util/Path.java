@@ -18,8 +18,10 @@ public class Path {
         public static final String GETAGENTMSG = "/getmsg";
         public static final String SIGNIN = "/signin";
         public static final String REGISTER = "/register";
+        public static final String REGISTER_WITH_LOC = "/registerWithLoc";
         public static final String VERIFICATE = "/email_verificate";
         public static final String DROPPWD = "/droppwd";
+        public static final String DROPPWD_WITH_LOC = "/droppwdWithLoc";
         public static final String GETUSERSERVERS = "/getServers";
         public static final String ADDSERVERTOUSER = "/addServer";
         public static final String DELETESERVERFROMUSER = "/deleteServer";
