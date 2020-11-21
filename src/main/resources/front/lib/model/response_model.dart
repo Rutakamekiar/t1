@@ -7,7 +7,10 @@ class ResponseModel {
   String userStatus;
 
   factory ResponseModel.fromJson(Map<String, dynamic> json) => ResponseModel(
-      result: json["result"], message: json["message"], user: json["user"], userStatus: json["user-status"]);
+      result: json["result"],
+      message: json["message"],
+      user: json["user"],
+      userStatus: json["user-status"]);
 
   Map<String, dynamic> toJson() =>
       {"result": result, "message": message, "user": user};

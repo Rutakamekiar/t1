@@ -1,9 +1,11 @@
+import 'dart:convert';
+
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html';
-import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +17,7 @@ import 'package:servelyzer/model/hosts_model.dart';
 import 'package:servelyzer/model/response_model.dart';
 import 'package:servelyzer/style/my_colors.dart';
 import 'package:servelyzer/utils/dialog_helper.dart';
-import 'package:servelyzer/view/profile_widget.dart';
+import 'package:servelyzer/widget/profile_widget.dart';
 import 'package:servelyzer/widget/base_button.dart';
 import 'package:servelyzer/widget/base_text_field.dart';
 import 'package:servelyzer/widget/my_date_dialog.dart';
@@ -64,7 +66,7 @@ class _MainPageState extends State<MainPage> {
       setState(() {
         _isLoadingAvatar = false;
       });
-      if(event.result == 1){
+      if (event.result == 1) {
         var imageData = base64Decode(event.message);
         setState(() {
           _uploadedImage = imageData;
@@ -77,7 +79,7 @@ class _MainPageState extends State<MainPage> {
     });
 
     _mainBloc.newAvatar.listen((event) {
-      if(event.result == 1){
+      if (event.result == 1) {
         Navigator.pop(context);
         setState(() {
           _isLoadingAvatar = true;
@@ -85,24 +87,22 @@ class _MainPageState extends State<MainPage> {
         _mainBloc.getAvatar();
       } else {
         Navigator.pop(context);
-        DialogHelper.showInformDialog(
-            context, "Виникла помилка при завантажені",
-            onPositive: () => Navigator.pop(context));
+        DialogHelper.showInformDialog(context, tr("error_loading"),
+            button: tr("ok"), onPositive: () => Navigator.pop(context));
       }
     }, onError: (e) {
       Navigator.pop(context);
-      DialogHelper.showInformDialog(
-          context, "Виникла помилка при завантажені",
-          onPositive: () => Navigator.pop(context));
+      DialogHelper.showInformDialog(context, tr("error_loading"),
+          button: tr("ok"), onPositive: () => Navigator.pop(context));
     });
 
     _minTimeText = DateFormat('dd.MM kk:mm').format(_minTime.toLocal());
     _maxTimeText = DateFormat('dd.MM kk:mm').format(_maxTime.toLocal());
 
-    // isLoadingLogin = false;
+    _isLoadingLogin = false;
     // isLoadingAvatar = false;
     // mainBloc.getServers();
-    _mainBloc.loginFetcher();
+    // _mainBloc.loginFetcher();
 
     // mainBloc.dataFetcher(
     //     "t1-tss2020",
@@ -124,11 +124,14 @@ class _MainPageState extends State<MainPage> {
         _mainBloc.getServers();
       } else {
         DialogHelper.showInformDialog(
-            context, "Виникла помилка: ${event.message}",
+            context, tr("error_occurred", args: [event.message]),
+            button: tr("ok"),
             onPositive: () => Modular.to.pushReplacementNamed('/auth'));
       }
     }, onError: (e) {
-      DialogHelper.showInformDialog(context, "Виникла помилка: ${e.toString()}",
+      DialogHelper.showInformDialog(
+          context, tr("error_occurred", args: [e.toString()]),
+          button: tr("ok"),
           onPositive: () => Modular.to.pushReplacementNamed('/auth'));
     });
     _mainBloc.logout.listen((event) {
@@ -136,11 +139,14 @@ class _MainPageState extends State<MainPage> {
         Modular.to.pushReplacementNamed('/auth');
       } else {
         DialogHelper.showInformDialog(
-            context, "Виникла помилка: ${event.message}",
+            context, tr("error_occurred", args: [event.message]),
+            button: tr("ok"),
             onPositive: () => Modular.to.pushReplacementNamed('/auth'));
       }
     }, onError: (e) {
-      DialogHelper.showInformDialog(context, "Виникла помилка: ${e.toString()}",
+      DialogHelper.showInformDialog(
+          context, tr("error_occurred", args: [e.toString()]),
+          button: tr("ok"),
           onPositive: () => Modular.to.pushReplacementNamed('/auth'));
     });
     _mainBloc.servers.listen((model) {
@@ -163,22 +169,25 @@ class _MainPageState extends State<MainPage> {
       }
     }, onError: (e) {
       _setLoadingServers(false);
-      DialogHelper.showInformDialog(context, "Виникла помилка: ${e.toString()}",
-          onPositive: () => Navigator.pop(context));
+      DialogHelper.showInformDialog(
+          context, tr("error_occurred", args: [e.toString()]),
+          button: tr("ok"), onPositive: () => Navigator.pop(context));
     });
     _mainBloc.add.listen((event) {
       _mainBloc.getServers();
     }, onError: (e) {
       _setLoadingServers(false);
-      DialogHelper.showInformDialog(context, "Виникла помилка: ${e.toString()}",
-          onPositive: () => Navigator.pop(context));
+      DialogHelper.showInformDialog(
+          context, tr("error_occurred", args: [e.toString()]),
+          button: tr("ok"), onPositive: () => Navigator.pop(context));
     });
     _mainBloc.delete.listen((event) {
       _mainBloc.getServers();
     }, onError: (e) {
       _setLoadingServers(false);
-      DialogHelper.showInformDialog(context, "Виникла помилка: ${e.toString()}",
-          onPositive: () => Navigator.pop(context));
+      DialogHelper.showInformDialog(
+          context, tr("error_occurred", args: [e.toString()]),
+          button: tr("ok"), onPositive: () => Navigator.pop(context));
     });
   }
 
@@ -203,13 +212,17 @@ class _MainPageState extends State<MainPage> {
                   if (_hostsModel?.hosts != null &&
                       _hostsModel.hosts.isNotEmpty) {
                     _setLoading(true);
-                    _mainBloc.dataFetcher(_hostsModel.hosts[_currentId].host,
-                        _minTime.toUtc().toString(), _maxTime.toUtc().toString());
+                    _mainBloc.dataFetcher(
+                        _hostsModel.hosts[_currentId].host,
+                        _minTime.toUtc().toString(),
+                        _maxTime.toUtc().toString());
                   }
                 });
               },
               initTime: _minTime,
               maxTime: _maxTime,
+              negativeButton: tr("cancel"),
+              positiveButton: tr("choose"),
             ));
   }
 
@@ -218,6 +231,8 @@ class _MainPageState extends State<MainPage> {
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) => MyDateDialog(
+              negativeButton: tr("cancel"),
+              positiveButton: tr("choose"),
               onPositive: (date) {
                 Navigator.pop(context);
                 setState(() {
@@ -227,8 +242,10 @@ class _MainPageState extends State<MainPage> {
                   if (_hostsModel?.hosts != null &&
                       _hostsModel.hosts.isNotEmpty) {
                     _setLoading(true);
-                    _mainBloc.dataFetcher(_hostsModel.hosts[_currentId].host,
-                        _minTime.toUtc().toString(), _maxTime.toUtc().toString());
+                    _mainBloc.dataFetcher(
+                        _hostsModel.hosts[_currentId].host,
+                        _minTime.toUtc().toString(),
+                        _maxTime.toUtc().toString());
                   }
                 });
               },
@@ -249,9 +266,9 @@ class _MainPageState extends State<MainPage> {
     showDialog(
       context: context,
       builder: (BuildContext context) => MyDialog(
-        content: "Ви впевнені, що хочите вийти",
-        negativeButton: "Ні",
-        positiveButton: "Так",
+        content: tr("you_sure_want_logout"),
+        negativeButton: tr("no"),
+        positiveButton: tr("yes"),
         onPositive: () {
           _mainBloc.logoutFetcher();
         },
@@ -263,7 +280,7 @@ class _MainPageState extends State<MainPage> {
     InputElement uploadInput = FileUploadInputElement();
     uploadInput.click();
     uploadInput.onChange.listen((e) async {
-      DialogHelper.showLoadingDialog(context, "Завантаження зображення");
+      DialogHelper.showLoadingDialog(context, tr("image_upload"));
       final files = uploadInput.files;
       if (files.length == 1) {
         final file = files[0];
@@ -302,15 +319,66 @@ class _MainPageState extends State<MainPage> {
                   child: Container(
                     width: double.infinity,
                     padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-                    alignment: MediaQuery.of(context).size.width <= listWight
-                        ? null
-                        : Alignment.centerRight,
                     constraints: BoxConstraints(maxWidth: maxWight),
-                    child: BaseButton(
-                      onPressed: _openAuthorizationPage,
-                      height: 45,
-                      width: 175,
-                      title: "Вийти",
+                    child: Row(
+                      mainAxisAlignment:
+                          MediaQuery.of(context).size.width <= listWight
+                              ? MainAxisAlignment.center
+                              : MainAxisAlignment.end,
+                      children: [
+                        DropdownButton<Locale>(
+                          value: context.locale,
+                          icon: Icon(Icons.arrow_drop_down),
+                          iconSize: 24,
+                          elevation: 16,
+                          iconEnabledColor: MyColors.green,
+                          style: TextStyle(color: Colors.black, fontSize: 15),
+                          underline: Container(
+                            height: 0,
+                            padding: EdgeInsets.only(top: 5),
+                            color: MyColors.green,
+                          ),
+                          onChanged: (Locale newValue) {
+                            print(newValue);
+                            context.locale = newValue;
+                          },
+                          items: <Locale>[Locale("en"), Locale("uk")]
+                              .map<DropdownMenuItem<Locale>>((Locale value) {
+                            String name = "En";
+                            String image = "united-kingdom.png";
+                            if (value.languageCode == "uk") {
+                              name = "Укр";
+                              image = "ukraine.png";
+                            }
+
+                            return DropdownMenuItem<Locale>(
+                              value: value,
+                              child: Row(
+                                children: [
+                                  Image.asset(
+                                    "assets/$image",
+                                    width: 20,
+                                    height: 20,
+                                  ),
+                                  SizedBox(
+                                    width: 5,
+                                  ),
+                                  Text(name),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        BaseButton(
+                          onPressed: _openAuthorizationPage,
+                          height: 45,
+                          width: 175,
+                          title: tr("logout"),
+                        ),
+                      ],
                     ),
                   ),
                   decoration: BoxDecoration(color: Colors.white, boxShadow: [
@@ -355,7 +423,8 @@ class _MainPageState extends State<MainPage> {
                                       : buildHostList(hostsModel);
                                 } else if (snapshot.hasError) {
                                   final exception = snapshot.error;
-                                  return buildError("Помилка: $exception");
+                                  return buildError(tr("error_occurred",
+                                      args: [exception.toString()]));
                                 } else {
                                   return Center(
                                       child: CircularProgressIndicator());
@@ -375,7 +444,7 @@ class _MainPageState extends State<MainPage> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text("Проміжок:"),
+                                Text(tr("interval")),
                                 SizedBox(
                                   width: 16,
                                 ),
@@ -397,7 +466,7 @@ class _MainPageState extends State<MainPage> {
                                 SizedBox(
                                   width: 16,
                                 ),
-                                Text("до"),
+                                Text(tr("to")),
                                 SizedBox(
                                   width: 16,
                                 ),
@@ -442,7 +511,7 @@ class _MainPageState extends State<MainPage> {
                                     " - " +
                                     _maxTime.toLocal().toString();
                                 return buildError(
-                                    "Дані за проміжок часу $range не знайдені");
+                                    tr("data_range_not_found", args: [range]));
                               } else {
                                 return _isLoadingData
                                     ? Padding(
@@ -478,10 +547,10 @@ class _MainPageState extends State<MainPage> {
             showDialog(
               context: context,
               builder: (BuildContext context) => MyDialog(
-                content:
-                    "Ви впевнені, що хочите видалити ${hostsModel.hosts[id].host}?",
-                negativeButton: "Ні",
-                positiveButton: "Так",
+                content: tr("you_sure_want_delete",
+                    args: [hostsModel.hosts[id].host]),
+                negativeButton: tr("no"),
+                positiveButton: tr("yes"),
                 onPositive: () {
                   Navigator.pop(context);
                   _setLoadingServers(true);
@@ -511,7 +580,7 @@ class _MainPageState extends State<MainPage> {
                     border: Border.all(color: MyColors.grey),
                     borderRadius: BorderRadius.circular(5)),
                 child: hostsModel.hosts == null || hostsModel.hosts.isEmpty
-                    ? Center(child: Text("Список хостів порожній"))
+                    ? Center(child: Text(tr("host_list_empty")))
                     : ListView(
                         padding: EdgeInsets.symmetric(horizontal: 16),
                         children: list,
@@ -530,7 +599,7 @@ class _MainPageState extends State<MainPage> {
                       }
                     },
                     label: "",
-                    errorText: "Введіть public key"),
+                    errorText: tr("enter_public_key")),
               ),
               SizedBox(
                 width: 30,
@@ -539,7 +608,7 @@ class _MainPageState extends State<MainPage> {
                 isLoading: false,
                 width: 150,
                 height: 37,
-                title: "Додати",
+                title: tr("add"),
                 onPressed: () {
                   if (_hostController.text.isNotEmpty) {
                     _setLoadingServers(true);
@@ -589,14 +658,14 @@ class _MainPageState extends State<MainPage> {
           height: 30,
         ),
         MainPageItem(
-          title: "Використання CPU",
+          title: tr("using_CPU"),
           child: LineChart(
             chartData(linesCpuData(dataModels), isCPU: true),
             swapAnimationDuration: const Duration(milliseconds: 250),
           ),
         ),
         MainPageItem(
-          title: "Використання пам’яті",
+          title: tr("memory_usage"),
           child: LineChart(
             chartData(linesMemoryData(dataModels)),
             swapAnimationDuration: const Duration(milliseconds: 250),
@@ -649,7 +718,7 @@ class _MainPageState extends State<MainPage> {
       axisTitleData: FlAxisTitleData(
           leftTitle: AxisTitle(
               showTitle: true,
-              titleText: isCPU ? "CPU, %" : "Пам'ять, mb",
+              titleText: isCPU ? "CPU, %" : tr("memory_mb"),
               margin: 10,
               textStyle: TextStyle(
                   color: Colors.black,
@@ -659,7 +728,7 @@ class _MainPageState extends State<MainPage> {
           bottomTitle: AxisTitle(
               margin: 10,
               showTitle: true,
-              titleText: "Час",
+              titleText: tr("time"),
               textStyle: TextStyle(
                   color: Colors.black,
                   fontSize: 16,
@@ -778,7 +847,7 @@ class _MainPageState extends State<MainPage> {
         children: [
           Expanded(
             child: MainPageItem(
-              title: "Використання CPU",
+              title: tr("using_CPU"),
               child: LineChart(
                 chartData(linesCpuData(dataModels), isCPU: true),
                 swapAnimationDuration: const Duration(milliseconds: 250),
@@ -790,7 +859,7 @@ class _MainPageState extends State<MainPage> {
           ),
           Expanded(
             child: MainPageItem(
-              title: "Використання пам’яті",
+              title: tr("memory_usage"),
               child: LineChart(
                 chartData(linesMemoryData(dataModels)),
                 swapAnimationDuration: const Duration(milliseconds: 250),

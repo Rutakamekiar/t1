@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
@@ -12,7 +13,11 @@ import 'package:servelyzer/view/reset_password_page.dart';
 import 'view/authorization_page.dart';
 
 void main() {
-  runApp(ModularApp(module: AppModule()));
+  runApp(EasyLocalization(
+      supportedLocales: [Locale('en'), Locale('uk')],
+      fallbackLocale: Locale('en'),
+      path: 'assets/translations',
+      child: ModularApp(module: AppModule())));
 }
 
 class AppModule extends MainModule {
@@ -38,6 +43,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      localizationsDelegates: context.localizationDelegates,
+      supportedLocales: context.supportedLocales,
+      locale: context.locale,
       title: 'SERVERYZER',
       theme: ThemeData(
         primaryColor: MyColors.green,

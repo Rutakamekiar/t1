@@ -59,7 +59,8 @@ final avatarValues =
 
 enum UserStatus { FREE, PREMIUM }
 
-final userStatusValues = EnumValues({"free": UserStatus.FREE, "premium": UserStatus.PREMIUM});
+final userStatusValues =
+    EnumValues({"free": UserStatus.FREE, "premium": UserStatus.PREMIUM});
 
 enum VerificationStatus { VERIFICATED, NOT_VERIFICATED }
 

@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +21,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
 
   final TextEditingController emailController = TextEditingController();
 
-  String emailErrorMessage = "Введіть e-mail";
+  String emailErrorMessage = tr("enter_email");
   bool emailError = false;
   bool isLoading = false;
 
@@ -34,24 +35,23 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
     resetPasswordBloc.resetPassword.listen((responseModel) {
       setLoading(false);
       if (responseModel.result == 2) {
-        DialogHelper.showInformDialog(
-            context, "Новий пароль відправлено на email",
-            onPositive: openAuthPage);
+        DialogHelper.showInformDialog(context, tr("new_password_sent"),
+            button: tr("ok"), onPositive: openAuthPage);
       } else {
-        DialogHelper.showInformDialog(
-            context, "Користувача з даним email не знайдено",
-            onPositive: () => Navigator.pop(context));
+        DialogHelper.showInformDialog(context, tr("no_user_with_email"),
+            button: tr("ok"), onPositive: () => Navigator.pop(context));
       }
     }, onError: (e) {
       setLoading(false);
-      DialogHelper.showInformDialog(context, "Виникла помилка: ${e.toString()}",
-          onPositive: () => Navigator.pop(context));
+      DialogHelper.showInformDialog(
+          context, tr("error_occurred", args: [e.toString()]),
+          button: tr("ok"), onPositive: () => Navigator.pop(context));
     });
     emailController.addListener(() {
       if (!EmailValidator.validate(emailController.text) &&
           emailController.text.isNotEmpty) {
         setState(() {
-          emailErrorMessage = "Невірний формат";
+          emailErrorMessage = tr("invalid_format");
         });
         setEmailError(true);
       } else {
@@ -79,7 +79,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
     bool isValid = true;
     if (emailController.text.isEmpty) {
       setState(() {
-        emailErrorMessage = "Введіть e-mail";
+        emailErrorMessage = tr("enter_email");
       });
       setEmailError(true);
       isValid = false;
@@ -87,7 +87,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
     if (emailController.text.isNotEmpty &&
         !EmailValidator.validate(emailController.text)) {
       setState(() {
-        emailErrorMessage = "Невірний формат";
+        emailErrorMessage = tr("invalid_format");
       });
       setEmailError(true);
       isValid = false;
@@ -127,6 +127,52 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
               alignment: Alignment.center,
               child: Container(
                 width: double.infinity,
+                constraints: BoxConstraints(maxWidth: 516),
+                alignment: Alignment.centerRight,
+                child: DropdownButton<Locale>(
+                  value: context.locale,
+                  icon: Icon(Icons.arrow_drop_down),
+                  iconSize: 24,
+                  elevation: 16,
+                  iconEnabledColor: MyColors.green,
+                  style: TextStyle(color: Colors.black, fontSize: 15),
+                  underline: Container(
+                    height: 0,
+                    padding: EdgeInsets.only(top: 5),
+                    color: MyColors.green,
+                  ),
+                  onChanged: (Locale newValue) {
+                    print(newValue);
+                    context.locale = newValue;
+                  },
+                  items: <Locale>[Locale("en"), Locale("uk")]
+                      .map<DropdownMenuItem<Locale>>((Locale value) {
+
+                    String name = "En";
+                    String image = "united-kingdom.png";
+                    if(value.languageCode == "uk"){
+                      name = "Укр";
+                      image = "ukraine.png";
+                    }
+
+                    return DropdownMenuItem<Locale>(
+                      value: value,
+                      child: Row(
+                        children: [
+                          Image.asset("assets/$image", width: 20, height: 20,),
+                          SizedBox(width: 5,),
+                          Text(name),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
+            Container(
+              alignment: Alignment.center,
+              child: Container(
+                width: double.infinity,
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
                     color: Colors.white,
@@ -144,7 +190,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                       height: 40,
                     ),
                     AutoSizeText(
-                      "Відновити пароль",
+                      tr("recover_password"),
                       style: TextStyle(
                           fontWeight: FontWeight.w500,
                           color: Colors.black,
@@ -161,7 +207,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                           isError: emailError,
                           enable: !isLoading,
                           onSubmitted: (value) => checkFields(),
-                          label: "E-mail",
+                          label: tr("email"),
                           errorText: emailErrorMessage),
                     ),
                     SizedBox(
@@ -169,7 +215,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                     ),
                     BaseButton(
                       isLoading: isLoading,
-                      title: "Відновити пароль",
+                      title: tr("recover_password"),
                       onPressed: checkFields,
                     ),
                     SizedBox(
@@ -187,7 +233,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
               child: FlatButton(
                 onPressed: _launchURL,
                 child: Text(
-                  "Terms and Conditions",
+                  tr("terms_and_conditions"),
                   style: TextStyle(color: MyColors.green),
                 ),
               ),

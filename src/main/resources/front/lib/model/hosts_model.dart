@@ -6,12 +6,14 @@ class HostsModel {
   List<Host> hosts;
 
   factory HostsModel.fromJson(Map<String, dynamic> json) => HostsModel(
-    hosts: json["hosts"] == null ? null : List<Host>.from(json["hosts"].map((x) => Host.fromJson(x))),
-  );
+        hosts: json["hosts"] == null
+            ? null
+            : List<Host>.from(json["hosts"].map((x) => Host.fromJson(x))),
+      );
 
   Map<String, dynamic> toJson() => {
-    "hosts": List<dynamic>.from(hosts.map((x) => x.toJson())),
-  };
+        "hosts": List<dynamic>.from(hosts.map((x) => x.toJson())),
+      };
 }
 
 class Host {
@@ -22,10 +24,10 @@ class Host {
   String host;
 
   factory Host.fromJson(Map<String, dynamic> json) => Host(
-    host: json["host"],
-  );
+        host: json["host"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "host": host,
-  };
+        "host": host,
+      };
 }

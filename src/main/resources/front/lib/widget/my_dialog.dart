@@ -11,15 +11,15 @@ class MyDialog extends StatelessWidget {
 
   MyDialog({
     this.content,
-    this.positiveButton = "Так",
-    this.negativeButton = "Ні",
+    @required this.positiveButton,
+    @required this.negativeButton,
     this.onPositive,
     this.button,
   }) : isInform = false;
 
   MyDialog.information({
     this.content,
-    this.button,
+    @required this.button,
     this.onPositive,
     this.positiveButton,
     this.negativeButton,

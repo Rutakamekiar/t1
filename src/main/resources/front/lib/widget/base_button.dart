@@ -14,7 +14,7 @@ class BaseButton extends StatelessWidget {
   const BaseButton({
     Key key,
     this.onPressed,
-    this.title = "Увійти",
+    @required this.title,
     this.height = 50,
     this.width = double.infinity,
     this.isLoading = false,

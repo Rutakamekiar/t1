@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -30,9 +31,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
   bool passwordError = false;
   bool confirmPasswordError = false;
 
-  String confirmPasswordErrorMessage = "Введіть пароль ще раз";
-  String passwordErrorMessage = "Введіть пароль";
-  String emailErrorMessage = "Введіть e-mail";
+  String confirmPasswordErrorMessage = tr("enter_password_again");
+  String passwordErrorMessage = tr("enter_password");
+  String emailErrorMessage = tr("enter_email");
 
   bool isLoading = false;
 
@@ -48,18 +49,17 @@ class _RegistrationPageState extends State<RegistrationPage> {
     registrationBloc.registration.listen((responseModel) {
       setLoading(false);
       if (responseModel.result == 1) {
-        DialogHelper.showInformDialog(
-            context, "Лист з підтвердженням аккаунту відправлений на пошту",
-            onPositive: openAuthPage);
+        DialogHelper.showInformDialog(context, tr("email_send"),
+            button: tr("ok"), onPositive: openAuthPage);
       } else {
-        DialogHelper.showInformDialog(
-            context, "Користувач з таким логіном або email вже існує",
-            onPositive: () => Navigator.pop(context));
+        DialogHelper.showInformDialog(context, tr("user_exist"),
+            button: tr("ok"), onPositive: () => Navigator.pop(context));
       }
     }, onError: (e) {
       setLoading(false);
-      DialogHelper.showInformDialog(context, "Виникла помлика: ${e.toString()}",
-          onPositive: () => Navigator.pop(context));
+      DialogHelper.showInformDialog(
+          context, tr("error_occurred", args: [e.toString()]),
+          button: tr("ok"), onPositive: () => Navigator.pop(context));
     });
     loginController.addListener(() {
       setLoginError(false);
@@ -68,7 +68,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
       if (!EmailValidator.validate(emailController.text) &&
           emailController.text.isNotEmpty) {
         setState(() {
-          emailErrorMessage = "Невірний формат";
+          emailErrorMessage = tr("invalid_format");
         });
         setEmailError(true);
       } else {
@@ -80,7 +80,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
           passwordController.text.length < minPasswordLength) {
         setState(() {
           passwordErrorMessage =
-              "Пароль має бути больше $minPasswordLength символів";
+              tr("password_must_longer", args: [minPasswordLength.toString()]);
         });
         setPasswordError(true);
       } else {
@@ -148,21 +148,21 @@ class _RegistrationPageState extends State<RegistrationPage> {
     }
     if (emailController.text.isEmpty) {
       setState(() {
-        emailErrorMessage = "Введіть e-mail";
+        emailErrorMessage = tr("enter_email");
       });
       setEmailError(true);
       isValid = false;
     }
     if (passwordController.text.isEmpty) {
       setState(() {
-        passwordErrorMessage = "Введіть пароль";
+        passwordErrorMessage = tr("enter_password");
       });
       setPasswordError(true);
       isValid = false;
     }
     if (confirmPasswordController.text.isEmpty) {
       setState(() {
-        confirmPasswordErrorMessage = "Введіть пароль ще раз";
+        confirmPasswordErrorMessage = tr("enter_password_again");
       });
       setConfirmPasswordError(true);
       isValid = false;
@@ -171,7 +171,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
         passwordController.text.length < minPasswordLength) {
       setState(() {
         passwordErrorMessage =
-            "Пароль має бути больше $minPasswordLength символів";
+            tr("password_must_longer", args: [minPasswordLength.toString()]);
       });
       setPasswordError(true);
       isValid = false;
@@ -179,7 +179,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
     if (emailController.text.isNotEmpty &&
         !EmailValidator.validate(emailController.text)) {
       setState(() {
-        emailErrorMessage = "Невірний формат";
+        emailErrorMessage = tr("invalid_format");
       });
       setEmailError(true);
       isValid = false;
@@ -188,7 +188,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
         confirmPasswordController.text != passwordController.text &&
         passwordController.text.isNotEmpty) {
       setState(() {
-        confirmPasswordErrorMessage = "Паролі не спідвпадають";
+        confirmPasswordErrorMessage = tr("passwords_not_match");
       });
       setConfirmPasswordError(true);
       isValid = false;
@@ -228,6 +228,52 @@ class _RegistrationPageState extends State<RegistrationPage> {
               alignment: Alignment.center,
               child: Container(
                 width: double.infinity,
+                constraints: BoxConstraints(maxWidth: 516),
+                alignment: Alignment.centerRight,
+                child: DropdownButton<Locale>(
+                  value: context.locale,
+                  icon: Icon(Icons.arrow_drop_down),
+                  iconSize: 24,
+                  elevation: 16,
+                  iconEnabledColor: MyColors.green,
+                  style: TextStyle(color: Colors.black, fontSize: 15),
+                  underline: Container(
+                    height: 0,
+                    padding: EdgeInsets.only(top: 5),
+                    color: MyColors.green,
+                  ),
+                  onChanged: (Locale newValue) {
+                    print(newValue);
+                    context.locale = newValue;
+                  },
+                  items: <Locale>[Locale("en"), Locale("uk")]
+                      .map<DropdownMenuItem<Locale>>((Locale value) {
+
+                    String name = "En";
+                    String image = "united-kingdom.png";
+                    if(value.languageCode == "uk"){
+                      name = "Укр";
+                      image = "ukraine.png";
+                    }
+
+                    return DropdownMenuItem<Locale>(
+                      value: value,
+                      child: Row(
+                        children: [
+                          Image.asset("assets/$image", width: 20, height: 20,),
+                          SizedBox(width: 5,),
+                          Text(name),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
+            Container(
+              alignment: Alignment.center,
+              child: Container(
+                width: double.infinity,
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
                     color: Colors.white,
@@ -245,7 +291,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                       height: 40,
                     ),
                     AutoSizeText(
-                      "Реєстрація",
+                      tr("registration"),
                       style: TextStyle(
                           fontWeight: FontWeight.w500,
                           color: Colors.black,
@@ -262,8 +308,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
                           textEditingController: loginController,
                           enable: !isLoading,
                           onSubmitted: (value) => checkFields(),
-                          label: "Логін",
-                          errorText: "Введіть логін"),
+                          label: tr("login"),
+                          errorText: tr("enter_login")),
                     ),
                     SizedBox(
                       height: 20,
@@ -276,7 +322,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                           isError: emailError,
                           enable: !isLoading,
                           onSubmitted: (value) => checkFields(),
-                          label: "E-mail",
+                          label: tr("email"),
                           errorText: emailErrorMessage),
                     ),
                     SizedBox(
@@ -291,7 +337,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                         obscureText: true,
                         onSubmitted: (value) => checkFields(),
                         enable: !isLoading,
-                        label: "Пароль",
+                        label: tr("password"),
                         errorText: passwordErrorMessage,
                       ),
                     ),
@@ -307,7 +353,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                         isError: confirmPasswordError,
                         onSubmitted: (value) => checkFields(),
                         enable: !isLoading,
-                        label: "Підтвердження пароля",
+                        label: tr("password_confirmation"),
                         errorText: confirmPasswordErrorMessage,
                       ),
                     ),
@@ -316,7 +362,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     ),
                     BaseButton(
                       isLoading: isLoading,
-                      title: "Зареєструватися",
+                      title: tr("register"),
                       onPressed: checkFields,
                     ),
                     SizedBox(
@@ -334,7 +380,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
               child: FlatButton(
                 onPressed: _launchURL,
                 child: Text(
-                  "Terms and Conditions",
+                  tr("terms_and_conditions"),
                   style: TextStyle(color: MyColors.green),
                 ),
               ),
