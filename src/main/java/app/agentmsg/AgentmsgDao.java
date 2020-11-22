@@ -9,6 +9,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 /**
  * Class to work with agent messages in DB
@@ -68,7 +69,7 @@ public class AgentmsgDao {
         do {
             allobjects.append(rs.getString("data")).append(",");
         }
-        while (rs.next()) ;
+        while (rs.next());
         allobjects = new StringBuilder(allobjects.substring(0, allobjects.length() - 1));
         allobjects = new StringBuilder("{ \"data\": [ " + allobjects + "] }");
         return allobjects.toString();
@@ -102,9 +103,21 @@ public class AgentmsgDao {
         return mapper.writeValueAsString(message);
     }
 
-    private static boolean isKeyRight(String public_key){
+    private static boolean isKeyRight(String public_key) {
 
         return true;
     }
+
+    public static String getPrivateKey(String publicKey) throws SQLException, NoSuchFieldException {
+        Connection connection = DBconnectionContainer.getDBconnection();
+        String sql = "select secret_key from keys where  public_key = ?;";
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setString(1, publicKey);
+        ResultSet rs = preparedStatement.executeQuery();
+        if (!rs.next())
+            throw new NoSuchFieldException();
+        return rs.getString("secret_key");
+    }
+
 
 }

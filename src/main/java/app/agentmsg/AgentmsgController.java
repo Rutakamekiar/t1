@@ -26,10 +26,17 @@ public class AgentmsgController {
      * @see Handler
      */
     public static Handler processMessage = ctx -> {
-        String privateKey = ctx.header("Sign");
-        System.out.println(privateKey);
-        Agentmsg.saveAgentmsg(ctx.body());
-        ctx.status(201);
+        String sign = ctx.header("Sign");
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String,Object> message = mapper.readValue(  ctx.body() , Map.class);
+        String publicKey = message.get("public_key").toString();
+
+        if (!Agentmsg.checkIsMessageTrusted(sign , publicKey, ctx.bodyAsBytes()))
+            ctx.status(403);
+        else {
+            Agentmsg.saveAgentmsg(message);
+            ctx.status(201);
+        }
     };
     /**
      * Send agent message to front API
