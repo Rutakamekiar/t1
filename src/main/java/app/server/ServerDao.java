@@ -1,12 +1,18 @@
 package app.server;
 
 import app.database.DBconnectionContainer;
+import app.util.RequestUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.postgresql.util.PSQLException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.stream.Stream;
+
+import static app.server.ServerController.getUserServers;
 
 public class ServerDao {
 
@@ -53,6 +59,19 @@ public class ServerDao {
         preparedStatement.setString(1, username);
         preparedStatement.setString(2, publicKey);
         preparedStatement.execute();
+    }
+
+    public static boolean isAllowedToAddServer(String serversInfo , int userStatus ) throws JsonProcessingException {
+        JsonNode serversInfoJson = RequestUtil.stringToJson(serversInfo);
+        JsonNode mass = serversInfoJson.get("hosts");
+        int counter = 0;
+        for (Object i : mass) {
+            counter++;
+        }
+        if( userStatus != 2 && userStatus != 3 && counter >= 2 )
+            return false;
+
+        return true;
     }
 
 

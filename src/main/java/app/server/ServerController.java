@@ -1,6 +1,8 @@
 package app.server;
 
 import app.agentmsg.Agentmsg;
+import app.login.Customer;
+import app.login.LoginController;
 import io.javalin.http.Handler;
 import org.postgresql.util.PSQLException;
 
@@ -30,6 +32,9 @@ public class ServerController {
             ctx.status(200);
             throw e;
         }
+        catch ( Exception e){
+            System.out.println(e.getStackTrace());
+        }
         ctx.header("Access-Control-Allow-Origin", "*");
         ctx.json(stringToJson(result));
         ctx.status(200);
@@ -40,7 +45,12 @@ public class ServerController {
         String publicKey = ctx.queryParam("public_key");
 
         try {
+            if(ServerDao.isAllowedToAddServer(ServerDao.getUserServers(username), Customer.checkUserStatusFromDB(username)))
             ServerDao.addServerToUser( username , publicKey);
+            else {
+                ctx.json(stringToJson("{\"result\" : 0,\"message\": \"Update to premium to add more servers\"}"));
+                ctx.status(200);
+            }
         }
         catch (NoSuchFieldException e)
         {
@@ -49,6 +59,10 @@ public class ServerController {
         }
         catch (PSQLException e){
             ctx.json(stringToJson("{\"result\" : 0,\"message\": \"Server already added\"}"));
+            ctx.status(200);
+        }
+        catch (Exception e){
+            ctx.json(stringToJson("{\"result\" : 0,\"message\": \"something went wrong\"}"));
             ctx.status(200);
         }
 
