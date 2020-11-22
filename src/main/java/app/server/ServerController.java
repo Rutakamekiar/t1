@@ -22,11 +22,6 @@ public class ServerController {
         try {
             result = ServerDao.getUserServers( username );
         }
-        catch (NoSuchFieldException e)
-        {
-            ctx.json(stringToJson("{\"result\" : 0,\"message\": \"There are no servers\"}"));
-            ctx.status(200);
-        }
         catch (SQLException e){
             ctx.json(stringToJson("{\"result\" : 0,\"message\": \"SQLException\"}"));
             ctx.status(200);
@@ -43,7 +38,6 @@ public class ServerController {
     public static Handler addServerToUser = ctx -> {
         String username = ctx.cookie("username");
         String publicKey = ctx.queryParam("public_key");
-
         try {
             if(ServerDao.isAllowedToAddServer(ServerDao.getUserServers(username), Customer.checkUserStatusFromDB(username)))
             ServerDao.addServerToUser( username , publicKey);

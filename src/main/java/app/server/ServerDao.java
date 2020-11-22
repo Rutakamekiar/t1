@@ -24,7 +24,7 @@ public class ServerDao {
         ResultSet rs = preparedStatement.executeQuery();
 
         if (!rs.next())
-            throw new NoSuchFieldException();
+            return "{\"result\" : 0,\"message\": \"There are no servers\",\"hosts\":[]}";
 
         StringBuilder result = new StringBuilder("{ \"hosts\":[ " + "{ \"host\" :\"" + rs.getString("public_key") + "\"}");
 
@@ -42,9 +42,9 @@ public class ServerDao {
         preparedStatement1.setString(1, publicKey);
         ResultSet rs1 = preparedStatement1.executeQuery();
 
-        if (!rs1.next())
+        if (!rs1.next()) {
             throw new NoSuchFieldException("there is no such host");
-
+        }
         String sql2 = "insert into hosts_servers values ( ? , ?);";
         PreparedStatement preparedStatement2 = connection.prepareStatement(sql2);
         preparedStatement2.setString(1, username);
