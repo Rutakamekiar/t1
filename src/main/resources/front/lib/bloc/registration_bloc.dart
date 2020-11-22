@@ -10,9 +10,12 @@ class RegistrationBloc extends Bloc {
   final _registrationFetcher = PublishSubject<ResponseModel>();
 
   Stream<ResponseModel> get registration => _registrationFetcher.stream;
+
   registrationFetcher(RegistrationModel registrationModel) async {
     try {
-      var data = await _repository.getRegistration(registrationModel).timeout(Duration(seconds: 10));
+      var data = await _repository
+          .getRegistration(registrationModel)
+          .timeout(Duration(seconds: 10));
       _registrationFetcher.sink.add(data);
     } catch (e) {
       _registrationFetcher.sink.addError(e);

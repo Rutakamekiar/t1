@@ -12,7 +12,9 @@ class ResetPasswordBloc extends Bloc {
 
   resetPasswordFetcher(String email) async {
     try {
-      var data = await _repository.getResetPassword(email).timeout(Duration(seconds: 10));
+      var data = await _repository
+          .getResetPassword(email)
+          .timeout(Duration(seconds: 10));
       _resetPasswordFetcher.sink.add(data);
     } catch (e) {
       _resetPasswordFetcher.sink.addError(e);

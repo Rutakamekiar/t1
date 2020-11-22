@@ -10,18 +10,19 @@ class DataListModel {
   List<DataModel> data;
 
   factory DataListModel.fromJson(Map<String, dynamic> json) => DataListModel(
-    data: json["data"] == null ? null : List<DataModel>.from(json["data"].map((x) => DataModel.fromJson(x))),
-    result: json["result"],
-    message: json["message"]
-  );
+      data: json["data"] == null
+          ? null
+          : List<DataModel>.from(
+              json["data"].map((x) => DataModel.fromJson(x))),
+      result: json["result"],
+      message: json["message"]);
 
   Map<String, dynamic> toJson() => {
-    "data": List<dynamic>.from(data.map((x) => x.toJson())),
-    "result": result,
-    "message": message
-  };
+        "data": List<dynamic>.from(data.map((x) => x.toJson())),
+        "result": result,
+        "message": message
+      };
 }
-
 
 class DataModel {
   DataModel({
@@ -60,12 +61,20 @@ class DataModel {
         bootTime: json["boot_time"],
         publicKey: json["public_key"],
         agentVersion: json["agent_version"],
-        cpu: json["cpu"] == null ? null : List<Cpu>.from(json["cpu"].map((x) => Cpu.fromJson(x))),
-        disks: json["disks"] == null ? null : List<Disk>.from(json["disks"].map((x) => Disk.fromJson(x))),
-        load: json["load"] == null ? null : List<double>.from(json["load"].map((x) => x.toDouble())),
+        cpu: json["cpu"] == null
+            ? null
+            : List<Cpu>.from(json["cpu"].map((x) => Cpu.fromJson(x))),
+        disks: json["disks"] == null
+            ? null
+            : List<Disk>.from(json["disks"].map((x) => Disk.fromJson(x))),
+        load: json["load"] == null
+            ? null
+            : List<double>.from(json["load"].map((x) => x.toDouble())),
         memory: json["memory"] == null ? null : Memory.fromJson(json["memory"]),
-        network: json["network"] == null ? null :
-            List<Network>.from(json["network"].map((x) => Network.fromJson(x))),
+        network: json["network"] == null
+            ? null
+            : List<Network>.from(
+                json["network"].map((x) => Network.fromJson(x))),
       );
 
   Map<String, dynamic> toJson() => {

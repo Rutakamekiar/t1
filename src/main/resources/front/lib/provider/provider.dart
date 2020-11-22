@@ -12,8 +12,8 @@ class Provider {
 
   Future<DataListModel> getData(String host, String from, String to) async {
     print("${Constants.url}getmsg?public_key=$host&from=$from&to=$to");
-    final response =
-        await dio.get("${Constants.url}getmsg?public_key=$host&from=$from&to=$to");
+    final response = await dio
+        .get("${Constants.url}getmsg?public_key=$host&from=$from&to=$to");
     return DataListModel.fromJson(response.data);
   }
 
@@ -29,7 +29,8 @@ class Provider {
 
   Future<ResponseModel> clearAvatar(String login) async {
     try {
-      final response = await dio.post("${Constants.url}admindropavatar?login=$login");
+      final response =
+          await dio.post("${Constants.url}admindropavatar?login=$login");
       return ResponseModel.fromJson(response.data);
     } catch (e) {
       throw e;
@@ -38,7 +39,8 @@ class Provider {
 
   Future<ResponseModel> clearHosts(String login) async {
     try {
-      final response = await dio.post("${Constants.url}dropuserhosts?login=$login");
+      final response =
+          await dio.post("${Constants.url}dropuserhosts?login=$login");
       return ResponseModel.fromJson(response.data);
     } catch (e) {
       throw e;
@@ -47,7 +49,8 @@ class Provider {
 
   Future<ResponseModel> setFreeUser(String login) async {
     try {
-      final response = await dio.post("${Constants.url}adminsetfree?login=$login");
+      final response =
+          await dio.post("${Constants.url}adminsetfree?login=$login");
       return ResponseModel.fromJson(response.data);
     } catch (e) {
       throw e;
@@ -56,7 +59,8 @@ class Provider {
 
   Future<ResponseModel> setPremiumUser(String login) async {
     try {
-      final response = await dio.post("${Constants.url}adminsetpremium?login=$login");
+      final response =
+          await dio.post("${Constants.url}adminsetpremium?login=$login");
       return ResponseModel.fromJson(response.data);
     } catch (e) {
       throw e;
@@ -65,7 +69,7 @@ class Provider {
 
   Future<UsersModel> getUsers() async {
     try {
-      final response = await dio.post("${Constants.url}getallusersadmin");
+      final response = await dio.get("${Constants.url}getallusersadmin");
       return UsersModel.fromJson(response.data);
     } catch (e) {
       throw e;
@@ -125,7 +129,8 @@ class Provider {
 
   Future<bool> addServer(String server) async {
     try {
-      final response = await dio.put("${Constants.url}addServer?public_key=$server");
+      final response =
+          await dio.put("${Constants.url}addServer?public_key=$server");
       print(response.data);
       return true;
     } catch (e) {

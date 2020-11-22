@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
@@ -45,20 +46,22 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
     });
     authorizationBloc.auth.listen((event) {
       setLoading(false);
-      if(event != null ) {
+      if (event != null) {
         if (event.result == 1) {
           openMainPage();
         } else {
-          DialogHelper.showInformDialog(
-              context, "Неправильний логін або пароль",
-              onPositive: () => Navigator.pop(context));
+          DialogHelper.showInformDialog(context, tr("invalid_login_password"),
+              button: tr("ok"), onPositive: () => Navigator.pop(context));
         }
       } else {
-        DialogHelper.showInformDialog(context, "Користувач неактивований", onPositive: ()=> Navigator.pop(context));
+        DialogHelper.showInformDialog(context, tr("user_not_activated"),
+            button: tr("ok"), onPositive: () => Navigator.pop(context));
       }
     }, onError: (e) {
       setLoading(false);
-      DialogHelper.showInformDialog(context, "Виникла помилка: ${e.toString()}", onPositive: ()=> Navigator.pop(context));
+      DialogHelper.showInformDialog(
+          context, tr("error_occurred", args: [e.toString()]),
+          button: tr("ok"), onPositive: () => Navigator.pop(context));
     });
     loginController.addListener(() {
       setLoginError(false);
@@ -140,6 +143,52 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
         child: ListView(
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
           children: <Widget>[
+            Container(
+              alignment: Alignment.center,
+              child: Container(
+                width: double.infinity,
+                constraints: BoxConstraints(maxWidth: 516),
+                alignment: Alignment.centerRight,
+                child: DropdownButton<Locale>(
+                  value: context.locale,
+                  icon: Icon(Icons.arrow_drop_down),
+                  iconSize: 24,
+                  elevation: 16,
+                  iconEnabledColor: MyColors.green,
+                  style: TextStyle(color: Colors.black, fontSize: 15),
+                  underline: Container(
+                    height: 0,
+                    padding: EdgeInsets.only(top: 5),
+                    color: MyColors.green,
+                  ),
+                  onChanged: (Locale newValue) {
+                    print(newValue);
+                    context.locale = newValue;
+                  },
+                  items: <Locale>[Locale("en"), Locale("uk")]
+                      .map<DropdownMenuItem<Locale>>((Locale value) {
+
+                    String name = "En";
+                    String image = "united-kingdom.png";
+                    if(value.languageCode == "uk"){
+                      name = "Укр";
+                      image = "ukraine.png";
+                    }
+
+                    return DropdownMenuItem<Locale>(
+                      value: value,
+                      child: Row(
+                        children: [
+                          Image.asset("assets/$image", width: 20, height: 20,),
+                          SizedBox(width: 5,),
+                          Text(name),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
             Image.asset(
               "assets/logo.png",
               height: 90,
@@ -168,7 +217,7 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
                       height: 40,
                     ),
                     AutoSizeText(
-                      "Ласкаво просимо",
+                      tr("welcome"),
                       style: TextStyle(
                           fontWeight: FontWeight.w500,
                           color: Colors.black,
@@ -185,8 +234,8 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
                           isError: loginError,
                           enable: !isLoading,
                           onSubmitted: (value) => checkFields(),
-                          label: "Логін",
-                          errorText: "Введіть логін"),
+                          label: tr("login"),
+                          errorText: tr("enter_login")),
                     ),
                     SizedBox(
                       height: 20,
@@ -200,8 +249,8 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
                         obscureText: true,
                         onSubmitted: (value) => checkFields(),
                         enable: !isLoading,
-                        label: "Пароль",
-                        errorText: "Введіть пароль",
+                        label: tr("password"),
+                        errorText: tr("enter_password"),
                       ),
                     ),
                     SizedBox(
@@ -209,6 +258,7 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
                     ),
                     BaseButton(
                       isLoading: isLoading,
+                      title: tr("enter"),
                       onPressed: checkFields,
                     ),
                     SizedBox(
@@ -217,14 +267,14 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
                     FlatButton(
                       onPressed: openRegistrationPage,
                       child: Text(
-                        "Зареєструватися",
+                        tr("register"),
                         style: TextStyle(color: MyColors.green),
                       ),
                     ),
                     FlatButton(
                       onPressed: openResetPasswordPage,
                       child: Text(
-                        "Забув пароль",
+                        tr("forgot_password"),
                         style: TextStyle(color: MyColors.green),
                       ),
                     ),
@@ -241,9 +291,12 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
             Container(
               alignment: Alignment.center,
               child: FlatButton(
+                // onPressed: () {
+                //   context.locale = Locale("uk");
+                // },
                 onPressed: _launchURL,
                 child: Text(
-                  "Terms and Conditions",
+                  tr("terms_and_conditions"),
                   style: TextStyle(color: MyColors.green),
                 ),
               ),

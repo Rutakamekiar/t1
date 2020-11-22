@@ -4,7 +4,7 @@ import 'package:servelyzer/widget/my_loading_dialog.dart';
 
 class DialogHelper {
   static showInformDialog(BuildContext context, String text,
-      {String button = "Ок", @required VoidCallback onPositive}) {
+      {@required String button, @required VoidCallback onPositive}) {
     showDialog(
       context: context,
       barrierDismissible: false,

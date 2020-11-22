@@ -11,9 +11,10 @@ class MyStatusPicker extends StatefulWidget {
 
   MyStatusPicker({
     this.content,
-    this.positiveButton = "Ок",
-    this.negativeButton = "Скасувати",
-    this.onPositive, @required this.dropdownValue,
+    @required this.positiveButton,
+    @required this.negativeButton,
+    this.onPositive,
+    @required this.dropdownValue,
   });
 
   @override

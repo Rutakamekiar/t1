@@ -19,18 +19,25 @@ class MainBloc extends Bloc {
   final _getAvatar = PublishSubject<ResponseModel>();
 
   Stream<DataListModel> get data => _dataFetcher.stream;
+
   Stream<HostsModel> get servers => _serversFetcher.stream;
+
   Stream<bool> get delete => _deleteFetcher.stream;
+
   Stream<bool> get add => _addFetcher.stream;
+
   Stream<ResponseModel> get avatar => _getAvatar.stream;
+
   Stream<ResponseModel> get logout => _logoutFetcher.stream;
+
   Stream<ResponseModel> get newAvatar => _setAvatar.stream;
+
   Stream<ResponseModel> get login => _loginFetcher.stream;
 
   dataFetcher(String host, String from, String to) async {
     try {
       DataListModel dataListModel = await _repository.getData(host, from, to);
-      if(dataListModel.result == 0){
+      if (dataListModel.result == 0) {
         throw Exception(dataListModel.message);
       } else {
         _dataFetcher.sink.add(dataListModel);

@@ -3,8 +3,9 @@ library sample;
 
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html';
-import 'package:js/js.dart';
+
 import 'package:image/image.dart' as im;
+import 'package:js/js.dart';
 
 // -o web/worker.js lib/worker.dart
 
@@ -17,7 +18,7 @@ void main() {
     int height = imageOriginal.height;
     int wight = imageOriginal.width;
     im.Image imageResized;
-    if(height < wight) {
+    if (height < wight) {
       imageResized = im.copyResize(imageOriginal, height: 100);
     } else {
       imageResized = im.copyResize(imageOriginal, width: 100);

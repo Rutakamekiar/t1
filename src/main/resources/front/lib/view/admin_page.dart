@@ -4,6 +4,7 @@ import 'dart:html';
 import 'dart:typed_data';
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:servelyzer/bloc/admin_bloc.dart';
@@ -11,7 +12,7 @@ import 'package:servelyzer/model/response_model.dart';
 import 'package:servelyzer/model/users_model.dart';
 import 'package:servelyzer/style/my_colors.dart';
 import 'package:servelyzer/utils/dialog_helper.dart';
-import 'package:servelyzer/view/profile_widget.dart';
+import 'package:servelyzer/widget/profile_widget.dart';
 import 'package:servelyzer/widget/base_button.dart';
 import 'package:servelyzer/widget/my_dialog.dart';
 import 'package:servelyzer/widget/my_status_picker.dart';
@@ -88,16 +89,20 @@ class _AdminPageState extends State<AdminPage> {
           _adminBloc.getAvatar();
           _userResponse = event;
         } else {
-          DialogHelper.showInformDialog(context, "Ви не є адміністратором",
+          DialogHelper.showInformDialog(context, tr("you_not_admin"),
+              button: tr("ok"),
               onPositive: () => Modular.to.pushReplacementNamed('/auth'));
         }
       } else {
         DialogHelper.showInformDialog(
-            context, "Виникла помилка: ${event.message}",
+            context, tr("error_occurred", args: [event.message]),
+            button: tr("ok"),
             onPositive: () => Modular.to.pushReplacementNamed('/auth'));
       }
     }, onError: (e) {
-      DialogHelper.showInformDialog(context, "Виникла помилка: ${e.toString()}",
+      DialogHelper.showInformDialog(
+          context, tr("error_occurred", args: [e.toString()]),
+          button: tr("ok"),
           onPositive: () => Modular.to.pushReplacementNamed('/auth'));
     });
   }
@@ -106,7 +111,7 @@ class _AdminPageState extends State<AdminPage> {
     InputElement uploadInput = FileUploadInputElement();
     uploadInput.click();
     uploadInput.onChange.listen((e) async {
-      DialogHelper.showLoadingDialog(context, "Завантаження зображення");
+      DialogHelper.showLoadingDialog(context, tr("image_upload"));
       final files = uploadInput.files;
       if (files.length == 1) {
         final file = files[0];
@@ -137,7 +142,9 @@ class _AdminPageState extends State<AdminPage> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) => MyStatusPicker(
-        content: "Оберіть статус",
+        content: tr("select_status"),
+        negativeButton: tr("cancel"),
+        positiveButton: tr("choose"),
         onPositive: (newStatus) {
           switch (newStatus) {
             case "Free":
@@ -166,9 +173,9 @@ class _AdminPageState extends State<AdminPage> {
     showDialog(
       context: context,
       builder: (BuildContext context) => MyDialog(
-        content: "Ви впевнені, що хочите вийти",
-        negativeButton: "Ні",
-        positiveButton: "Так",
+        content: tr("you_sure_want_logout"),
+        negativeButton: tr("no"),
+        positiveButton: tr("yes"),
         onPositive: () {
           _adminBloc.logoutFetcher();
         },
@@ -224,15 +231,66 @@ class _AdminPageState extends State<AdminPage> {
                   child: Container(
                     width: double.infinity,
                     padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-                    alignment: MediaQuery.of(context).size.width <= listWight
-                        ? null
-                        : Alignment.centerRight,
                     constraints: BoxConstraints(maxWidth: maxWight),
-                    child: BaseButton(
-                      onPressed: _openAuthorizationPage,
-                      height: 45,
-                      width: 175,
-                      title: "Вийти",
+                    child: Row(
+                      mainAxisAlignment:
+                      MediaQuery.of(context).size.width <= listWight
+                          ? MainAxisAlignment.center
+                          : MainAxisAlignment.end,
+                      children: [
+                        DropdownButton<Locale>(
+                          value: context.locale,
+                          icon: Icon(Icons.arrow_drop_down),
+                          iconSize: 24,
+                          elevation: 16,
+                          iconEnabledColor: MyColors.green,
+                          style: TextStyle(color: Colors.black, fontSize: 15),
+                          underline: Container(
+                            height: 0,
+                            padding: EdgeInsets.only(top: 5),
+                            color: MyColors.green,
+                          ),
+                          onChanged: (Locale newValue) {
+                            print(newValue);
+                            context.locale = newValue;
+                          },
+                          items: <Locale>[Locale("en"), Locale("uk")]
+                              .map<DropdownMenuItem<Locale>>((Locale value) {
+                            String name = "En";
+                            String image = "united-kingdom.png";
+                            if (value.languageCode == "uk") {
+                              name = "Укр";
+                              image = "ukraine.png";
+                            }
+
+                            return DropdownMenuItem<Locale>(
+                              value: value,
+                              child: Row(
+                                children: [
+                                  Image.asset(
+                                    "assets/$image",
+                                    width: 20,
+                                    height: 20,
+                                  ),
+                                  SizedBox(
+                                    width: 5,
+                                  ),
+                                  Text(name),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        BaseButton(
+                          onPressed: _openAuthorizationPage,
+                          height: 45,
+                          width: 175,
+                          title: tr("logout"),
+                        ),
+                      ],
                     ),
                   ),
                   decoration: BoxDecoration(color: Colors.white, boxShadow: [
@@ -293,7 +351,8 @@ class _AdminPageState extends State<AdminPage> {
                                     });
                               } else if (snapshot.hasError) {
                                 final exception = snapshot.error;
-                                return _buildError("Помилка: $exception");
+                                return _buildError(tr("error_occurred",
+                                    args: [exception.toString()]));
                               } else {
                                 return Center(
                                     child: CircularProgressIndicator());
@@ -321,26 +380,26 @@ class UserItem extends StatelessWidget {
     String status = "";
     switch (user?.verificationStatus) {
       case VerificationStatus.VERIFICATED:
-        status = "так";
+        status = tr("yes");
         break;
       case VerificationStatus.NOT_VERIFICATED:
-        status = "ні";
+        status = tr("no");
         break;
     }
-    return "Підтвердженний: $status";
+    return tr("confirmed", args: [status]);
   }
 
   _getAvatarStatus() {
     String status = "";
     switch (user?.avatar) {
       case Avatar.EMPTY:
-        status = "ні";
+        status = tr("no");
         break;
       case Avatar.NOT_EMPTY:
-        status = "так";
+        status = tr("yes");
         break;
     }
-    return "Аватар: $status";
+    return tr("avatar", args: [status]);
   }
 
   _getStatus() {
@@ -353,7 +412,7 @@ class UserItem extends StatelessWidget {
         status = "Premium";
         break;
     }
-    return "Статус: $status";
+    return tr("status", args: [status]);
   }
 
   @override
@@ -414,7 +473,7 @@ class UserItem extends StatelessWidget {
                     alignment: Alignment.center,
                     height: 50,
                     child: Text(
-                      "Очистити список хостів",
+                      tr("clear_host_list"),
                       style: TextStyle(
                           color: MyColors.green, fontWeight: FontWeight.bold),
                     ),
@@ -483,7 +542,7 @@ class UserItem extends StatelessWidget {
             alignment: Alignment.center,
             height: 50,
             child: Text(
-              "Очистити список хостів",
+              tr("clear_host_list"),
               style:
                   TextStyle(color: MyColors.green, fontWeight: FontWeight.bold),
             ),

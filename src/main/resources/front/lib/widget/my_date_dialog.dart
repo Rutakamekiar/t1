@@ -14,8 +14,8 @@ class MyDateDialog extends StatefulWidget {
 
   MyDateDialog({
     this.content,
-    this.positiveButton = "Обрати",
-    this.negativeButton = "Скасувати",
+    @required this.positiveButton,
+    @required this.negativeButton,
     this.onPositive,
     this.button,
     this.initTime,
@@ -57,18 +57,18 @@ class _MyDateDialogState extends State<MyDateDialog> {
       children: <Widget>[
         Expanded(
             child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: CupertinoDatePicker(
-          mode: CupertinoDatePickerMode.dateAndTime,
-          backgroundColor: Colors.white,
-          onDateTimeChanged: (date) {
+          padding: const EdgeInsets.all(8.0),
+          child: CupertinoDatePicker(
+            mode: CupertinoDatePickerMode.dateAndTime,
+            backgroundColor: Colors.white,
+            onDateTimeChanged: (date) {
               this.date = date;
-          },
-          minimumDate: widget.minTime ?? DateTime(DateTime.now().year - 1),
-          initialDateTime: date,
-          maximumDate: widget.maxTime,
-        ),
-            )),
+            },
+            minimumDate: widget.minTime ?? DateTime(DateTime.now().year - 1),
+            initialDateTime: date,
+            maximumDate: widget.maxTime,
+          ),
+        )),
         Row(
           children: [
             Expanded(

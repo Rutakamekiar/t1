@@ -38,7 +38,7 @@ class MyDatePicker {
     this.context, {
     this.date,
     this.controller,
-    this.buttonText = "Обрати",
+    @required this.buttonText,
     this.buttonTextStyle = const TextStyle(fontSize: 15, color: MyColors.green),
     @required this.onDateTimeChanged,
   });
@@ -72,6 +72,7 @@ class MyDatePicker {
                 Expanded(
                     child: CupertinoDatePicker(
                   mode: CupertinoDatePickerMode.dateAndTime,
+                  use24hFormat: true,
                   backgroundColor: MyColors.background,
                   onDateTimeChanged: (date) {
                     this.date = date;

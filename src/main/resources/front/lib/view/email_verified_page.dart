@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:servelyzer/style/my_colors.dart';
@@ -37,6 +38,52 @@ class _EmailVerifiedPageState extends State<EmailVerifiedPage> {
               alignment: Alignment.center,
               child: Container(
                 width: double.infinity,
+                constraints: BoxConstraints(maxWidth: 516),
+                alignment: Alignment.centerRight,
+                child: DropdownButton<Locale>(
+                  value: context.locale,
+                  icon: Icon(Icons.arrow_drop_down),
+                  iconSize: 24,
+                  elevation: 16,
+                  iconEnabledColor: MyColors.green,
+                  style: TextStyle(color: Colors.black, fontSize: 15),
+                  underline: Container(
+                    height: 0,
+                    padding: EdgeInsets.only(top: 5),
+                    color: MyColors.green,
+                  ),
+                  onChanged: (Locale newValue) {
+                    print(newValue);
+                    context.locale = newValue;
+                  },
+                  items: <Locale>[Locale("en"), Locale("uk")]
+                      .map<DropdownMenuItem<Locale>>((Locale value) {
+
+                    String name = "En";
+                    String image = "united-kingdom.png";
+                    if(value.languageCode == "uk"){
+                      name = "Укр";
+                      image = "ukraine.png";
+                    }
+
+                    return DropdownMenuItem<Locale>(
+                      value: value,
+                      child: Row(
+                        children: [
+                          Image.asset("assets/$image", width: 20, height: 20,),
+                          SizedBox(width: 5,),
+                          Text(name),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
+            Container(
+              alignment: Alignment.center,
+              child: Container(
+                width: double.infinity,
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
                     color: Colors.white,
@@ -54,7 +101,7 @@ class _EmailVerifiedPageState extends State<EmailVerifiedPage> {
                       height: 40,
                     ),
                     AutoSizeText(
-                      "Email підтверджено",
+                      tr("email_confirmed"),
                       style: TextStyle(
                           fontWeight: FontWeight.w500,
                           color: Colors.black,
@@ -65,7 +112,7 @@ class _EmailVerifiedPageState extends State<EmailVerifiedPage> {
                     ),
                     BaseButton(
                       isLoading: false,
-                      title: "Авторизуватися",
+                      title: tr("log_in"),
                       onPressed: openAuthPage,
                     ),
                     SizedBox(
@@ -83,7 +130,7 @@ class _EmailVerifiedPageState extends State<EmailVerifiedPage> {
               child: FlatButton(
                 onPressed: _launchURL,
                 child: Text(
-                  "Terms and Conditions",
+                  tr("terms_and_conditions"),
                   style: TextStyle(color: MyColors.green),
                 ),
               ),
