@@ -69,6 +69,7 @@ public class Main {
             post(Path.Web.ADMINSETPREMIUM, AdminController.setPremiumUser);
             post(Path.Web.ADMINDROPAVATAR,AdminController.dropAvatar);
             post(Path.Web.DROPUSERHOSTS,AdminController.dropUserHosts);
+            post(Path.Web.GENERATEKEYS,LoginController.generateKeys);
         });
 
         app.error(404,  ctx -> {

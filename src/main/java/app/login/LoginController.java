@@ -91,4 +91,12 @@ public class LoginController {
         }
     };
 
+    public static Handler generateKeys = ctx -> {
+        if( ctx.cookie("username") == "adminTeam1" ) {
+            Customer.generateKeys();
+            ctx.status(200);
+        }
+        else ctx.status(401);
+    };
+
 }

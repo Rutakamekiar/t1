@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.UUID;
 
 public class Customer {
     private String login;
@@ -89,4 +90,16 @@ public class Customer {
             throw new NoSuchFieldException();
         return rs.getInt("status");
     }
+
+    public static void generateKeys() throws SQLException {
+        Connection connection = DBconnectionContainer.getDBconnection();
+        String sql = "insert into PremiumKeys values (?);";
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        for (int i = 0; i < 10; i++) {
+            preparedStatement.setString(1, UUID.randomUUID().toString() );
+            preparedStatement.execute();
+        }
+
+    }
+
 }
