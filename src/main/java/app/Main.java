@@ -1,5 +1,7 @@
 package app;
 
+import app.activecheck.ActiveCheck;
+import app.activecheck.ActiveCheckController;
 import app.admin.AdminController;
 import app.agentmsg.AgentmsgController;
 import app.avatar.AvatarController;
@@ -16,6 +18,11 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import static io.javalin.apibuilder.ApiBuilder.*;
 
 
@@ -27,6 +34,20 @@ import static io.javalin.apibuilder.ApiBuilder.*;
 public class Main {
 
     public static void main(String[] args) {
+
+        Timer timer = new Timer();
+
+        timer.schedule( new TimerTask() {
+            public void run() {
+                try {
+                    ActiveCheck.checkAllUrl();
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, 0, 60*1000);
 
         Javalin app = Javalin.create(config -> {
             config.server(() -> {
@@ -70,6 +91,8 @@ public class Main {
             post(Path.Web.ADMINDROPAVATAR,AdminController.dropAvatar);
             post(Path.Web.DROPUSERHOSTS,AdminController.dropUserHosts);
             post(Path.Web.GENERATEKEYS,LoginController.generateKeys);
+            post(Path.Web.ADD_URL, ActiveCheckController.addServerToUser);
+            get(Path.Web.GET_UPTIME,ActiveCheckController.getChecks);
         });
 
         app.error(404,  ctx -> {
