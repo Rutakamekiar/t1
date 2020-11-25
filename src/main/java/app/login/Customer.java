@@ -102,4 +102,28 @@ public class Customer {
 
     }
 
+    public static boolean validateUserCode(String code) throws SQLException {
+        Connection connection = DBconnectionContainer.getDBconnection();
+        String sql = "select login from PremiumKeys where login = ?;";
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setString(1, code );
+        System.out.println(preparedStatement);
+        ResultSet rs = preparedStatement.executeQuery();
+        if (!rs.next())
+            return false;
+        return true;
+    }
+
+    public static void providePremium( String username , String code) throws SQLException {
+        Connection connection = DBconnectionContainer.getDBconnection();
+        String sql1 = "update users set status = 2 where login = ?;";
+        String sql2 = "delete from PremiumKeys where login = ?;";
+        PreparedStatement preparedStatement1 = connection.prepareStatement(sql1);
+        PreparedStatement preparedStatement2 = connection.prepareStatement(sql2);
+        preparedStatement1.setString(1, username );
+        preparedStatement2.setString(1, code );
+        preparedStatement1.execute();
+        preparedStatement2.execute();
+    }
+
 }

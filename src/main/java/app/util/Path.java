@@ -35,6 +35,7 @@ public class Path {
         public static final String ADMINDROPAVATAR = "/admindropavatar";
         public static final String DROPUSERHOSTS = "/dropuserhosts";
         public static final String GENERATEKEYS = "/tools/generateKeys";
+        public static final String GETPREMIUM = "/getPremium";
     }
     /**
      * Contain paths of page resources

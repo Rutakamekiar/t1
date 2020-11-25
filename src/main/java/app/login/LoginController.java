@@ -15,7 +15,7 @@ public class LoginController {
 
 
     public static Handler isLogIned = ctx -> {
-        if( ctx.cookie("username") == null ){
+        if (ctx.cookie("username") == null) {
             ctx.json(stringToJson("{\"result\" : 0,\"message\": \"user is not logined\"}"));
             ctx.status(200);
         } else {
@@ -42,8 +42,7 @@ public class LoginController {
             } catch (NoSuchFieldException ex) {
                 ctx.json(stringToJson("{\"result\" : 0,\"message\": \"missing user\"}"));
                 ctx.status(200);
-            }
-            catch (SQLException e){
+            } catch (SQLException e) {
                 ctx.json(stringToJson("{\"result\" : 0,\"message\": \"something went wrong\"}"));
                 ctx.status(200);
             }
@@ -92,11 +91,35 @@ public class LoginController {
     };
 
     public static Handler generateKeys = ctx -> {
-        if( ctx.cookie("username") == "adminTeam1" ) {
+        if (ctx.cookie("username") == "adminTeam1") {
             Customer.generateKeys();
             ctx.status(200);
-        }
-        else ctx.status(401);
+        } else ctx.status(401);
     };
 
+    public static Handler getPremium = ctx -> {
+        String username = ctx.cookie("username");
+        String ressult;
+        String code = ctx.queryParam("code");
+        System.out.println(code);
+        if ( username == null) {
+            ressult = "{\"result\" : 0,\"message\": \"user is not logined\"}";
+        } else {
+            int userStatus = Customer.checkUserStatusFromDB(username);
+            if( userStatus == 2 || userStatus == 3){
+                ressult = "{\"result\" : 0,\"message\": \"user already have premium grants\"}";
+            } else {
+
+                if( !Customer.validateUserCode(code) ){
+                    ressult = "{\"result\" : 0,\"message\": \"incorrect code\"}";
+                }
+                else {
+                    Customer.providePremium(username , code);
+                    ressult = "{\"result\" : 1,\"message\": \"premium provided\"}";
+                }
+            }
+        }
+        ctx.json(stringToJson(ressult));
+        ctx.status(200);
+    };
 }

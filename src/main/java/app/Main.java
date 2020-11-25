@@ -70,6 +70,7 @@ public class Main {
             post(Path.Web.ADMINDROPAVATAR,AdminController.dropAvatar);
             post(Path.Web.DROPUSERHOSTS,AdminController.dropUserHosts);
             post(Path.Web.GENERATEKEYS,LoginController.generateKeys);
+            post(Path.Web.GETPREMIUM,LoginController.getPremium);
         });
 
         app.error(404,  ctx -> {
