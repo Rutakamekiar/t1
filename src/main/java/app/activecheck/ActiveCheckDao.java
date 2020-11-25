@@ -24,9 +24,9 @@ public class ActiveCheckDao {
             ResultSet rs = preparedStatement.executeQuery();
             rs.next();
             if(rs.getInt(1) < 2)
-                return false;
-            else
                 return true;
+            else
+                return false;
         }
         return false;
     }
