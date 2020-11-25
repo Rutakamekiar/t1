@@ -1,8 +1,7 @@
 package app.agentmsg;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.graalvm.compiler.core.common.type.ArithmeticOpTable;
+
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -25,7 +24,7 @@ public class Agentmsg {
 
     /**
      * Transform String message into Map and send it to DB
-     * @param msg String message from agent
+     * @param message String message from agent
      * @throws JsonProcessingException
      * @throws ParseException
      * @throws SQLException

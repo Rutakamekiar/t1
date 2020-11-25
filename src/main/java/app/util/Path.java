@@ -36,6 +36,10 @@ public class Path {
         public static final String DROPUSERHOSTS = "/dropuserhosts";
         public static final String GENERATEKEYS = "/tools/generateKeys";
         public static final String GETPREMIUM = "/getPremium";
+
+
+        public static final String ADD_URL = "/addUrl";
+        public static final String GET_UPTIME = "/getUptime";
     }
     /**
      * Contain paths of page resources
