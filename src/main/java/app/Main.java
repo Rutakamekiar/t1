@@ -47,7 +47,7 @@ public class Main {
                     e.printStackTrace();
                 }
             }
-        }, 0, 60*1000);
+        }, 0, 60*1000*10);
 
         Runnable myRunnable = new Runnable() {
 
