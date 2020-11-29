@@ -21,21 +21,7 @@ public class LoginController {
         } else {
             try {
                 int userStatus = Customer.checkUserStatusFromDB(ctx.cookie("username"));
-                String stringUserStatus;
-                switch (userStatus) {
-                    case 1:
-                        stringUserStatus = "free";
-                        break;
-                    case 2:
-                        stringUserStatus = "premium";
-                        break;
-                    case 3:
-                        stringUserStatus = "admin";
-                        break;
-                    default:
-                        stringUserStatus = "strange status";
-                        break;
-                }
+                String stringUserStatus = Customer.intStatusToString(userStatus);
                 ctx.json(stringToJson("{\"result\" : 1,\"message\": \"user is logined\",\"user\": \""
                         + ctx.cookie("username") + "\", \"user-status\": \"" + stringUserStatus + "\"}"));
                 ctx.status(200);

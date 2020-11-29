@@ -1,6 +1,7 @@
 package app.admin;
 
 import app.database.DBconnectionContainer;
+import app.login.Customer;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -15,21 +16,7 @@ public class AdminDao {
         ResultSet rs = preparedStatement.executeQuery();
         StringBuilder resultJson = new StringBuilder("{\"result\" : 1, \"message\": \"all users\", \"users\" : [");
         while (rs.next()){
-            String userStatus;
-            switch (rs.getInt("status")){
-                case 1:
-                    userStatus = "free";
-                    break;
-                case 2:
-                    userStatus = "premium";
-                    break;
-                case 3:
-                    userStatus = "admin";
-                    break;
-                default:
-                    userStatus = "strange status";
-                    break;
-            }
+            String userStatus = Customer.intStatusToString(rs.getInt("status"));
             String verificationStatus;
             if (rs.getInt("verification")==1)
                 verificationStatus="verificated";
