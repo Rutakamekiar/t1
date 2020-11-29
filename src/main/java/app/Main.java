@@ -35,7 +35,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        /*Timer timer = new Timer();
+        Timer timer = new Timer();
 
         timer.schedule( new TimerTask() {
             public void run() {
@@ -47,7 +47,7 @@ public class Main {
                     e.printStackTrace();
                 }
             }
-        }, 0, 60*1000*10);*/
+        }, 0, 60*1000*10);
 
         Runnable myRunnable = new Runnable() {
 

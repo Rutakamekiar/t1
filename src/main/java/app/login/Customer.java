@@ -62,8 +62,13 @@ public class Customer {
         if(rs.getInt("verification") == 0){
             throw new ExceptionInInitializerError();
         }
+        String userStatus = intStatusToString(rs.getInt("status"));
+        return new Customer(login , rs.getString("pwd"), userStatus);
+    }
+
+    public static String intStatusToString(int status){
         String userStatus;
-        switch (rs.getInt("status")){
+        switch (status){
             case 1:
                 userStatus = "free";
                 break;
@@ -77,7 +82,7 @@ public class Customer {
                 userStatus = "strange status";
                 break;
         }
-        return new Customer(login , rs.getString("pwd"), userStatus);
+        return userStatus;
     }
 
     public static int checkUserStatusFromDB(String login) throws SQLException, NoSuchFieldException {
