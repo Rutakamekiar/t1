@@ -48,7 +48,11 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
       setLoading(false);
       if (event != null) {
         if (event.result == 1) {
-          openMainPage();
+          if(event.userStatus == "admin"){
+            openAdminPage();
+          } else {
+            openMainPage();
+          }
         } else {
           DialogHelper.showInformDialog(context, tr("invalid_login_password"),
               button: tr("ok"), onPositive: () => Navigator.pop(context));
@@ -87,6 +91,10 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
           AuthModel(loginController.text, passwordController.text);
       authorizationBloc.authFetcher(authModel);
     }
+  }
+
+  openAdminPage() {
+    Modular.to.pushReplacementNamed('/admin');
   }
 
   openMainPage() {

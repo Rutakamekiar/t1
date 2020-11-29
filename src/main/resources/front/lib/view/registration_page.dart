@@ -12,7 +12,8 @@ import 'package:servelyzer/widget/base_button.dart';
 import 'package:servelyzer/widget/base_text_field.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-const int minPasswordLength = 8;
+const int minPasswordLength = 6;
+const int minLoginLength = 6;
 
 class RegistrationPage extends StatefulWidget {
   @override
@@ -26,11 +27,14 @@ class _RegistrationPageState extends State<RegistrationPage> {
   final TextEditingController confirmPasswordController =
       TextEditingController();
 
+  final alphanumeric = RegExp(r'^[a-zA-Z0-9]+$');
+
   bool loginError = false;
   bool emailError = false;
   bool passwordError = false;
   bool confirmPasswordError = false;
 
+  String loginErrorMessage = tr("enter_login");
   String confirmPasswordErrorMessage = tr("enter_password_again");
   String passwordErrorMessage = tr("enter_password");
   String emailErrorMessage = tr("enter_email");
@@ -52,8 +56,15 @@ class _RegistrationPageState extends State<RegistrationPage> {
         DialogHelper.showInformDialog(context, tr("email_send"),
             button: tr("ok"), onPositive: openAuthPage);
       } else {
-        DialogHelper.showInformDialog(context, tr("user_exist"),
-            button: tr("ok"), onPositive: () => Navigator.pop(context));
+        if (responseModel.message
+            .contains("Login or password or email invalid")) {
+          DialogHelper.showInformDialog(
+              context, tr("invalid_login_or_password"),
+              button: tr("ok"), onPositive: () => Navigator.pop(context));
+        } else {
+          DialogHelper.showInformDialog(context, tr("user_exist"),
+              button: tr("ok"), onPositive: () => Navigator.pop(context));
+        }
       }
     }, onError: (e) {
       setLoading(false);
@@ -62,7 +73,22 @@ class _RegistrationPageState extends State<RegistrationPage> {
           button: tr("ok"), onPositive: () => Navigator.pop(context));
     });
     loginController.addListener(() {
-      setLoginError(false);
+      if (loginController.text.isNotEmpty &&
+          !alphanumeric.hasMatch(loginController.text)) {
+        setState(() {
+          loginErrorMessage = tr("invalid_login");
+        });
+        setLoginError(true);
+      } else if (loginController.text.isNotEmpty &&
+          loginController.text.length < minLoginLength) {
+        setState(() {
+          loginErrorMessage =
+              tr("login_must_longer", args: [minLoginLength.toString()]);
+        });
+        setLoginError(true);
+      } else {
+        setLoginError(false);
+      }
     });
     emailController.addListener(() {
       if (!EmailValidator.validate(emailController.text) &&
@@ -81,6 +107,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
         setState(() {
           passwordErrorMessage =
               tr("password_must_longer", args: [minPasswordLength.toString()]);
+        });
+        setPasswordError(true);
+      } else if (passwordController.text.isNotEmpty &&
+          !alphanumeric.hasMatch(passwordController.text)) {
+        setState(() {
+          passwordErrorMessage =
+              tr("invalid_password", args: [minPasswordLength.toString()]);
         });
         setPasswordError(true);
       } else {
@@ -143,6 +176,26 @@ class _RegistrationPageState extends State<RegistrationPage> {
   checkFields() {
     bool isValid = true;
     if (loginController.text.isEmpty) {
+      setState(() {
+        loginErrorMessage = tr("enter_login");
+      });
+      setLoginError(true);
+      isValid = false;
+    }
+    if (loginController.text.isNotEmpty &&
+        !alphanumeric.hasMatch(loginController.text)) {
+      setState(() {
+        loginErrorMessage = tr("invalid_login");
+      });
+      setLoginError(true);
+      isValid = false;
+    }
+    if (loginController.text.isNotEmpty &&
+        loginController.text.length < minLoginLength) {
+      setState(() {
+        loginErrorMessage =
+            tr("login_must_longer", args: [minLoginLength.toString()]);
+      });
       setLoginError(true);
       isValid = false;
     }
@@ -156,6 +209,15 @@ class _RegistrationPageState extends State<RegistrationPage> {
     if (passwordController.text.isEmpty) {
       setState(() {
         passwordErrorMessage = tr("enter_password");
+      });
+      setPasswordError(true);
+      isValid = false;
+    }
+    if (passwordController.text.isNotEmpty &&
+        !alphanumeric.hasMatch(passwordController.text)) {
+      setState(() {
+        passwordErrorMessage =
+            tr("invalid_password", args: [minPasswordLength.toString()]);
       });
       setPasswordError(true);
       isValid = false;
@@ -321,7 +383,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                           enable: !isLoading,
                           onSubmitted: (value) => checkFields(),
                           label: tr("login"),
-                          errorText: tr("enter_login")),
+                          errorText: loginErrorMessage),
                     ),
                     SizedBox(
                       height: 20,

@@ -30,7 +30,7 @@ class _MyPremiumDialogState extends State<MyPremiumDialog> {
     super.initState();
     _premiumBloc.premium.listen((event) {
       _setLoading(false);
-      if (event.result == 0) {
+      if (event.result == 1) {
         widget.onSuccess();
       } else {
         setState(() {

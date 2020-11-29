@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html';
 import 'dart:typed_data';
@@ -12,10 +13,10 @@ import 'package:servelyzer/model/response_model.dart';
 import 'package:servelyzer/model/users_model.dart';
 import 'package:servelyzer/style/my_colors.dart';
 import 'package:servelyzer/utils/dialog_helper.dart';
-import 'package:servelyzer/widget/profile_widget.dart';
 import 'package:servelyzer/widget/base_button.dart';
 import 'package:servelyzer/widget/my_dialog.dart';
 import 'package:servelyzer/widget/my_status_picker.dart';
+import 'package:servelyzer/widget/profile_widget.dart';
 
 const double maxWight = 1110;
 const double listWight = 600;
@@ -117,7 +118,25 @@ class _AdminPageState extends State<AdminPage> {
         final file = files[0];
         FileReader reader = FileReader();
         reader.onLoadEnd.listen((e) async {
-          _myWorker.postMessage(reader.result);
+          MemoryImage memoryImage = MemoryImage(reader.result);
+          memoryImage
+              .resolve(new ImageConfiguration())
+              .addListener(ImageStreamListener((ImageInfo info, bool _) {
+                int wight = info.image.width;
+                int height = info.image.height;
+                if (height > 1000 || wight > 1000) {
+                  Navigator.pop(context);
+                  DialogHelper.showInformDialog(context, tr("image_error"),
+                      button: tr("ok"),
+                      onPositive: () => Navigator.pop(context));
+                } else {
+                  _myWorker.postMessage(reader.result);
+                }
+              }, onError: (object, e) {
+                Navigator.pop(context);
+                DialogHelper.showInformDialog(context, tr("image_format_error"),
+                    button: tr("ok"), onPositive: () => Navigator.pop(context));
+              }));
         });
         reader.onError.listen((fileEvent) {
           Navigator.pop(context);
@@ -234,9 +253,9 @@ class _AdminPageState extends State<AdminPage> {
                     constraints: BoxConstraints(maxWidth: maxWight),
                     child: Row(
                       mainAxisAlignment:
-                      MediaQuery.of(context).size.width <= listWight
-                          ? MainAxisAlignment.center
-                          : MainAxisAlignment.end,
+                          MediaQuery.of(context).size.width <= listWight
+                              ? MainAxisAlignment.center
+                              : MainAxisAlignment.end,
                       children: [
                         DropdownButton<Locale>(
                           value: context.locale,
@@ -302,7 +321,8 @@ class _AdminPageState extends State<AdminPage> {
                 ),
                 Container(
                   width: double.infinity,
-                  padding: EdgeInsets.only(top: 30, left: 15, right: 15),
+                  padding:
+                      EdgeInsets.only(top: 30, left: 15, right: 15, bottom: 30),
                   constraints: BoxConstraints(maxWidth: maxWight),
                   child: ProfileWidget(
                     imageByte: _uploadedImage,
@@ -332,6 +352,8 @@ class _AdminPageState extends State<AdminPage> {
                               //     ]);
                               if (snapshot.hasData) {
                                 UsersModel usersModel = snapshot.data;
+                                usersModel.users.sort((User a, User b) =>
+                                    a.login.compareTo(b.login));
                                 return ListView.builder(
                                     itemCount: usersModel.users.length,
                                     padding: EdgeInsets.only(

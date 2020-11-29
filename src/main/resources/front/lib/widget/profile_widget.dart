@@ -79,7 +79,7 @@ class ProfileWidget extends StatelessWidget {
               style: TextStyle(fontSize: 20),
             ),
             Visibility(
-              visible: userResponse?.userStatus != 'premium' ?? true,
+              visible: userResponse?.userStatus != 'premium' && userResponse?.userStatus != 'admin' ?? true,
               child: Padding(
                 padding: const EdgeInsets.only(left: 16),
                 child: FlatButton(

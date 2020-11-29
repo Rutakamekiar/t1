@@ -43,6 +43,7 @@
   "user_exist" : "Користувач з таким логіном або email вже існує",
   "invalid_format" : "Невірний формат",
   "password_must_longer" : "Пароль має бути больше {} символів",
+  "login_must_longer" : "Логін має бути больше {} символів",
   "passwords_not_match" : "Паролі не співпадають",
   "registration" : "Реєстрація",
   "email" : "E-mail",
@@ -60,5 +61,10 @@
   "url_list_empty" : "Список сайтів порожній",
   "enter_site_url" : "Введіть адресу сайту",
   "code_error" : "Неправильный код",
-  "enter_code" : "Введіть код"
+  "enter_code" : "Введіть код",
+  "invalid_login" : "Невірний формат логіну",
+  "invalid_login_or_password" : "Невірний формат логіну або паролю",
+  "invalid_password" : "Невірний формат паролю",
+  "image_error" : "Зображення має бути не більше ніж 1000x1000 пікселів",
+  "image_format_error" : "Не є зображенням"
 }
