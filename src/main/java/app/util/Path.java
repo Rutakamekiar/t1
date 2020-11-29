@@ -40,6 +40,7 @@ public class Path {
 
         public static final String ADD_URL = "/addUrl";
         public static final String GET_UPTIME = "/getUptime";
+        public static final String DELETE_URL = "/deleteUrl";
     }
     /**
      * Contain paths of page resources

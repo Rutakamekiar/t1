@@ -1,13 +1,11 @@
 package app.register;
 
 import app.database.DBconnectionContainer;
-import app.util.PasswordGenerator;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.UUID;
 /**
  * Class to connect registration APIs with DB
  * @author Zhuravlev Yuriu

@@ -39,6 +39,14 @@ public class ActiveCheckDao {
         preparedStatement.setString(2,url);
         preparedStatement.executeUpdate();
     }
+    public static void deleteUrl(String user, String url) throws SQLException {
+        Connection connection = DBconnectionContainer.getDBconnection();
+        String sql = "delete from user_link where login = ? and url = ?";
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setString(1,user);
+        preparedStatement.setString(2,url);
+        preparedStatement.executeUpdate();
+    }
 
     public static List<String> getAllUrls() throws SQLException {
         Connection connection = DBconnectionContainer.getDBconnection();
@@ -61,10 +69,11 @@ public class ActiveCheckDao {
         preparedStatement.executeUpdate();
     }
 
+
     public static String getInfo(String user) throws SQLException, NoSuchFieldException {
         Connection connection = DBconnectionContainer.getDBconnection();
-        String sql = "select  url, all_check, up from user_link \n" +
-                "join (select count(*) all_check, count(status between 200 and 299) up, url from checks group by url) as checked using(url)\n" +
+        String sql = "select  url, coalesce(all_check, 0) as all_check, coalesce(up,0) as up from user_link\n" +
+                "left join (select count(*) all_check, count(status between 200 and 299) up, url from checks group by url) as checked using(url)\n" +
                 "where login = ?;";
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
         preparedStatement.setString(1,user);

@@ -11,7 +11,7 @@ import static app.util.RequestUtil.*;
 
 public class SignIn {
 
-    public static boolean authenticate(Customer customer, String password) throws NoSuchFieldException, SQLException {
+    public static boolean authenticate(Customer customer, String password) {
         if (customer.getLogin() == null || password == null) {
             return false;
         }

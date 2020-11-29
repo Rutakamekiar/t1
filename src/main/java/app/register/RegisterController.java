@@ -1,8 +1,8 @@
 package app.register;
 
-import app.agentmsg.AgentmsgDao;
 import app.email.CustomEmail;
 import app.util.PasswordGenerator;
+import app.validate.RegisterValidator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.http.Handler;
@@ -25,13 +25,18 @@ public class RegisterController {
         String pwd = ctx.queryParam("pwd");
         String token = UUID.randomUUID().toString();
         String result;
-        if (RegisterDao.insertRegister(email,login,pwd,token)){
-            result = "{\"result\" : 1,\"message\": \"User inserted\"}";
-            CustomEmail verificationEmail = new CustomEmail();
-            verificationEmail.sendVerificationEmail(email,login,token,"en");
+        if ((!RegisterValidator.isValidPwdLog(pwd)) || (!RegisterValidator.isValidPwdLog(login)) ||
+                (!RegisterValidator.isValidEmailAddress(email))){
+            result = "{\"result\" : 0,\"message\": \"Login or password or email invalid\"}";
         }
         else {
-            result = "{\"result\" : 0,\"message\": \"Such email or login already exist\"}";
+            if (RegisterDao.insertRegister(email, login, pwd, token)) {
+                result = "{\"result\" : 1,\"message\": \"User inserted\"}";
+                CustomEmail verificationEmail = new CustomEmail();
+                verificationEmail.sendVerificationEmail(email, login, token, "en");
+            } else {
+                result = "{\"result\" : 0,\"message\": \"Such email or login already exist\"}";
+            }
         }
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(result);
@@ -47,13 +52,17 @@ public class RegisterController {
         String lang = ctx.queryParam("lang");
         String token = UUID.randomUUID().toString();
         String result;
-        if (RegisterDao.insertRegister(email,login,pwd,token)){
-            result = "{\"result\" : 1,\"message\": \"User inserted\"}";
-            CustomEmail verificationEmail = new CustomEmail();
-            verificationEmail.sendVerificationEmail(email,login,token,lang);
-        }
-        else {
-            result = "{\"result\" : 0,\"message\": \"Such email or login already exist\"}";
+        if ((!RegisterValidator.isValidPwdLog(pwd)) || (!RegisterValidator.isValidPwdLog(login)) ||
+                (!RegisterValidator.isValidEmailAddress(email))){
+            result = "{\"result\" : 0,\"message\": \"Login or password or email invalid\"}";
+        } else {
+            if (RegisterDao.insertRegister(email, login, pwd, token)) {
+                result = "{\"result\" : 1,\"message\": \"User inserted\"}";
+                CustomEmail verificationEmail = new CustomEmail();
+                verificationEmail.sendVerificationEmail(email, login, token, lang);
+            } else {
+                result = "{\"result\" : 0,\"message\": \"Such email or login already exist\"}";
+            }
         }
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(result);

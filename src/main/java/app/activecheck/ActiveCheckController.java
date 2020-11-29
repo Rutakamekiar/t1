@@ -1,7 +1,6 @@
 package app.activecheck;
 
-import app.login.Customer;
-import app.server.ServerDao;
+import app.validate.URLValidator;
 import io.javalin.http.Handler;
 import org.postgresql.util.PSQLException;
 
@@ -14,24 +13,47 @@ public class ActiveCheckController {
         String username = ctx.cookie("username");
         String url = ctx.queryParam("url");
 
-        try {
-            if(ActiveCheckDao.checkAdd(username))
-                ActiveCheckDao.addLinkToUser( username , url);
-            else {
-                ctx.json(stringToJson("{\"result\" : 0,\"message\": \"Update to premium to add more urls to check\"}"));
+        if (!URLValidator.isValidURL(url)){
+            ctx.json(stringToJson("{\"result\" : 0,\"message\": \"Invalid url\"}"));
+            ctx.status(200);
+        } else {
+            try {
+                if (ActiveCheckDao.checkAdd(username)) {
+                    ActiveCheckDao.addLinkToUser(username, url);
+                    ctx.json(stringToJson("{\"result\" : 1,\"message\": \"Url added\"}"));
+                    ctx.status(200);
+                }
+                else {
+                    ctx.json(stringToJson("{\"result\" : 0,\"message\": \"Update to premium to add more urls to check\"}"));
+                    ctx.status(200);
+                }
+            } catch (NoSuchFieldException e) {
+                ctx.json(stringToJson("{\"result\" : 0,\"message\": \"Host not found\"}"));
+                ctx.status(200);
+            } catch (PSQLException e) {
+                ctx.json(stringToJson("{\"result\" : 0,\"message\": \"Url already added\"}"));
+                ctx.status(200);
+            } catch (Exception e) {
+                ctx.json(stringToJson("{\"result\" : 0,\"message\": \"something went wrong\"}"));
                 ctx.status(200);
             }
-        }
-        catch (NoSuchFieldException e)
-        {
-            ctx.json(stringToJson("{\"result\" : 0,\"message\": \"Host not found\"}"));
+
+            ctx.header("Access-Control-Allow-Origin", "*");
             ctx.status(200);
         }
-        catch (PSQLException e){
+    };
+
+    public static Handler deleteUrl = ctx -> {
+        String username = ctx.cookie("username");
+        String url = ctx.queryParam("url");
+        try {
+            ActiveCheckDao.deleteUrl(username,url);
+            ctx.json(stringToJson("{\"result\" : 1,\"message\": \"Url deleted\"}"));
+            ctx.status(200);
+        } catch (PSQLException e) {
             ctx.json(stringToJson("{\"result\" : 0,\"message\": \"Url already added\"}"));
             ctx.status(200);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             ctx.json(stringToJson("{\"result\" : 0,\"message\": \"something went wrong\"}"));
             ctx.status(200);
         }
