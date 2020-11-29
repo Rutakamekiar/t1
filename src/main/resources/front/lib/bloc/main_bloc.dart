@@ -1,4 +1,5 @@
 import 'package:rxdart/rxdart.dart';
+import 'package:servelyzer/model/UptimeModel.dart';
 import 'package:servelyzer/model/data_model.dart';
 import 'package:servelyzer/model/hosts_model.dart';
 import 'package:servelyzer/model/response_model.dart';
@@ -18,6 +19,10 @@ class MainBloc extends Bloc {
   final _setAvatar = PublishSubject<ResponseModel>();
   final _getAvatar = PublishSubject<ResponseModel>();
 
+  final _getUptimeFetcher = PublishSubject<UptimeModel>();
+  final _addUrlFetcher = PublishSubject<ResponseModel>();
+  final _deleteUrlFetcher = PublishSubject<ResponseModel>();
+
   Stream<DataListModel> get data => _dataFetcher.stream;
 
   Stream<HostsModel> get servers => _serversFetcher.stream;
@@ -25,6 +30,12 @@ class MainBloc extends Bloc {
   Stream<bool> get delete => _deleteFetcher.stream;
 
   Stream<bool> get add => _addFetcher.stream;
+
+  Stream<UptimeModel> get uptime => _getUptimeFetcher.stream;
+
+  Stream<ResponseModel> get addUrlStream => _addUrlFetcher.stream;
+
+  Stream<ResponseModel> get deleteUrlStream => _deleteUrlFetcher.stream;
 
   Stream<ResponseModel> get avatar => _getAvatar.stream;
 
@@ -44,6 +55,33 @@ class MainBloc extends Bloc {
       }
     } catch (e) {
       _dataFetcher.sink.addError(e);
+    }
+  }
+
+  addUrl(String url) async {
+    try {
+      ResponseModel responseModel = await _repository.addUrl(url);
+      _addUrlFetcher.sink.add(responseModel);
+    } catch (e) {
+      _addUrlFetcher.sink.addError(e);
+    }
+  }
+
+  deleteUrl(String url) async {
+    try {
+      ResponseModel responseModel = await _repository.deleteUrl(url);
+      _deleteUrlFetcher.sink.add(responseModel);
+    } catch (e) {
+      _deleteUrlFetcher.sink.addError(e);
+    }
+  }
+
+  getUptime() async {
+    try {
+      UptimeModel uptimeModel = await _repository.getUptime();
+      _getUptimeFetcher.sink.add(uptimeModel);
+    } catch (e) {
+      _getUptimeFetcher.sink.addError(e);
     }
   }
 
@@ -114,6 +152,10 @@ class MainBloc extends Bloc {
   void dispose() {
     _setAvatar.close();
     _getAvatar.close();
+    _getUptimeFetcher.close();
+    _deleteUrlFetcher.close();
+    _addUrlFetcher.close();
+    _deleteFetcher.close();
     _serversFetcher.close();
     _deleteFetcher.close();
     _logoutFetcher.close();

@@ -95,7 +95,14 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
 
     if (isValid) {
       setLoading(true);
-      resetPasswordBloc.resetPasswordFetcher(emailController.text);
+      var locale = context.locale;
+      String lang = "en";
+      if (locale.languageCode == "uk") {
+        lang = "ua";
+      } else {
+        lang = "en";
+      }
+      resetPasswordBloc.resetPasswordFetcher(emailController.text, lang);
     }
   }
 
@@ -147,10 +154,9 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                   },
                   items: <Locale>[Locale("en"), Locale("uk")]
                       .map<DropdownMenuItem<Locale>>((Locale value) {
-
                     String name = "En";
                     String image = "united-kingdom.png";
-                    if(value.languageCode == "uk"){
+                    if (value.languageCode == "uk") {
                       name = "Укр";
                       image = "ukraine.png";
                     }
@@ -159,8 +165,14 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                       value: value,
                       child: Row(
                         children: [
-                          Image.asset("assets/$image", width: 20, height: 20,),
-                          SizedBox(width: 5,),
+                          Image.asset(
+                            "assets/$image",
+                            width: 20,
+                            height: 20,
+                          ),
+                          SizedBox(
+                            width: 5,
+                          ),
                           Text(name),
                         ],
                       ),

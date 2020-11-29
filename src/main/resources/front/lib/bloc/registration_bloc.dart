@@ -11,10 +11,10 @@ class RegistrationBloc extends Bloc {
 
   Stream<ResponseModel> get registration => _registrationFetcher.stream;
 
-  registrationFetcher(RegistrationModel registrationModel) async {
+  registrationFetcher(RegistrationModel registrationModel, String lang) async {
     try {
       var data = await _repository
-          .getRegistration(registrationModel)
+          .getRegistration(registrationModel, lang)
           .timeout(Duration(seconds: 10));
       _registrationFetcher.sink.add(data);
     } catch (e) {

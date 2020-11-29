@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:servelyzer/model/UptimeModel.dart';
 import 'package:servelyzer/model/auth_model.dart';
 import 'package:servelyzer/model/data_model.dart';
 import 'package:servelyzer/model/hosts_model.dart';
@@ -11,7 +12,6 @@ class Provider {
   Dio dio = Dio();
 
   Future<DataListModel> getData(String host, String from, String to) async {
-    print("${Constants.url}getmsg?public_key=$host&from=$from&to=$to");
     final response = await dio
         .get("${Constants.url}getmsg?public_key=$host&from=$from&to=$to");
     return DataListModel.fromJson(response.data);
@@ -105,6 +105,50 @@ class Provider {
     }
   }
 
+  Future<ResponseModel> deleteUrl(String url) async {
+    try {
+      final response = await dio.post(
+        "${Constants.url}deleteUrl?url=$url",
+      );
+      return ResponseModel.fromJson(response.data);
+    } catch (e) {
+      throw (e);
+    }
+  }
+
+  Future<ResponseModel> getPremium(String code) async {
+    try {
+      final response = await dio.post(
+        "${Constants.url}getPremium?code=$code",
+      );
+      return ResponseModel.fromJson(response.data);
+    } catch (e) {
+      throw (e);
+    }
+  }
+
+  Future<ResponseModel> addUrl(String url) async {
+    try {
+      final response = await dio.post(
+        "${Constants.url}addUrl?url=$url",
+      );
+      return ResponseModel.fromJson(response.data);
+    } catch (e) {
+      throw (e);
+    }
+  }
+
+  Future<UptimeModel> getUptime() async {
+    try {
+      final response = await dio.get(
+        "${Constants.url}getUptime",
+      );
+      return UptimeModel.fromJson(response.data);
+    } catch (e) {
+      throw (e);
+    }
+  }
+
   Future<ResponseModel> isLogin() async {
     try {
       final response = await dio.get(
@@ -148,13 +192,12 @@ class Provider {
   }
 
   Future<ResponseModel> getRegistration(
-      RegistrationModel registrationModel) async {
-    print("${Constants.url}register?login=${registrationModel.login}"
-        "&email=${registrationModel.email}&pwd=${registrationModel.pwd}");
+      RegistrationModel registrationModel, String lang) async {
     try {
       final response = await dio.post(
-        "${Constants.url}register?login=${registrationModel.login}"
-        "&email=${registrationModel.email}&pwd=${registrationModel.pwd}",
+        "${Constants.url}registerWithLoc?login=${registrationModel.login}"
+        "&email=${registrationModel.email}&pwd=${registrationModel.pwd}"
+        "&lang=$lang",
       );
       return ResponseModel.fromJson(response.data);
     } catch (e) {
@@ -162,11 +205,11 @@ class Provider {
     }
   }
 
-  Future<ResponseModel> getResetPassword(String email) async {
-    print("${Constants.url}droppwd?email=$email");
+  Future<ResponseModel> getResetPassword(String email, String lang) async {
     try {
       final response = await dio.post(
-        "${Constants.url}droppwd?email=$email",
+        "${Constants.url}droppwdWithLoc?email=$email"
+        "&lang=$lang",
       );
       return ResponseModel.fromJson(response.data);
     } catch (e) {

@@ -1,3 +1,4 @@
+import 'package:servelyzer/model/UptimeModel.dart';
 import 'package:servelyzer/model/auth_model.dart';
 import 'package:servelyzer/model/data_model.dart';
 import 'package:servelyzer/model/hosts_model.dart';
@@ -38,13 +39,21 @@ class Repository {
 
   Future<ResponseModel> logout() => _provider.logout();
 
-  Future<ResponseModel> getResetPassword(String email) =>
-      _provider.getResetPassword(email);
+  Future<UptimeModel> getUptime() => _provider.getUptime();
+
+  Future<ResponseModel> deleteUrl(String url) => _provider.deleteUrl(url);
+
+  Future<ResponseModel> getPremium(String code) => _provider.getPremium(code);
+
+  Future<ResponseModel> addUrl(String url) => _provider.addUrl(url);
+
+  Future<ResponseModel> getResetPassword(String email, String lang) =>
+      _provider.getResetPassword(email, lang);
 
   Future<ResponseModel> setAvatar(String image) => _provider.setAvatar(image);
 
   Future<ResponseModel> getAvatar() => _provider.getAvatar();
 
-  Future<ResponseModel> getRegistration(RegistrationModel registrationModel) =>
-      _provider.getRegistration(registrationModel);
+  Future<ResponseModel> getRegistration(RegistrationModel registrationModel, String lang) =>
+      _provider.getRegistration(registrationModel, lang);
 }

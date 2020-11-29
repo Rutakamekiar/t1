@@ -53,6 +53,12 @@
   "choose": "Choose",
   "cancel" : "Cancel",
   "ok" : "Ok",
-  "enter": "Log in"
-
+  "enter": "Log in",
+  "become_premium" : "Get Premium",
+  "checks" : "Checks: {}",
+  "successful":  "Successful: {}",
+  "url_list_empty" : "The site list is empty",
+  "enter_site_url" : "Enter the site url",
+  "code_error" : "Invalid code",
+  "enter_code" : "Enter code"
 }

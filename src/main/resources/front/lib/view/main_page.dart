@@ -12,11 +12,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:intl/intl.dart';
 import 'package:servelyzer/bloc/main_bloc.dart';
+import 'package:servelyzer/model/UptimeModel.dart';
 import 'package:servelyzer/model/data_model.dart';
 import 'package:servelyzer/model/hosts_model.dart';
 import 'package:servelyzer/model/response_model.dart';
 import 'package:servelyzer/style/my_colors.dart';
 import 'package:servelyzer/utils/dialog_helper.dart';
+import 'package:servelyzer/widget/MyPremiumDialog.dart';
 import 'package:servelyzer/widget/profile_widget.dart';
 import 'package:servelyzer/widget/base_button.dart';
 import 'package:servelyzer/widget/base_text_field.dart';
@@ -35,9 +37,11 @@ class _MainPageState extends State<MainPage> {
   final _mainBloc = MainBloc();
 
   TextEditingController _hostController = TextEditingController();
+  TextEditingController _uptimeController = TextEditingController();
 
   int _currentId = 0;
   bool _isLoadingData = false;
+  bool _isLoadingUptime = false;
   bool _isLoadingServers = false;
   bool _isLoadingLogin = true;
   HostsModel _hostsModel;
@@ -99,10 +103,10 @@ class _MainPageState extends State<MainPage> {
     _minTimeText = DateFormat('dd.MM kk:mm').format(_minTime.toLocal());
     _maxTimeText = DateFormat('dd.MM kk:mm').format(_maxTime.toLocal());
 
-    _isLoadingLogin = false;
+    // _isLoadingLogin = false;
     // isLoadingAvatar = false;
     // mainBloc.getServers();
-    // _mainBloc.loginFetcher();
+    _mainBloc.loginFetcher();
 
     // mainBloc.dataFetcher(
     //     "t1-tss2020",
@@ -122,6 +126,7 @@ class _MainPageState extends State<MainPage> {
         _mainBloc.getAvatar();
         _userResponse = event;
         _mainBloc.getServers();
+        _mainBloc.getUptime();
       } else {
         DialogHelper.showInformDialog(
             context, tr("error_occurred", args: [event.message]),
@@ -149,6 +154,14 @@ class _MainPageState extends State<MainPage> {
           button: tr("ok"),
           onPositive: () => Modular.to.pushReplacementNamed('/auth'));
     });
+    _mainBloc.uptime.listen((model) {
+      _setLoadingUptime(false);
+    }, onError: (e) {
+      _setLoadingUptime(false);
+      DialogHelper.showInformDialog(
+          context, tr("error_occurred", args: [e.toString()]),
+          button: tr("ok"), onPositive: () => Navigator.pop(context));
+    });
     _mainBloc.servers.listen((model) {
       _setLoadingServers(false);
       _hostsModel = model;
@@ -173,6 +186,22 @@ class _MainPageState extends State<MainPage> {
           context, tr("error_occurred", args: [e.toString()]),
           button: tr("ok"), onPositive: () => Navigator.pop(context));
     });
+    _mainBloc.addUrlStream.listen((event) {
+      _mainBloc.getUptime();
+    }, onError: (e) {
+      _setLoadingUptime(false);
+      DialogHelper.showInformDialog(
+          context, tr("error_occurred", args: [e.toString()]),
+          button: tr("ok"), onPositive: () => Navigator.pop(context));
+    });
+    _mainBloc.deleteUrlStream.listen((event) {
+      _mainBloc.getUptime();
+    }, onError: (e) {
+      _setLoadingUptime(false);
+      DialogHelper.showInformDialog(
+          context, tr("error_occurred", args: [e.toString()]),
+          button: tr("ok"), onPositive: () => Navigator.pop(context));
+    });
     _mainBloc.add.listen((event) {
       _mainBloc.getServers();
     }, onError: (e) {
@@ -189,6 +218,13 @@ class _MainPageState extends State<MainPage> {
           context, tr("error_occurred", args: [e.toString()]),
           button: tr("ok"), onPositive: () => Navigator.pop(context));
     });
+  }
+
+  _setLoadingUptime(bool value) {
+    if (_isLoadingUptime != value)
+      setState(() {
+        _isLoadingUptime = value;
+      });
   }
 
   _setLoadingServers(bool value) {
@@ -297,10 +333,27 @@ class _MainPageState extends State<MainPage> {
     });
   }
 
+  _onPremiumPressed(){
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) => MyPremiumDialog(
+        onSuccess: (){
+          setState(() {
+            _isLoadingLogin = true;
+          });
+          _mainBloc.loginFetcher();
+        },
+      )
+    );
+  }
+
+
   @override
   void dispose() {
     _mainBloc.dispose();
     _hostController.dispose();
+    _uptimeController.dispose();
     super.dispose();
   }
 
@@ -398,6 +451,7 @@ class _MainPageState extends State<MainPage> {
                       children: [
                         ProfileWidget(
                           imageByte: _uploadedImage,
+                          onPremiumPressed: _onPremiumPressed,
                           isLoadingAvatar: _isLoadingAvatar,
                           onImagePressed: _startFilePicker,
                           userResponse: _userResponse,
@@ -421,6 +475,35 @@ class _MainPageState extends State<MainPage> {
                                       ? Center(
                                           child: CircularProgressIndicator())
                                       : buildHostList(hostsModel);
+                                } else if (snapshot.hasError) {
+                                  final exception = snapshot.error;
+                                  return buildError(tr("error_occurred",
+                                      args: [exception.toString()]));
+                                } else {
+                                  return Center(
+                                      child: CircularProgressIndicator());
+                                }
+                              }),
+                        ),
+                        SizedBox(
+                          height: 30,
+                        ),
+                        Container(
+                          padding: EdgeInsets.only(
+                              left: 15, right: 15, top: 15, bottom: 15),
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(15)),
+                          height: 240,
+                          child: StreamBuilder<UptimeModel>(
+                              stream: _mainBloc.uptime,
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData) {
+                                  UptimeModel uptimeModel = snapshot.data;
+                                  return _isLoadingUptime
+                                      ? Center(
+                                      child: CircularProgressIndicator())
+                                      : buildUptimeList(uptimeModel);
                                 } else if (snapshot.hasError) {
                                   final exception = snapshot.error;
                                   return buildError(tr("error_occurred",
@@ -528,6 +611,85 @@ class _MainPageState extends State<MainPage> {
                 ),
               ],
             ),
+    );
+  }
+
+  Container buildUptimeList(UptimeModel uptimeModel) {
+    List<Widget> list = List<Widget>();
+    if (uptimeModel.uptime != null && uptimeModel.uptime.isNotEmpty) {
+      for (int i = 0; i < uptimeModel.uptime .length; i++) {
+        Uptime uptime = uptimeModel.uptime[i];
+        list.add(UptimeItem(
+          uptime: uptime,
+          onDelete: (url) {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) => MyDialog(
+                content: tr("you_sure_want_delete",
+                    args: [uptimeModel.uptime[i].url]),
+                negativeButton: tr("no"),
+                positiveButton: tr("yes"),
+                onPositive: () {
+                  Navigator.pop(context);
+                  _setLoadingServers(true);
+                  _mainBloc.deleteUrl(url);
+                },
+              ),
+            );
+          },
+        ));
+      }
+    }
+
+    return Container(
+      child: Column(
+        children: [
+          Expanded(
+            child: Container(
+                decoration: BoxDecoration(
+                    border: Border.all(color: MyColors.grey),
+                    borderRadius: BorderRadius.circular(5)),
+                child: uptimeModel.uptime == null || uptimeModel.uptime.isEmpty
+                    ? Center(child: Text(tr("url_list_empty")))
+                    : ListView(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  children: list,
+                )),
+          ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Expanded(
+                child: BaseTextField(
+                    textEditingController: _uptimeController,
+                    onSubmitted: (value) {
+                      if (_uptimeController.text.isNotEmpty) {
+                        _setLoadingUptime(true);
+                        _mainBloc.addUrl(_uptimeController.text);
+                      }
+                    },
+                    label: "",
+                    errorText: tr("enter_site_url")),
+              ),
+              SizedBox(
+                width: 30,
+              ),
+              BaseButton(
+                isLoading: false,
+                width: 150,
+                height: 37,
+                title: tr("add"),
+                onPressed: () {
+                  if (_uptimeController.text.isNotEmpty) {
+                    _setLoadingUptime(true);
+                    _mainBloc.addUrl(_uptimeController.text);
+                  }
+                },
+              )
+            ],
+          )
+        ],
+      ),
     );
   }
 
@@ -866,6 +1028,45 @@ class _MainPageState extends State<MainPage> {
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class UptimeItem extends StatelessWidget {
+  final Uptime uptime;
+  final Function(String url) onDelete;
+
+  const UptimeItem({
+    Key key,
+    this.onDelete, this.uptime,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(color: MyColors.grey))),
+      child: Row(
+        children: [
+          Expanded(
+              child: Text(
+                uptime.url,
+                style: TextStyle(fontSize: 20),
+              )),
+          Text(
+            tr("checks", args: [uptime.allChecks]),
+          ),
+          Text(
+            tr("successful", args: [uptime.up]),
+          ),
+          FlatButton(
+              onPressed: () => onDelete(uptime.url),
+              child: Icon(
+                Icons.delete_outline,
+                color: MyColors.red,
+              ))
         ],
       ),
     );

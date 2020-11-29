@@ -198,7 +198,14 @@ class _RegistrationPageState extends State<RegistrationPage> {
       setLoading(true);
       RegistrationModel registrationModel = RegistrationModel(
           loginController.text, emailController.text, passwordController.text);
-      registrationBloc.registrationFetcher(registrationModel);
+      var locale = context.locale;
+      String lang = "en";
+      if (locale.languageCode == "uk") {
+        lang = "ua";
+      } else {
+        lang = "en";
+      }
+      registrationBloc.registrationFetcher(registrationModel, lang);
     }
   }
 
@@ -248,10 +255,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   },
                   items: <Locale>[Locale("en"), Locale("uk")]
                       .map<DropdownMenuItem<Locale>>((Locale value) {
-
                     String name = "En";
                     String image = "united-kingdom.png";
-                    if(value.languageCode == "uk"){
+                    if (value.languageCode == "uk") {
                       name = "Укр";
                       image = "ukraine.png";
                     }
@@ -260,8 +266,14 @@ class _RegistrationPageState extends State<RegistrationPage> {
                       value: value,
                       child: Row(
                         children: [
-                          Image.asset("assets/$image", width: 20, height: 20,),
-                          SizedBox(width: 5,),
+                          Image.asset(
+                            "assets/$image",
+                            width: 20,
+                            height: 20,
+                          ),
+                          SizedBox(
+                            width: 5,
+                          ),
                           Text(name),
                         ],
                       ),

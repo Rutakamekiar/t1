@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:servelyzer/model/response_model.dart';
 import 'package:servelyzer/style/my_colors.dart';
@@ -9,6 +11,7 @@ const double listWight = 600;
 
 class ProfileWidget extends StatelessWidget {
   final VoidCallback onImagePressed;
+  final VoidCallback onPremiumPressed;
   final Uint8List imageByte;
   final ResponseModel userResponse;
   final bool isLoadingAvatar;
@@ -18,7 +21,7 @@ class ProfileWidget extends StatelessWidget {
       this.onImagePressed,
       this.imageByte,
       this.userResponse,
-      this.isLoadingAvatar = false})
+      this.isLoadingAvatar = false, this.onPremiumPressed})
       : super(key: key);
 
   @override
@@ -29,6 +32,7 @@ class ProfileWidget extends StatelessWidget {
             color: Colors.white, borderRadius: BorderRadius.circular(15)),
         height: 75,
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MediaQuery.of(context).size.width <= listWight
               ? MainAxisAlignment.center
               : MainAxisAlignment.start,
@@ -73,6 +77,17 @@ class ProfileWidget extends StatelessWidget {
             Text(
               userResponse?.user ?? "username",
               style: TextStyle(fontSize: 20),
+            ),
+            Visibility(
+              visible: userResponse?.userStatus != 'premium' ?? true,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 16),
+                child: FlatButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: onPremiumPressed,
+                  child: Text(tr("become_premium"), style:TextStyle(color: MyColors.green)),
+                ),
+              ),
             )
           ],
         ));

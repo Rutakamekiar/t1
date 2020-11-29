@@ -10,10 +10,10 @@ class ResetPasswordBloc extends Bloc {
 
   Stream<ResponseModel> get resetPassword => _resetPasswordFetcher.stream;
 
-  resetPasswordFetcher(String email) async {
+  resetPasswordFetcher(String email, String lang) async {
     try {
       var data = await _repository
-          .getResetPassword(email)
+          .getResetPassword(email, lang)
           .timeout(Duration(seconds: 10));
       _resetPasswordFetcher.sink.add(data);
     } catch (e) {

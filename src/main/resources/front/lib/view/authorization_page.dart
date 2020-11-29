@@ -291,9 +291,6 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
             Container(
               alignment: Alignment.center,
               child: FlatButton(
-                // onPressed: () {
-                //   context.locale = Locale("uk");
-                // },
                 onPressed: _launchURL,
                 child: Text(
                   tr("terms_and_conditions"),
