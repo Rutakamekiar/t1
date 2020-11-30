@@ -69,7 +69,7 @@ public class ServerController {
         String publicKey = ctx.queryParam("public_key");
 
         try {
-            ServerDao.deleteServerFromUser( username , publicKey);
+            ServerDao.deleteServerFromUser(username,publicKey);
         }
         catch ( SQLException e){
             ctx.json(stringToJson("{\"result\" : 0,\"message\": \"SQLException\"}"));
