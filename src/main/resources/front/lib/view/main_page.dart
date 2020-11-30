@@ -19,11 +19,11 @@ import 'package:servelyzer/model/response_model.dart';
 import 'package:servelyzer/style/my_colors.dart';
 import 'package:servelyzer/utils/dialog_helper.dart';
 import 'package:servelyzer/widget/MyPremiumDialog.dart';
-import 'package:servelyzer/widget/profile_widget.dart';
 import 'package:servelyzer/widget/base_button.dart';
 import 'package:servelyzer/widget/base_text_field.dart';
 import 'package:servelyzer/widget/my_date_dialog.dart';
 import 'package:servelyzer/widget/my_dialog.dart';
+import 'package:servelyzer/widget/profile_widget.dart';
 
 const double maxWight = 1110;
 const double listWight = 600;
@@ -70,7 +70,7 @@ class _MainPageState extends State<MainPage> {
       setState(() {
         _isLoadingAvatar = false;
       });
-      if (event.result == 1) {
+      if (event.result == 1 && event.message != null) {
         var imageData = base64Decode(event.message);
         setState(() {
           _uploadedImage = imageData;
@@ -104,7 +104,7 @@ class _MainPageState extends State<MainPage> {
     _maxTimeText = DateFormat('dd.MM kk:mm').format(_maxTime.toLocal());
 
     // _isLoadingLogin = false;
-    // isLoadingAvatar = false;
+    // _isLoadingAvatar = false;
     // mainBloc.getServers();
     _mainBloc.loginFetcher();
 
@@ -322,7 +322,25 @@ class _MainPageState extends State<MainPage> {
         final file = files[0];
         FileReader reader = FileReader();
         reader.onLoadEnd.listen((e) async {
-          _myWorker.postMessage(reader.result);
+          MemoryImage memoryImage = MemoryImage(reader.result);
+          memoryImage
+              .resolve(new ImageConfiguration())
+              .addListener(ImageStreamListener((ImageInfo info, bool _) {
+                int wight = info.image.width;
+                int height = info.image.height;
+                if (height > 1000 || wight > 1000) {
+                  Navigator.pop(context);
+                  DialogHelper.showInformDialog(context, tr("image_error"),
+                      button: tr("ok"),
+                      onPositive: () => Navigator.pop(context));
+                } else {
+                  _myWorker.postMessage(reader.result);
+                }
+              }, onError: (object, e) {
+                Navigator.pop(context);
+                DialogHelper.showInformDialog(context, tr("image_format_error"),
+                    button: tr("ok"), onPositive: () => Navigator.pop(context));
+              }));
         });
         reader.onError.listen((fileEvent) {
           Navigator.pop(context);
@@ -333,21 +351,19 @@ class _MainPageState extends State<MainPage> {
     });
   }
 
-  _onPremiumPressed(){
+  _onPremiumPressed() {
     showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) => MyPremiumDialog(
-        onSuccess: (){
-          setState(() {
-            _isLoadingLogin = true;
-          });
-          _mainBloc.loginFetcher();
-        },
-      )
-    );
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) => MyPremiumDialog(
+              onSuccess: () {
+                setState(() {
+                  _isLoadingLogin = true;
+                });
+                _mainBloc.loginFetcher();
+              },
+            ));
   }
-
 
   @override
   void dispose() {
@@ -442,170 +458,228 @@ class _MainPageState extends State<MainPage> {
                   ]),
                 ),
                 Expanded(
-                  child: Container(
-                    width: double.infinity,
-                    constraints: BoxConstraints(maxWidth: maxWight),
-                    child: ListView(
-                      padding: EdgeInsets.only(
-                          left: 15, right: 15, top: 30, bottom: 30),
-                      children: [
-                        ProfileWidget(
-                          imageByte: _uploadedImage,
-                          onPremiumPressed: _onPremiumPressed,
-                          isLoadingAvatar: _isLoadingAvatar,
-                          onImagePressed: _startFilePicker,
-                          userResponse: _userResponse,
-                        ),
-                        SizedBox(
-                          height: 30,
-                        ),
-                        Container(
-                          padding: EdgeInsets.only(
-                              left: 15, right: 15, top: 15, bottom: 15),
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(15)),
-                          height: 240,
-                          child: StreamBuilder<HostsModel>(
-                              stream: _mainBloc.servers,
-                              builder: (context, snapshot) {
-                                if (snapshot.hasData) {
-                                  HostsModel hostsModel = snapshot.data;
-                                  return _isLoadingServers
-                                      ? Center(
-                                          child: CircularProgressIndicator())
-                                      : buildHostList(hostsModel);
-                                } else if (snapshot.hasError) {
-                                  final exception = snapshot.error;
-                                  return buildError(tr("error_occurred",
-                                      args: [exception.toString()]));
-                                } else {
-                                  return Center(
-                                      child: CircularProgressIndicator());
-                                }
-                              }),
-                        ),
-                        SizedBox(
-                          height: 30,
-                        ),
-                        Container(
-                          padding: EdgeInsets.only(
-                              left: 15, right: 15, top: 15, bottom: 15),
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(15)),
-                          height: 240,
-                          child: StreamBuilder<UptimeModel>(
-                              stream: _mainBloc.uptime,
-                              builder: (context, snapshot) {
-                                if (snapshot.hasData) {
-                                  UptimeModel uptimeModel = snapshot.data;
-                                  return _isLoadingUptime
-                                      ? Center(
-                                      child: CircularProgressIndicator())
-                                      : buildUptimeList(uptimeModel);
-                                } else if (snapshot.hasError) {
-                                  final exception = snapshot.error;
-                                  return buildError(tr("error_occurred",
-                                      args: [exception.toString()]));
-                                } else {
-                                  return Center(
-                                      child: CircularProgressIndicator());
-                                }
-                              }),
-                        ),
-                        SizedBox(
-                          height: 30,
-                        ),
-                        Container(
-                            padding: EdgeInsets.only(
-                                left: 15, right: 15, top: 15, bottom: 15),
-                            decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(15)),
-                            height: 105,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(tr("interval")),
-                                SizedBox(
-                                  width: 16,
-                                ),
-                                FlatButton(
-                                    onPressed: _openMinTimeDialog,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10)),
-                                    padding: EdgeInsets.zero,
-                                    child: Container(
-                                      padding: EdgeInsets.all(16),
-                                      decoration: BoxDecoration(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.only(
+                        left: 15, right: 15, top: 30, bottom: 30),
+                    child: Container(
+                      width: double.infinity,
+                      alignment: Alignment.center,
+                      child: Container(
+                        constraints: BoxConstraints(maxWidth: maxWight),
+                        child: Column(
+                          children: [
+                            ProfileWidget(
+                              imageByte: _uploadedImage,
+                              onPremiumPressed: _onPremiumPressed,
+                              isLoadingAvatar: _isLoadingAvatar,
+                              onImagePressed: _startFilePicker,
+                              userResponse: _userResponse,
+                            ),
+                            SizedBox(
+                              height: 30,
+                            ),
+                            Container(
+                              padding: EdgeInsets.only(
+                                  left: 15, right: 15, top: 15, bottom: 15),
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(15)),
+                              height: 240,
+                              child: StreamBuilder<HostsModel>(
+                                  stream: _mainBloc.servers,
+                                  builder: (context, snapshot) {
+                                    if (snapshot.hasData) {
+                                      HostsModel hostsModel = snapshot.data;
+                                      return _isLoadingServers
+                                          ? Center(
+                                              child:
+                                                  CircularProgressIndicator())
+                                          : buildHostList(hostsModel);
+                                    } else if (snapshot.hasError) {
+                                      final exception = snapshot.error;
+                                      return buildError(tr("error_occurred",
+                                          args: [exception.toString()]));
+                                    } else {
+                                      return Center(
+                                          child: CircularProgressIndicator());
+                                    }
+                                  }),
+                            ),
+                            SizedBox(
+                              height: 30,
+                            ),
+                            Container(
+                              padding: EdgeInsets.only(
+                                  left: 15, right: 15, top: 15, bottom: 15),
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(15)),
+                              height: 240,
+                              child: StreamBuilder<UptimeModel>(
+                                  stream: _mainBloc.uptime,
+                                  builder: (context, snapshot) {
+                                    if (snapshot.hasData) {
+                                      UptimeModel uptimeModel = snapshot.data;
+                                      return _isLoadingUptime
+                                          ? Center(
+                                              child:
+                                                  CircularProgressIndicator())
+                                          : buildUptimeList(uptimeModel);
+                                    } else if (snapshot.hasError) {
+                                      final exception = snapshot.error;
+                                      return buildError(tr("error_occurred",
+                                          args: [exception.toString()]));
+                                    } else {
+                                      return Center(
+                                          child: CircularProgressIndicator());
+                                    }
+                                  }),
+                            ),
+                            SizedBox(
+                              height: 30,
+                            ),
+                            Container(
+                                padding: EdgeInsets.only(
+                                    left: 15, right: 15, top: 15, bottom: 15),
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(15)),
+                                width: MediaQuery.of(context).size.width <=
+                                    listWight ? double.infinity : null,
+                                height: MediaQuery.of(context).size.width <=
+                                    listWight ? null : 105,
+                                child: MediaQuery.of(context).size.width <=
+                                    listWight ? Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                  Text(tr("interval")),
+                                  SizedBox(
+                                    height: 16,
+                                  ),
+                                  FlatButton(
+                                      onPressed: _openMinTimeDialog,
+                                      shape: RoundedRectangleBorder(
                                           borderRadius:
-                                              BorderRadius.circular(10),
-                                          border:
-                                              Border.all(color: MyColors.grey)),
-                                      child: Text(_minTimeText),
-                                    )),
-                                SizedBox(
-                                  width: 16,
-                                ),
-                                Text(tr("to")),
-                                SizedBox(
-                                  width: 16,
-                                ),
-                                FlatButton(
-                                    onPressed: _openMaxTimeDialog,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10)),
-                                    padding: EdgeInsets.zero,
-                                    child: Container(
-                                      padding: EdgeInsets.all(16),
-                                      decoration: BoxDecoration(
+                                          BorderRadius.circular(10)),
+                                      padding: EdgeInsets.zero,
+                                      child: Container(
+                                        padding: EdgeInsets.all(16),
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                            BorderRadius.circular(10),
+                                            border: Border.all(
+                                                color: MyColors.grey)),
+                                        child: Text(_minTimeText),
+                                      )),
+                                  SizedBox(
+                                    height: 16,
+                                  ),
+                                  Text(tr("to")),
+                                  SizedBox(
+                                    height: 16,
+                                  ),
+                                  FlatButton(
+                                      onPressed: _openMaxTimeDialog,
+                                      shape: RoundedRectangleBorder(
                                           borderRadius:
-                                              BorderRadius.circular(10),
-                                          border:
-                                              Border.all(color: MyColors.grey)),
-                                      child: Text(_maxTimeText),
-                                    )),
-                              ],
-                            )),
-                        StreamBuilder<DataListModel>(
-                            stream: _mainBloc.data,
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData) {
-                                DataListModel dataModel = snapshot.data;
-                                if (_isLoadingData) {
-                                  return Padding(
-                                    padding: const EdgeInsets.only(top: 30),
-                                    child: Center(
-                                        child: CircularProgressIndicator()),
-                                  );
-                                }
-                                if (_isEmptyData) {
-                                  return Container();
-                                }
-                                return MediaQuery.of(context).size.width <=
-                                        listWight
-                                    ? buildList(dataModel.data)
-                                    : buildRow(dataModel.data);
-                              } else if (snapshot.hasError) {
-                                String range = _minTime.toLocal().toString() +
-                                    " - " +
-                                    _maxTime.toLocal().toString();
-                                return buildError(
-                                    tr("data_range_not_found", args: [range]));
-                              } else {
-                                return _isLoadingData
-                                    ? Padding(
+                                          BorderRadius.circular(10)),
+                                      padding: EdgeInsets.zero,
+                                      child: Container(
+                                        padding: EdgeInsets.all(16),
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                            BorderRadius.circular(10),
+                                            border: Border.all(
+                                                color: MyColors.grey)),
+                                        child: Text(_maxTimeText),
+                                      )),
+                                ],) : Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(tr("interval")),
+                                    SizedBox(
+                                      width: 16,
+                                    ),
+                                    FlatButton(
+                                        onPressed: _openMinTimeDialog,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10)),
+                                        padding: EdgeInsets.zero,
+                                        child: Container(
+                                          padding: EdgeInsets.all(16),
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              border: Border.all(
+                                                  color: MyColors.grey)),
+                                          child: Text(_minTimeText),
+                                        )),
+                                    SizedBox(
+                                      width: 16,
+                                    ),
+                                    Text(tr("to")),
+                                    SizedBox(
+                                      width: 16,
+                                    ),
+                                    FlatButton(
+                                        onPressed: _openMaxTimeDialog,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10)),
+                                        padding: EdgeInsets.zero,
+                                        child: Container(
+                                          padding: EdgeInsets.all(16),
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              border: Border.all(
+                                                  color: MyColors.grey)),
+                                          child: Text(_maxTimeText),
+                                        )),
+                                  ],
+                                )),
+                            StreamBuilder<DataListModel>(
+                                stream: _mainBloc.data,
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasData) {
+                                    DataListModel dataModel = snapshot.data;
+                                    if (_isLoadingData) {
+                                      return Padding(
                                         padding: const EdgeInsets.only(top: 30),
                                         child: Center(
                                             child: CircularProgressIndicator()),
-                                      )
-                                    : Container();
-                              }
-                            })
-                      ],
+                                      );
+                                    }
+                                    if (_isEmptyData) {
+                                      return Container();
+                                    }
+                                    return MediaQuery.of(context).size.width <=
+                                            listWight
+                                        ? buildList(dataModel.data)
+                                        : buildRow(dataModel.data);
+                                  } else if (snapshot.hasError) {
+                                    String range =
+                                        _minTime.toLocal().toString() +
+                                            " - " +
+                                            _maxTime.toLocal().toString();
+                                    return buildError(tr("data_range_not_found",
+                                        args: [range]));
+                                  } else {
+                                    return _isLoadingData
+                                        ? Padding(
+                                            padding:
+                                                const EdgeInsets.only(top: 30),
+                                            child: Center(
+                                                child:
+                                                    CircularProgressIndicator()),
+                                          )
+                                        : Container();
+                                  }
+                                })
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -617,7 +691,7 @@ class _MainPageState extends State<MainPage> {
   Container buildUptimeList(UptimeModel uptimeModel) {
     List<Widget> list = List<Widget>();
     if (uptimeModel.uptime != null && uptimeModel.uptime.isNotEmpty) {
-      for (int i = 0; i < uptimeModel.uptime .length; i++) {
+      for (int i = 0; i < uptimeModel.uptime.length; i++) {
         Uptime uptime = uptimeModel.uptime[i];
         list.add(UptimeItem(
           uptime: uptime,
@@ -631,7 +705,7 @@ class _MainPageState extends State<MainPage> {
                 positiveButton: tr("yes"),
                 onPositive: () {
                   Navigator.pop(context);
-                  _setLoadingServers(true);
+                  _setLoadingUptime(true);
                   _mainBloc.deleteUrl(url);
                 },
               ),
@@ -652,9 +726,9 @@ class _MainPageState extends State<MainPage> {
                 child: uptimeModel.uptime == null || uptimeModel.uptime.isEmpty
                     ? Center(child: Text(tr("url_list_empty")))
                     : ListView(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  children: list,
-                )),
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        children: list,
+                      )),
           ),
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -1040,7 +1114,8 @@ class UptimeItem extends StatelessWidget {
 
   const UptimeItem({
     Key key,
-    this.onDelete, this.uptime,
+    this.onDelete,
+    this.uptime,
   }) : super(key: key);
 
   @override
@@ -1052,11 +1127,14 @@ class UptimeItem extends StatelessWidget {
         children: [
           Expanded(
               child: Text(
-                uptime.url,
-                style: TextStyle(fontSize: 20),
-              )),
+            uptime.url,
+            style: TextStyle(fontSize: 20),
+          )),
           Text(
             tr("checks", args: [uptime.allChecks]),
+          ),
+          SizedBox(
+            width: 16,
           ),
           Text(
             tr("successful", args: [uptime.up]),

@@ -43,6 +43,7 @@
   "user_exist" : "A user with such a login or email already exists",
   "invalid_format" : "Invalid format",
   "password_must_longer" : "Password must be longer than {} characters",
+  "login_must_longer" : "Login must be longer than {} characters",
   "passwords_not_match" : "Passwords do not match",
   "registration" : "Registration",
   "email" : "E-mail",
@@ -60,5 +61,9 @@
   "url_list_empty" : "The site list is empty",
   "enter_site_url" : "Enter the site url",
   "code_error" : "Invalid code",
-  "enter_code" : "Enter code"
+  "enter_code" : "Enter code",
+  "invalid_login" : "Invalid login format",
+  "invalid_login_or_password" : "Invalid login or password format",
+  "invalid_password" : "Invalid password format",
+  "image_error" : "Not an image"
 }
