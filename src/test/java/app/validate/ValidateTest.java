@@ -12,6 +12,7 @@ public class ValidateTest {
         assertFalse(URLValidator.isValidURL("t1.tss2020.site"));
         assertFalse(URLValidator.isValidURL("https://t1"));
         assertFalse(URLValidator.isValidURL(""));
+        assertFalse(URLValidator.isValidURL(null));
     }
 
     @Test
@@ -22,6 +23,7 @@ public class ValidateTest {
         assertFalse(RegisterValidator.isValidPwdLog(""));
         assertFalse(RegisterValidator.isValidPwdLog("t2"));
         assertFalse(RegisterValidator.isValidPwdLog("t2*tss"));
+        assertFalse(RegisterValidator.isValidPwdLog(null));
     }
 
     @Test

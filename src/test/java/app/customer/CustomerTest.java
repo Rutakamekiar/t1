@@ -11,5 +11,7 @@ public class CustomerTest {
     public void checkAuthenticate(){
         assertTrue(SignIn.authenticate(new Customer("testUser","test1234","free"),"test1234"));
         assertFalse(SignIn.authenticate(new Customer("testUser","test1234","free"),"test1235"));
+        assertFalse(SignIn.authenticate(new Customer(null,"test1234","free"),"test1235"));
+        assertFalse(SignIn.authenticate(new Customer("testUser","test1234",null),null));
     }
 }

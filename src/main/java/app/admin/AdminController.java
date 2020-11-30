@@ -9,7 +9,7 @@ import java.sql.SQLException;
 import static app.util.RequestUtil.stringToJson;
 
 public class AdminController {
-    public static Handler getAllUsers = ctx -> {
+    public static Handler getAllUsersAdmin = ctx -> {
         if( ctx.cookie("username") == null ){
             ctx.json(stringToJson("{\"result\" : 0,\"message\": \"user is not logined\"}"));
             ctx.status(200);
@@ -23,6 +23,10 @@ public class AdminController {
                     ctx.json(stringToJson(AdminDao.getAllUsers()));
                     ctx.status(201);
                 }
+            }
+            catch (NoSuchFieldException e){
+                ctx.json(stringToJson("{\"result\" : 0,\"message\": \"No such user\"}"));
+                ctx.status(200);
             }
             catch (SQLException e){
                 ctx.json(stringToJson("{\"result\" : 0,\"message\": \"something went wrong\"}"));
