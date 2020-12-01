@@ -21,13 +21,17 @@ public class RegisterValidator {
 
     public static boolean isValidPwdLog(String pwd)
     {
-        String regex = "[A-Za-z\\d_-]{6,}";
+        /*String regex = "[A-Za-z\\d_-]{6,}";
         Pattern p = Pattern.compile(regex);
         if (pwd == null) {
             return false;
         }
         Matcher m = p.matcher(pwd);
-        return m.matches();
+        return m.matches();*/
+        if (pwd == null) {
+            return false;
+        }
+        return !pwd.contains("\"");
     }
 
     public static boolean isValidEmailAddress(String email) {

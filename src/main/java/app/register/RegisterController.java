@@ -25,7 +25,7 @@ public class RegisterController {
         String pwd = ctx.queryParam("pwd");
         String token = UUID.randomUUID().toString();
         String result;
-        if ((!RegisterValidator.validateHtml(pwd)) || (!RegisterValidator.validateHtml(login)) ||
+        if ((!RegisterValidator.isValidPwdLog(pwd)) || (!RegisterValidator.isValidPwdLog(login)) ||
                 (!RegisterValidator.isValidEmailAddress(email))){
             result = "{\"result\" : 0,\"message\": \"Login or password or email invalid\"}";
         }

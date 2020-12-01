@@ -20,10 +20,11 @@ public class ValidateTest {
         assertTrue(RegisterValidator.isValidPwdLog("t1_tss"));
         assertTrue(RegisterValidator.isValidPwdLog("t2-tss"));
         assertTrue(RegisterValidator.isValidPwdLog("t2-TSS"));
-        assertFalse(RegisterValidator.isValidPwdLog(""));
-        assertFalse(RegisterValidator.isValidPwdLog("t2"));
-        assertFalse(RegisterValidator.isValidPwdLog("t2*tss"));
+        assertTrue(RegisterValidator.isValidPwdLog(""));
+        assertTrue(RegisterValidator.isValidPwdLog("t2"));
+        assertTrue(RegisterValidator.isValidPwdLog("t2*tss"));
         assertFalse(RegisterValidator.isValidPwdLog(null));
+        assertFalse(RegisterValidator.isValidPwdLog("\"smth"));
     }
 
     @Test
