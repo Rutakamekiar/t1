@@ -35,4 +35,11 @@ public class ValidateTest {
         assertFalse(RegisterValidator.isValidEmailAddress("t1-tss @gmail.com.ua"));
     }
 
+    @Test
+    public void testHtmlValidator(){
+        assertTrue(RegisterValidator.validateHtml("t1_tss"));
+        assertTrue(RegisterValidator.validateHtml("t1_tss<>"));
+        assertFalse(RegisterValidator.validateHtml("<script>alert(1)</script>"));
+        assertFalse(RegisterValidator.validateHtml("alert(\"xss\")"));
+    }
 }
