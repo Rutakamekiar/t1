@@ -164,19 +164,17 @@ class Provider {
     try {
       final response =
           await dio.delete("${Constants.url}deleteServer?public_key=$server");
-      print(response.data);
       return true;
     } catch (e) {
       throw e;
     }
   }
 
-  Future<bool> addServer(String server) async {
+  Future<ResponseModel> addServer(String server) async {
     try {
       final response =
           await dio.put("${Constants.url}addServer?public_key=$server");
-      print(response.data);
-      return true;
+      return ResponseModel.fromJson(response.data);
     } catch (e) {
       throw e;
     }

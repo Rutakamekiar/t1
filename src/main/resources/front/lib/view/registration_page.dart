@@ -27,7 +27,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   final TextEditingController confirmPasswordController =
       TextEditingController();
 
-  final alphanumeric = RegExp(r'^[a-zA-Z0-9]+$');
+  final alphanumeric = RegExp(r'\"');
 
   bool loginError = false;
   bool emailError = false;
@@ -74,7 +74,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
     });
     loginController.addListener(() {
       if (loginController.text.isNotEmpty &&
-          !alphanumeric.hasMatch(loginController.text)) {
+          alphanumeric.hasMatch(loginController.text)) {
         setState(() {
           loginErrorMessage = tr("invalid_login");
         });
@@ -110,7 +110,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
         });
         setPasswordError(true);
       } else if (passwordController.text.isNotEmpty &&
-          !alphanumeric.hasMatch(passwordController.text)) {
+          alphanumeric.hasMatch(passwordController.text)) {
         setState(() {
           passwordErrorMessage =
               tr("invalid_password", args: [minPasswordLength.toString()]);
@@ -183,7 +183,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
       isValid = false;
     }
     if (loginController.text.isNotEmpty &&
-        !alphanumeric.hasMatch(loginController.text)) {
+        alphanumeric.hasMatch(loginController.text)) {
       setState(() {
         loginErrorMessage = tr("invalid_login");
       });
@@ -214,7 +214,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
       isValid = false;
     }
     if (passwordController.text.isNotEmpty &&
-        !alphanumeric.hasMatch(passwordController.text)) {
+        alphanumeric.hasMatch(passwordController.text)) {
       setState(() {
         passwordErrorMessage =
             tr("invalid_password", args: [minPasswordLength.toString()]);
@@ -312,7 +312,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     color: MyColors.green,
                   ),
                   onChanged: (Locale newValue) {
-                    print(newValue);
                     context.locale = newValue;
                   },
                   items: <Locale>[Locale("en"), Locale("uk")]
