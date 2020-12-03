@@ -38,14 +38,6 @@ public class ServerDao {
     public static void addServerToUser( String username , String publicKey , String priviteKey) throws SQLException, NoSuchFieldException {
 
         Connection connection = DBconnectionContainer.getDBconnection();
-        String sql1 = "select * from hosts_info where public_key = ?;";
-        PreparedStatement preparedStatement1 = connection.prepareStatement(sql1);
-        preparedStatement1.setString(1, publicKey);
-        ResultSet rs1 = preparedStatement1.executeQuery();
-
-        if (!rs1.next()) {
-            throw new NoSuchFieldException("there is no such host");
-        }
 
         String sql3 = "INSERT INTO keys (public_key, secret_key) " +
                 "VALUES(?,?) " +
