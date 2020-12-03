@@ -42,17 +42,24 @@ public class ServerController {
         if( publicKey.length() == 0 ){
             ctx.json(stringToJson("{\"result\" : 0,\"message\": \"public_key can not be empty\"}"));
             ctx.status(200);
+            return;
         }
         if( privateKey.length() == 0 ){
             ctx.json(stringToJson("{\"result\" : 0,\"message\": \"private_key can not be empty\"}"));
             ctx.status(200);
+            return;
         }
         try {
-            if(ServerDao.isAllowedToAddServer(ServerDao.getUserServers(username), Customer.checkUserStatusFromDB(username)))
-            ServerDao.addServerToUser( username , publicKey, privateKey);
+            if(ServerDao.isAllowedToAddServer(ServerDao.getUserServers(username), Customer.checkUserStatusFromDB(username))){
+                ServerDao.addServerToUser( username , publicKey, privateKey);
+                ctx.json(stringToJson("{\"result\" : 1,\"message\": \"Server Added\"}"));
+                ctx.status(200);
+                return;
+            }
             else {
                 ctx.json(stringToJson("{\"result\" : 0,\"message\": \"Update to premium to add more servers\"}"));
                 ctx.status(200);
+                return;
             }
         }
         catch (NoSuchFieldException e)
@@ -68,9 +75,7 @@ public class ServerController {
             ctx.json(stringToJson("{\"result\" : 0,\"message\": \"something went wrong\"}"));
             ctx.status(200);
         }
-
-        ctx.header("Access-Control-Allow-Origin", "*");
-        ctx.status(200);
+        ctx.status(201);
     };
 
     public static Handler deleteUserFromServer = ctx -> {
