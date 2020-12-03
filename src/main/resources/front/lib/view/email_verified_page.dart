@@ -53,7 +53,6 @@ class _EmailVerifiedPageState extends State<EmailVerifiedPage> {
                     color: MyColors.green,
                   ),
                   onChanged: (Locale newValue) {
-                    print(newValue);
                     context.locale = newValue;
                   },
                   items: <Locale>[Locale("en"), Locale("uk")]

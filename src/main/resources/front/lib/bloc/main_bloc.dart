@@ -13,7 +13,7 @@ class MainBloc extends Bloc {
   final _serversFetcher = PublishSubject<HostsModel>();
 
   final _deleteFetcher = PublishSubject<bool>();
-  final _addFetcher = PublishSubject<bool>();
+  final _addFetcher = PublishSubject<ResponseModel>();
   final _logoutFetcher = PublishSubject<ResponseModel>();
   final _loginFetcher = PublishSubject<ResponseModel>();
   final _setAvatar = PublishSubject<ResponseModel>();
@@ -29,7 +29,7 @@ class MainBloc extends Bloc {
 
   Stream<bool> get delete => _deleteFetcher.stream;
 
-  Stream<bool> get add => _addFetcher.stream;
+  Stream<ResponseModel> get add => _addFetcher.stream;
 
   Stream<UptimeModel> get uptime => _getUptimeFetcher.stream;
 
@@ -141,7 +141,7 @@ class MainBloc extends Bloc {
 
   addServer(String server) async {
     try {
-      bool added = await _repository.addServer(server);
+      ResponseModel added = await _repository.addServer(server);
       _addFetcher.sink.add(added);
     } catch (e) {
       _addFetcher.sink.addError(e);

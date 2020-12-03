@@ -21,7 +21,8 @@ class ProfileWidget extends StatelessWidget {
       this.onImagePressed,
       this.imageByte,
       this.userResponse,
-      this.isLoadingAvatar = false, this.onPremiumPressed})
+      this.isLoadingAvatar = false,
+      this.onPremiumPressed})
       : super(key: key);
 
   @override
@@ -79,13 +80,19 @@ class ProfileWidget extends StatelessWidget {
               style: TextStyle(fontSize: 20),
             ),
             Visibility(
-              visible: userResponse?.userStatus != 'premium' && userResponse?.userStatus != 'admin' ?? true,
+              visible: userResponse?.userStatus != 'admin' ?? true,
               child: Padding(
                 padding: const EdgeInsets.only(left: 16),
                 child: FlatButton(
                   padding: EdgeInsets.zero,
-                  onPressed: onPremiumPressed,
-                  child: Text(tr("become_premium"), style:TextStyle(color: MyColors.green)),
+                  onPressed: userResponse?.userStatus != 'premium'
+                      ? onPremiumPressed
+                      : null,
+                  child: Text(
+                      userResponse?.userStatus != 'premium'
+                          ? tr("become_premium")
+                          : "Premium",
+                      style: TextStyle(color: MyColors.green)),
                 ),
               ),
             )

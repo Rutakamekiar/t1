@@ -70,7 +70,7 @@ class _MainPageState extends State<MainPage> {
       setState(() {
         _isLoadingAvatar = false;
       });
-      if (event.result == 1 && event.message != null) {
+      if (event.result == 1 && event.message != null && event.message != "null") {
         var imageData = base64Decode(event.message);
         setState(() {
           _uploadedImage = imageData;
@@ -128,32 +128,21 @@ class _MainPageState extends State<MainPage> {
         _mainBloc.getServers();
         _mainBloc.getUptime();
       } else {
-        DialogHelper.showInformDialog(
-            context, tr("error_occurred", args: [event.message]),
-            button: tr("ok"),
-            onPositive: () => Modular.to.pushReplacementNamed('/auth'));
-      }
-    }, onError: (e) {
-      DialogHelper.showInformDialog(
-          context, tr("error_occurred", args: [e.toString()]),
-          button: tr("ok"),
-          onPositive: () => Modular.to.pushReplacementNamed('/auth'));
-    });
-    _mainBloc.logout.listen((event) {
-      if (event.result == 1) {
         Modular.to.pushReplacementNamed('/auth');
-      } else {
-        DialogHelper.showInformDialog(
-            context, tr("error_occurred", args: [event.message]),
-            button: tr("ok"),
-            onPositive: () => Modular.to.pushReplacementNamed('/auth'));
       }
+    }, onError: (e) {
+      Modular.to.pushReplacementNamed('/auth');
+    });
+
+    _mainBloc.logout.listen((event) {
+      Modular.to.pushReplacementNamed('/auth');
     }, onError: (e) {
       DialogHelper.showInformDialog(
           context, tr("error_occurred", args: [e.toString()]),
           button: tr("ok"),
           onPositive: () => Modular.to.pushReplacementNamed('/auth'));
     });
+
     _mainBloc.uptime.listen((model) {
       _setLoadingUptime(false);
     }, onError: (e) {
@@ -165,6 +154,7 @@ class _MainPageState extends State<MainPage> {
     _mainBloc.servers.listen((model) {
       _setLoadingServers(false);
       _hostsModel = model;
+
       if (_hostsModel.hosts != null && _hostsModel.hosts.isNotEmpty) {
         if (_currentId == _hostsModel.hosts.length) {
           _currentId = _currentId - 1;
@@ -203,6 +193,10 @@ class _MainPageState extends State<MainPage> {
           button: tr("ok"), onPositive: () => Navigator.pop(context));
     });
     _mainBloc.add.listen((event) {
+      if(event.message == "Update to premium to add more servers"){
+        DialogHelper.showInformDialog(context, tr("servers_limit_error"),
+            button: tr("ok"), onPositive: () => Navigator.pop(context));
+      }
       _mainBloc.getServers();
     }, onError: (e) {
       _setLoadingServers(false);
@@ -344,7 +338,6 @@ class _MainPageState extends State<MainPage> {
         });
         reader.onError.listen((fileEvent) {
           Navigator.pop(context);
-          print("error");
         });
         reader.readAsArrayBuffer(file);
       }
@@ -408,7 +401,6 @@ class _MainPageState extends State<MainPage> {
                             color: MyColors.green,
                           ),
                           onChanged: (Locale newValue) {
-                            print(newValue);
                             context.locale = newValue;
                           },
                           items: <Locale>[Locale("en"), Locale("uk")]
@@ -545,100 +537,117 @@ class _MainPageState extends State<MainPage> {
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(15)),
                                 width: MediaQuery.of(context).size.width <=
-                                    listWight ? double.infinity : null,
+                                        listWight
+                                    ? double.infinity
+                                    : null,
                                 height: MediaQuery.of(context).size.width <=
-                                    listWight ? null : 105,
+                                        listWight
+                                    ? null
+                                    : 105,
                                 child: MediaQuery.of(context).size.width <=
-                                    listWight ? Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                  Text(tr("interval")),
-                                  SizedBox(
-                                    height: 16,
-                                  ),
-                                  FlatButton(
-                                      onPressed: _openMinTimeDialog,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                          BorderRadius.circular(10)),
-                                      padding: EdgeInsets.zero,
-                                      child: Container(
-                                        padding: EdgeInsets.all(16),
-                                        decoration: BoxDecoration(
-                                            borderRadius:
-                                            BorderRadius.circular(10),
-                                            border: Border.all(
-                                                color: MyColors.grey)),
-                                        child: Text(_minTimeText),
+                                        listWight
+                                    ? Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Text(tr("interval")),
+                                          SizedBox(
+                                            height: 16,
+                                          ),
+                                          FlatButton(
+                                              onPressed: _openMinTimeDialog,
+                                              shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10)),
+                                              padding: EdgeInsets.zero,
+                                              child: Container(
+                                                padding: EdgeInsets.all(16),
+                                                decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                    border: Border.all(
+                                                        color: MyColors.grey)),
+                                                child: Text(_minTimeText),
+                                              )),
+                                          SizedBox(
+                                            height: 16,
+                                          ),
+                                          Text(tr("to")),
+                                          SizedBox(
+                                            height: 16,
+                                          ),
+                                          FlatButton(
+                                              onPressed: _openMaxTimeDialog,
+                                              shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10)),
+                                              padding: EdgeInsets.zero,
+                                              child: Container(
+                                                padding: EdgeInsets.all(16),
+                                                decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                    border: Border.all(
+                                                        color: MyColors.grey)),
+                                                child: Text(_maxTimeText),
+                                              )),
+                                        ],
+                                      )
+                                    : Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(tr("interval")),
+                                          SizedBox(
+                                            width: 16,
+                                          ),
+                                          FlatButton(
+                                              onPressed: _openMinTimeDialog,
+                                              shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10)),
+                                              padding: EdgeInsets.zero,
+                                              child: Container(
+                                                padding: EdgeInsets.all(16),
+                                                decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                    border: Border.all(
+                                                        color: MyColors.grey)),
+                                                child: Text(_minTimeText),
+                                              )),
+                                          SizedBox(
+                                            width: 16,
+                                          ),
+                                          Text(tr("to")),
+                                          SizedBox(
+                                            width: 16,
+                                          ),
+                                          FlatButton(
+                                              onPressed: _openMaxTimeDialog,
+                                              shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10)),
+                                              padding: EdgeInsets.zero,
+                                              child: Container(
+                                                padding: EdgeInsets.all(16),
+                                                decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                    border: Border.all(
+                                                        color: MyColors.grey)),
+                                                child: Text(_maxTimeText),
+                                              )),
+                                        ],
                                       )),
-                                  SizedBox(
-                                    height: 16,
-                                  ),
-                                  Text(tr("to")),
-                                  SizedBox(
-                                    height: 16,
-                                  ),
-                                  FlatButton(
-                                      onPressed: _openMaxTimeDialog,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                          BorderRadius.circular(10)),
-                                      padding: EdgeInsets.zero,
-                                      child: Container(
-                                        padding: EdgeInsets.all(16),
-                                        decoration: BoxDecoration(
-                                            borderRadius:
-                                            BorderRadius.circular(10),
-                                            border: Border.all(
-                                                color: MyColors.grey)),
-                                        child: Text(_maxTimeText),
-                                      )),
-                                ],) : Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(tr("interval")),
-                                    SizedBox(
-                                      width: 16,
-                                    ),
-                                    FlatButton(
-                                        onPressed: _openMinTimeDialog,
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10)),
-                                        padding: EdgeInsets.zero,
-                                        child: Container(
-                                          padding: EdgeInsets.all(16),
-                                          decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                              border: Border.all(
-                                                  color: MyColors.grey)),
-                                          child: Text(_minTimeText),
-                                        )),
-                                    SizedBox(
-                                      width: 16,
-                                    ),
-                                    Text(tr("to")),
-                                    SizedBox(
-                                      width: 16,
-                                    ),
-                                    FlatButton(
-                                        onPressed: _openMaxTimeDialog,
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10)),
-                                        padding: EdgeInsets.zero,
-                                        child: Container(
-                                          padding: EdgeInsets.all(16),
-                                          decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                              border: Border.all(
-                                                  color: MyColors.grey)),
-                                          child: Text(_maxTimeText),
-                                        )),
-                                  ],
-                                )),
                             StreamBuilder<DataListModel>(
                                 stream: _mainBloc.data,
                                 builder: (context, snapshot) {
@@ -914,9 +923,6 @@ class _MainPageState extends State<MainPage> {
   LineChartData chartData(List<LineChartBarData> data, {bool isCPU = false}) {
     double firstTime = data.first.spots.first.x;
     double lastTime = data.first.spots.last.x;
-
-    print(firstTime);
-    print(lastTime);
 
     double interval = 7200000;
     if (firstTime < lastTime) {

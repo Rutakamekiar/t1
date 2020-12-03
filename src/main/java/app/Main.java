@@ -88,7 +88,7 @@ public class Main {
                     post(Path.WebUnloginnedAccess.DROPPWD_WITH_LOC, RegisterController.dropPwdWithLoc);
                     post(Path.WebLogInnedAccess.SETAVATAR, AvatarController.setAvatar);
                     get(Path.WebLogInnedAccess.GETAVATAR, AvatarController.getAvatar);
-                    get(Path.WebLogInnedAccess.GETALLUSERSADMIN, AdminController.getAllUsers);
+                    get(Path.WebLogInnedAccess.GETALLUSERSADMIN, AdminController.getAllUsersAdmin);
                     post(Path.WebLogInnedAccess.ADMINSETFREE, AdminController.setFreeUser);
                     post(Path.WebLogInnedAccess.ADMINSETPREMIUM, AdminController.setPremiumUser);
                     post(Path.WebLogInnedAccess.ADMINDROPAVATAR,AdminController.dropAvatar);

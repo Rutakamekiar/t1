@@ -68,7 +68,7 @@ class _AdminPageState extends State<AdminPage> {
       setState(() {
         _isLoadingAvatar = false;
       });
-      if (event.result == 1) {
+      if (event.result == 1 && event.message != null && event.message != "null") {
         var imageData = base64Decode(event.message);
         setState(() {
           _uploadedImage = imageData;
@@ -78,6 +78,15 @@ class _AdminPageState extends State<AdminPage> {
       setState(() {
         _isLoadingAvatar = false;
       });
+    });
+
+    _adminBloc.logout.listen((event) {
+      Modular.to.pushReplacementNamed('/auth');
+    }, onError: (e) {
+      DialogHelper.showInformDialog(
+          context, tr("error_occurred", args: [e.toString()]),
+          button: tr("ok"),
+          onPositive: () => Modular.to.pushReplacementNamed('/auth'));
     });
 
     _adminBloc.login.listen((event) {
@@ -95,16 +104,10 @@ class _AdminPageState extends State<AdminPage> {
               onPositive: () => Modular.to.pushReplacementNamed('/auth'));
         }
       } else {
-        DialogHelper.showInformDialog(
-            context, tr("error_occurred", args: [event.message]),
-            button: tr("ok"),
-            onPositive: () => Modular.to.pushReplacementNamed('/auth'));
+        Modular.to.pushReplacementNamed('/auth');
       }
     }, onError: (e) {
-      DialogHelper.showInformDialog(
-          context, tr("error_occurred", args: [e.toString()]),
-          button: tr("ok"),
-          onPositive: () => Modular.to.pushReplacementNamed('/auth'));
+      Modular.to.pushReplacementNamed('/auth');
     });
   }
 
