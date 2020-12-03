@@ -18,7 +18,7 @@ class Repository {
 
   Future<bool> deleteServer(String server) => _provider.deleteServer(server);
 
-  Future<ResponseModel> addServer(String server) => _provider.addServer(server);
+  Future<ResponseModel> addServer(String publicKey, String privateKey) => _provider.addServer(publicKey, privateKey);
 
   Future<ResponseModel> clearAvatar(String login) =>
       _provider.clearAvatar(login);

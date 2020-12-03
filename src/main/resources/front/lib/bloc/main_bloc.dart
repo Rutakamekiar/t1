@@ -139,9 +139,9 @@ class MainBloc extends Bloc {
     }
   }
 
-  addServer(String server) async {
+  addServer(String publicKey, String privateKey) async {
     try {
-      ResponseModel added = await _repository.addServer(server);
+      ResponseModel added = await _repository.addServer(publicKey, privateKey);
       _addFetcher.sink.add(added);
     } catch (e) {
       _addFetcher.sink.addError(e);

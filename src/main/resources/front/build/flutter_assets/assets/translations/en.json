@@ -66,5 +66,6 @@
   "invalid_login_or_password" : "Invalid login or password format",
   "invalid_password" : "Invalid password format",
   "image_error" : "The image must be no larger than 1000x1000 pixels",
-  "image_format_error" : "Not an image"
+  "image_format_error" : "Not an image",
+  "servers_limit_error" : "Upgrade to premium to add more servers"
 }

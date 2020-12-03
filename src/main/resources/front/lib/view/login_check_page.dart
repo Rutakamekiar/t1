@@ -3,6 +3,7 @@ import 'package:flutter_modular/flutter_modular.dart';
 import 'package:servelyzer/bloc/login_check_bloc.dart';
 import 'package:servelyzer/model/response_model.dart';
 import 'package:servelyzer/style/my_colors.dart';
+const int version = 1;
 
 class LoginCheckPage extends StatefulWidget {
   @override
@@ -15,6 +16,7 @@ class _LoginCheckPageState extends State<LoginCheckPage> {
   @override
   void initState() {
     super.initState();
+    print(version);
     _loginCheckBloc.loginFetcher();
     _loginCheckBloc.login.listen(_checkUser, onError: (e) {
       // Modular.to.pushReplacementNamed('/admin');

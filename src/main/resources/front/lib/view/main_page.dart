@@ -36,7 +36,8 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   final _mainBloc = MainBloc();
 
-  TextEditingController _hostController = TextEditingController();
+  TextEditingController _publicKeyController = TextEditingController();
+  TextEditingController _privateKeyController = TextEditingController();
   TextEditingController _uptimeController = TextEditingController();
 
   int _currentId = 0;
@@ -70,7 +71,9 @@ class _MainPageState extends State<MainPage> {
       setState(() {
         _isLoadingAvatar = false;
       });
-      if (event.result == 1 && event.message != null && event.message != "null") {
+      if (event.result == 1 &&
+          event.message != null &&
+          event.message != "null") {
         var imageData = base64Decode(event.message);
         setState(() {
           _uploadedImage = imageData;
@@ -104,6 +107,7 @@ class _MainPageState extends State<MainPage> {
     _maxTimeText = DateFormat('dd.MM kk:mm').format(_maxTime.toLocal());
 
     // _isLoadingLogin = false;
+    // _isLoadingServers = false;
     // _isLoadingAvatar = false;
     // mainBloc.getServers();
     _mainBloc.loginFetcher();
@@ -177,6 +181,10 @@ class _MainPageState extends State<MainPage> {
           button: tr("ok"), onPositive: () => Navigator.pop(context));
     });
     _mainBloc.addUrlStream.listen((event) {
+      if (event.message == "Update to premium to add more urls to check") {
+        DialogHelper.showInformDialog(context, tr("url_limit_error"),
+            button: tr("ok"), onPositive: () => Navigator.pop(context));
+      }
       _mainBloc.getUptime();
     }, onError: (e) {
       _setLoadingUptime(false);
@@ -193,7 +201,7 @@ class _MainPageState extends State<MainPage> {
           button: tr("ok"), onPositive: () => Navigator.pop(context));
     });
     _mainBloc.add.listen((event) {
-      if(event.message == "Update to premium to add more servers"){
+      if (event.message == "Update to premium to add more servers") {
         DialogHelper.showInformDialog(context, tr("servers_limit_error"),
             button: tr("ok"), onPositive: () => Navigator.pop(context));
       }
@@ -361,7 +369,7 @@ class _MainPageState extends State<MainPage> {
   @override
   void dispose() {
     _mainBloc.dispose();
-    _hostController.dispose();
+    _publicKeyController.dispose();
     _uptimeController.dispose();
     super.dispose();
   }
@@ -476,7 +484,10 @@ class _MainPageState extends State<MainPage> {
                               decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(15)),
-                              height: 240,
+                              height:
+                                  MediaQuery.of(context).size.width <= listWight
+                                      ? 440
+                                      : 240,
                               child: StreamBuilder<HostsModel>(
                                   stream: _mainBloc.servers,
                                   builder: (context, snapshot) {
@@ -745,13 +756,9 @@ class _MainPageState extends State<MainPage> {
               Expanded(
                 child: BaseTextField(
                     textEditingController: _uptimeController,
-                    onSubmitted: (value) {
-                      if (_uptimeController.text.isNotEmpty) {
-                        _setLoadingUptime(true);
-                        _mainBloc.addUrl(_uptimeController.text);
-                      }
-                    },
+                    onSubmitted: (value) => _addUptime(),
                     label: "",
+                    hintText: "Url",
                     errorText: tr("enter_site_url")),
               ),
               SizedBox(
@@ -762,18 +769,29 @@ class _MainPageState extends State<MainPage> {
                 width: 150,
                 height: 37,
                 title: tr("add"),
-                onPressed: () {
-                  if (_uptimeController.text.isNotEmpty) {
-                    _setLoadingUptime(true);
-                    _mainBloc.addUrl(_uptimeController.text);
-                  }
-                },
+                onPressed: _addUptime,
               )
             ],
           )
         ],
       ),
     );
+  }
+
+  void _addUptime() {
+    if (_uptimeController.text.isNotEmpty) {
+      _setLoadingUptime(true);
+      _mainBloc.addUrl(_uptimeController.text);
+    }
+  }
+
+  void _addHost() {
+    if (_publicKeyController.text.isNotEmpty &&
+        _privateKeyController.text.isNotEmpty) {
+      _setLoadingServers(true);
+      _mainBloc.addServer(
+          _publicKeyController.text, _privateKeyController.text);
+    }
   }
 
   Container buildHostList(HostsModel hostsModel) {
@@ -831,38 +849,67 @@ class _MainPageState extends State<MainPage> {
                         children: list,
                       )),
           ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Expanded(
-                child: BaseTextField(
-                    textEditingController: _hostController,
-                    onSubmitted: (value) {
-                      if (_hostController.text.isNotEmpty) {
-                        _setLoadingServers(true);
-                        _mainBloc.addServer(_hostController.text);
-                      }
-                    },
-                    label: "",
-                    errorText: tr("enter_public_key")),
-              ),
-              SizedBox(
-                width: 30,
-              ),
-              BaseButton(
-                isLoading: false,
-                width: 150,
-                height: 37,
-                title: tr("add"),
-                onPressed: () {
-                  if (_hostController.text.isNotEmpty) {
-                    _setLoadingServers(true);
-                    _mainBloc.addServer(_hostController.text);
-                  }
-                },
-              )
-            ],
-          )
+          MediaQuery.of(context).size.width <= listWight
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    BaseTextField(
+                        textEditingController: _publicKeyController,
+                        onSubmitted: (value) => _addHost(),
+                        label: "",
+                        hintText: "Public key",
+                        errorText: tr("enter_public_key")),
+                    BaseTextField(
+                        textEditingController: _privateKeyController,
+                        onSubmitted: (value) => _addHost(),
+                        label: "",
+                        hintText: "Private key",
+                        errorText: tr("enter_public_key")),
+                    SizedBox(
+                      height: 30,
+                    ),
+                    BaseButton(
+                      isLoading: false,
+                      height: 37,
+                      title: tr("add"),
+                      onPressed: _addHost,
+                    )
+                  ],
+                )
+              : Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      child: BaseTextField(
+                          textEditingController: _publicKeyController,
+                          onSubmitted: (value) => _addHost(),
+                          label: "",
+                          hintText: "Public key",
+                          errorText: tr("enter_public_key")),
+                    ),
+                    SizedBox(
+                      width: 15,
+                    ),
+                    Expanded(
+                      child: BaseTextField(
+                          textEditingController: _privateKeyController,
+                          onSubmitted: (value) => _addHost(),
+                          label: "",
+                          hintText: "Private key",
+                          errorText: tr("enter_public_key")),
+                    ),
+                    SizedBox(
+                      width: 30,
+                    ),
+                    BaseButton(
+                      isLoading: false,
+                      width: 150,
+                      height: 37,
+                      title: tr("add"),
+                      onPressed: _addHost,
+                    )
+                  ],
+                )
         ],
       ),
     );

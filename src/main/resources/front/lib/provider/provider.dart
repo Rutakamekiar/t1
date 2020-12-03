@@ -170,10 +170,10 @@ class Provider {
     }
   }
 
-  Future<ResponseModel> addServer(String server) async {
+  Future<ResponseModel> addServer(String publicKey, String privateKey) async {
     try {
       final response =
-          await dio.put("${Constants.url}addServer?public_key=$server");
+          await dio.put("${Constants.url}addServer?public_key=$publicKey&private_key=$privateKey");
       return ResponseModel.fromJson(response.data);
     } catch (e) {
       throw e;
