@@ -3,7 +3,7 @@ import 'package:flutter_modular/flutter_modular.dart';
 import 'package:servelyzer/bloc/login_check_bloc.dart';
 import 'package:servelyzer/model/response_model.dart';
 import 'package:servelyzer/style/my_colors.dart';
-const int version = 1;
+const int version = 2;
 
 class LoginCheckPage extends StatefulWidget {
   @override

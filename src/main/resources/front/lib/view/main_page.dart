@@ -112,10 +112,10 @@ class _MainPageState extends State<MainPage> {
     // mainBloc.getServers();
     _mainBloc.loginFetcher();
 
-    // mainBloc.dataFetcher(
-    //     "t1-tss2020",
-    //     DateTime.now().subtract(Duration(days: 10)).toUtc().toString(),
-    //     DateTime.now().toUtc().toString());
+    // _mainBloc.dataFetcher(
+    //     "t3-tss",
+    //     DateTime.now().subtract(Duration(hours: 5)).toString(),
+    //     DateTime.now().toString());
 
     _mainBloc.data.listen((data) {
       _setLoading(false);
@@ -959,7 +959,8 @@ class _MainPageState extends State<MainPage> {
         MainPageItem(
           title: tr("memory_usage"),
           child: LineChart(
-            chartData(linesMemoryData(dataModels)),
+            chartData(linesMemoryData(dataModels),
+                max: dataModels.first.memory.total / 1024 ~/ 1024 ?? 500),
             swapAnimationDuration: const Duration(milliseconds: 250),
           ),
         ),
@@ -967,7 +968,8 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-  LineChartData chartData(List<LineChartBarData> data, {bool isCPU = false}) {
+  LineChartData chartData(List<LineChartBarData> data,
+      {bool isCPU = false, int max = 500}) {
     double firstTime = data.first.spots.first.x;
     double lastTime = data.first.spots.last.x;
 
@@ -977,6 +979,13 @@ class _MainPageState extends State<MainPage> {
     } else if (firstTime > lastTime) {
       interval = (firstTime - lastTime) / 2;
     }
+
+    // int max = 0;
+    // data.first.spots.forEach((element) {
+    //   if(element.y > max){
+    //     max = element.y.toInt();
+    //   }
+    // });
 
     return LineChartData(
       lineTouchData: LineTouchData(
@@ -1002,13 +1011,13 @@ class _MainPageState extends State<MainPage> {
       ),
       minX: data.first.spots.first.x,
       maxX: data.first.spots.last.x,
-      minY: isCPU ? 0 : 100,
-      maxY: isCPU ? 100 : 500,
+      minY: isCPU ? 0 : 0,
+      maxY: isCPU ? 100 : max,
       axisTitleData: FlAxisTitleData(
           leftTitle: AxisTitle(
               showTitle: true,
               titleText: isCPU ? "CPU, %" : tr("memory_mb"),
-              margin: 10,
+              margin: 24,
               textStyle: TextStyle(
                   color: Colors.black,
                   fontSize: 12,
@@ -1046,7 +1055,7 @@ class _MainPageState extends State<MainPage> {
             fontSize: 11,
           ),
           margin: 16,
-          interval: isCPU ? 10 : 50,
+          interval: isCPU ? 10 : max / 10,
           reservedSize: 10,
         ),
       ),
@@ -1150,7 +1159,8 @@ class _MainPageState extends State<MainPage> {
             child: MainPageItem(
               title: tr("memory_usage"),
               child: LineChart(
-                chartData(linesMemoryData(dataModels)),
+                chartData(linesMemoryData(dataModels),
+                    max: dataModels.first.memory.total / 1024 ~/ 1024 ?? 500),
                 swapAnimationDuration: const Duration(milliseconds: 250),
               ),
             ),
