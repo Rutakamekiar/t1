@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.http.Context;
+import io.javalin.http.Handler;
 
 public class RequestUtil {
 
@@ -53,5 +54,9 @@ public class RequestUtil {
         JsonNode jsonNode = objectMapper.readTree(message);
         return jsonNode;
     }
+
+    public static Handler addHeaders = ctx ->  {
+        ctx.header("Access-Control-Allow-Origin", "*");
+    };
 
 }

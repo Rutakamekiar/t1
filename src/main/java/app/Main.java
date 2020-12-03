@@ -12,6 +12,7 @@ import app.register.RegisterController;
 import app.server.ServerController;
 import app.util.Filters;
 import app.util.Path;
+import app.util.RequestUtil;
 import app.util.SessionUtils;
 import io.javalin.Javalin;
 import org.eclipse.jetty.server.Connector;
@@ -98,6 +99,7 @@ public class Main {
                     post(Path.WebLogInnedAccess.ADD_URL, ActiveCheckController.addServerToUser);
                     post(Path.WebLogInnedAccess.DELETE_URL,ActiveCheckController.deleteUrl);
                     get(Path.WebLogInnedAccess.GET_UPTIME,ActiveCheckController.getChecks);
+                    after(RequestUtil.addHeaders);
                 });
 
 
