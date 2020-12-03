@@ -35,16 +35,21 @@ public class ServerDao {
         return result + "] }";
     }
 
-    public static void addServerToUser( String username , String publicKey) throws SQLException, NoSuchFieldException {
-        Connection connection = DBconnectionContainer.getDBconnection();
-        String sql1 = "select * from hosts_info where public_key = ?;";
-        PreparedStatement preparedStatement1 = connection.prepareStatement(sql1);
-        preparedStatement1.setString(1, publicKey);
-        ResultSet rs1 = preparedStatement1.executeQuery();
+    public static void addServerToUser( String username , String publicKey , String priviteKey) throws SQLException, NoSuchFieldException {
 
-        if (!rs1.next()) {
-            throw new NoSuchFieldException("there is no such host");
-        }
+        Connection connection = DBconnectionContainer.getDBconnection();
+
+        String sql3 = "INSERT INTO keys (public_key, secret_key) " +
+                "VALUES(?,?) " +
+                "ON CONFLICT (public_key) " +
+                "DO " +
+                "   UPDATE SET secret_key = ? ;";
+        PreparedStatement preparedStatement3 = connection.prepareStatement(sql3);
+        preparedStatement3.setString(1, publicKey);
+        preparedStatement3.setString(2, priviteKey);
+        preparedStatement3.setString(3, priviteKey);
+        preparedStatement3.executeUpdate();
+
         String sql2 = "insert into hosts_servers values ( ? , ?);";
         PreparedStatement preparedStatement2 = connection.prepareStatement(sql2);
         preparedStatement2.setString(1, username);

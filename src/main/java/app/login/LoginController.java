@@ -43,19 +43,29 @@ public class LoginController {
     };
 
     public static Handler handleLoginPost = ctx -> {
-        Map<String, Object> model = ViewUtil.baseModel(ctx);
-        if (!UserController.authenticate(getQueryUsername(ctx), getQueryPassword(ctx))) {
-            model.put("authenticationFailed", true);
-            ctx.render(Path.Template.LOGIN, model);
-        } else {
-            ctx.sessionAttribute("currentUser", getQueryUsername(ctx));
-            model.put("authenticationSucceeded", true);
-            model.put("currentUser", getQueryUsername(ctx));
-            if (getQueryLoginRedirect(ctx) != null) {
-                ctx.redirect(getQueryLoginRedirect(ctx));
+        try {
+            Customer customer = Customer.getCustomerFromDB(getQueryUsername(ctx));
+            if (!SignIn.authenticate(customer, getQueryPassword(ctx))) {
+                ctx.json(stringToJson("{\"result\" : 0,\"message\": \"authenticationFailed\"}"));
+                ctx.status(200);
+            } else {
+                ctx.sessionAttribute("currentUser", getQueryUsername(ctx));
+                ctx.header("Access-Control-Allow-Origin", "*");
+                ctx.json(stringToJson("{\"result\" : 1,\"message\": \"welcome\", \"user-status\" : \"" + customer.getStatus() + "\"}"));
+                ctx.status(200);
             }
-            ctx.render(Path.Template.LOGIN, model);
+        } catch (NoSuchFieldException ex) {
+            ctx.json(stringToJson("{\"result\" : 0,\"message\": \"missing user\"}"));
+            ctx.status(200);
         }
+        catch (ExceptionInInitializerError e){
+            ctx.status(401);
+        }
+        catch (SQLException e){
+            ctx.json(stringToJson("{\"result\" : 0,\"message\": \"something went wrong\"}"));
+            ctx.status(200);
+        }
+
     };
 
     public static Handler handleLogoutPost = ctx -> {
@@ -72,7 +82,6 @@ public class LoginController {
         }
         if (ctx.sessionAttribute("currentUser") == null) {
             ctx.sessionAttribute("loginRedirect", ctx.path());
-            ctx.redirect(Path.Web.LOGIN);
         }
     };
 

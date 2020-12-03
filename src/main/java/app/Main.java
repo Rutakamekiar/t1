@@ -12,6 +12,8 @@ import app.register.RegisterController;
 import app.server.ServerController;
 import app.util.Filters;
 import app.util.Path;
+import app.util.RequestUtil;
+import app.util.SessionUtils;
 import io.javalin.Javalin;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
@@ -64,43 +66,40 @@ public class Main {
                         return server;
                     });
                     config.addStaticFiles("/front/build/web");
-                    //config.enforceSsl = true;
+                    config.sessionHandler(SessionUtils.customSessionHandlerSupplier());
                 }).start(); // valid endpoint for both connectors
 
                 app.routes(() -> {
                     before(Filters.handleLocaleChange);
                     before(LoginController.ensureLoginBeforeViewingBooks);
-                    get(Path.Web.INDEX, IndexController.serveIndexPage);
-                    get(Path.Web.LOGIN, LoginController.serveLoginPage);
-                    get(Path.Web.GETAGENTMSG, AgentmsgController.getMessage);
-                    get(Path.Web.VERIFICATE,RegisterController.verifyEmail);
-                    get(Path.Web.GETUSERSERVERS, ServerController.getUserServers);
-                    get(Path.Web.ISLOGIN, LoginController.isLogIned);
-                    get(Path.Web.ROBOTSTXT, IndexController.getRobotsTXT);
-                    put(Path.Web.ADDSERVERTOUSER, ServerController.addServerToUser);
-                    delete(Path.Web.DELETESERVERFROMUSER, ServerController.deleteUserFromServer);
-                    post(Path.Web.LOGIN, LoginController.handleLoginPost);
-                    post(Path.Web.LOGOUT, LoginController.handleLogoutPost);
-
-                    post(Path.Web.SIGNIN, SignIn.signIn);
-
-                    post(Path.Web.AGENTMSG, AgentmsgController.processMessage);
-                    post(Path.Web.REGISTER, RegisterController.register);
-                    post(Path.Web.REGISTER_WITH_LOC, RegisterController.registerWithLoc);
-                    post(Path.Web.DROPPWD, RegisterController.dropPwd);
-                    post(Path.Web.DROPPWD_WITH_LOC, RegisterController.dropPwdWithLoc);
-                    post(Path.Web.SETAVATAR, AvatarController.setAvatar);
-                    get(Path.Web.GETAVATAR, AvatarController.getAvatar);
-                    get(Path.Web.GETALLUSERSADMIN, AdminController.getAllUsersAdmin);
-                    post(Path.Web.ADMINSETFREE, AdminController.setFreeUser);
-                    post(Path.Web.ADMINSETPREMIUM, AdminController.setPremiumUser);
-                    post(Path.Web.ADMINDROPAVATAR,AdminController.dropAvatar);
-                    post(Path.Web.DROPUSERHOSTS,AdminController.dropUserHosts);
-                    post(Path.Web.GENERATEKEYS,LoginController.generateKeys);
-                    post(Path.Web.GETPREMIUM,LoginController.getPremium);
-                    post(Path.Web.ADD_URL, ActiveCheckController.addServerToUser);
-                    post(Path.Web.DELETE_URL,ActiveCheckController.deleteUrl);
-                    get(Path.Web.GET_UPTIME,ActiveCheckController.getChecks);
+                    get(Path.WebUnloginnedAccess.INDEX, IndexController.serveIndexPage);
+                    get(Path.WebLogInnedAccess.GETAGENTMSG, AgentmsgController.getMessage);
+                    get(Path.WebUnloginnedAccess.VERIFICATE,RegisterController.verifyEmail);
+                    get(Path.WebLogInnedAccess.GETUSERSERVERS, ServerController.getUserServers);
+                    get(Path.WebUnloginnedAccess.ISLOGIN, LoginController.isLogIned);
+                    get(Path.WebUnloginnedAccess.ROBOTSTXT, IndexController.getRobotsTXT);
+                    put(Path.WebLogInnedAccess.ADDSERVERTOUSER, ServerController.addServerToUser);
+                    delete(Path.WebLogInnedAccess.DELETESERVERFROMUSER, ServerController.deleteUserFromServer);
+                    post(Path.WebUnloginnedAccess.LOGOUT, LoginController.handleLogoutPost);
+                    post(Path.WebUnloginnedAccess.SIGNIN, SignIn.signIn);
+                    post(Path.WebUnloginnedAccess.AGENTMSG, AgentmsgController.processMessage);
+                    post(Path.WebUnloginnedAccess.REGISTER, RegisterController.register);
+                    post(Path.WebUnloginnedAccess.REGISTER_WITH_LOC, RegisterController.registerWithLoc);
+                    post(Path.WebUnloginnedAccess.DROPPWD, RegisterController.dropPwd);
+                    post(Path.WebUnloginnedAccess.DROPPWD_WITH_LOC, RegisterController.dropPwdWithLoc);
+                    post(Path.WebLogInnedAccess.SETAVATAR, AvatarController.setAvatar);
+                    get(Path.WebLogInnedAccess.GETAVATAR, AvatarController.getAvatar);
+                    get(Path.WebLogInnedAccess.GETALLUSERSADMIN, AdminController.getAllUsersAdmin);
+                    post(Path.WebLogInnedAccess.ADMINSETFREE, AdminController.setFreeUser);
+                    post(Path.WebLogInnedAccess.ADMINSETPREMIUM, AdminController.setPremiumUser);
+                    post(Path.WebLogInnedAccess.ADMINDROPAVATAR,AdminController.dropAvatar);
+                    post(Path.WebLogInnedAccess.DROPUSERHOSTS,AdminController.dropUserHosts);
+                    post(Path.WebLogInnedAccess.GENERATEKEYS,LoginController.generateKeys);
+                    post(Path.WebLogInnedAccess.GETPREMIUM,LoginController.getPremium);
+                    post(Path.WebLogInnedAccess.ADD_URL, ActiveCheckController.addServerToUser);
+                    post(Path.WebLogInnedAccess.DELETE_URL,ActiveCheckController.deleteUrl);
+                    get(Path.WebLogInnedAccess.GET_UPTIME,ActiveCheckController.getChecks);
+                    after(RequestUtil.addHeaders);
                 });
 
 
@@ -134,7 +133,6 @@ public class Main {
     }
 
     private static SslContextFactory getSslContextFactory() {
-        //noinspection deprecation
         SslContextFactory sslContextFactory = new SslContextFactory();
         sslContextFactory.setKeyStorePath(Main.class.getResource("/sertificates/keystore_tss").toExternalForm());
         sslContextFactory.setKeyStorePassword("tss123");

@@ -38,9 +38,18 @@ public class ServerController {
     public static Handler addServerToUser = ctx -> {
         String username = ctx.cookie("username");
         String publicKey = ctx.queryParam("public_key");
+        String privateKey = ctx.queryParam("private_key");
+        if( publicKey.length() == 0 ){
+            ctx.json(stringToJson("{\"result\" : 0,\"message\": \"public_key can not be empty\"}"));
+            ctx.status(200);
+        }
+        if( privateKey.length() == 0 ){
+            ctx.json(stringToJson("{\"result\" : 0,\"message\": \"private_key can not be empty\"}"));
+            ctx.status(200);
+        }
         try {
             if(ServerDao.isAllowedToAddServer(ServerDao.getUserServers(username), Customer.checkUserStatusFromDB(username)))
-            ServerDao.addServerToUser( username , publicKey);
+            ServerDao.addServerToUser( username , publicKey, privateKey);
             else {
                 ctx.json(stringToJson("{\"result\" : 0,\"message\": \"Update to premium to add more servers\"}"));
                 ctx.status(200);
@@ -69,7 +78,7 @@ public class ServerController {
         String publicKey = ctx.queryParam("public_key");
 
         try {
-            ServerDao.deleteServerFromUser( username , publicKey);
+            ServerDao.deleteServerFromUser(username,publicKey);
         }
         catch ( SQLException e){
             ctx.json(stringToJson("{\"result\" : 0,\"message\": \"SQLException\"}"));

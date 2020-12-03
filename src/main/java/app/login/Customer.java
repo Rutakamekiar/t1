@@ -112,7 +112,6 @@ public class Customer {
         String sql = "select login from PremiumKeys where login = ?;";
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
         preparedStatement.setString(1, code );
-        System.out.println(preparedStatement);
         ResultSet rs = preparedStatement.executeQuery();
         if (!rs.next())
             return false;
