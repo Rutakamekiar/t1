@@ -54,8 +54,8 @@ public class Path {
         public static final String ISLOGIN = "/isLogin";
     }
 
-    public static boolean checkIsPageBelongsToPathsGroup( String path , String PathGroupClassName) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        Class class1 = Class.forName(PathGroupClassName);
+    public static boolean checkIsPageBelongsToPathsGroup( String path , Object classWithPaths) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+        Class class1 = classWithPaths.getClass();
         Field[] declaredFields = class1.getDeclaredFields();
         for ( Field field : declaredFields ) {
             String value = (String) field.get(class1.newInstance());
